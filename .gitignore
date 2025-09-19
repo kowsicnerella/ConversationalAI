@@ -1,8 +1,31 @@
-*/venv
-*/__pycache__
+# Python
+__pycache__/
 *.pyc
-instance/
+*.pyo
+*.pyd
+.Python
+env/
 .env
-telugu_english_learning.db
-*.log
+.venv/
+venv/
+*/venv/
+
+# Database files
+*.db
 *.sqlite3
+telugu_english_learning.db
+
+# Logs
+*.log
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Instance folder
+instance/
+
+# Test files
+test.py/
