@@ -4,6 +4,23 @@ A comprehensive AI-powered language learning platform specifically designed for 
 
 ## 🌟 Features
 
+### 🎯 Personalized Learning Journey (NEW!)
+
+**4-Phase Intelligent Learning System:**
+
+1. **Goal Setting & Onboarding**: Set daily time goals and learning focus areas
+2. **AI Proficiency Assessment**: Conversational assessment that evaluates English level through natural dialogue
+3. **Personalized Dashboard**: Daily streaks, contextual challenges, vocabulary discovery, and adaptive recommendations
+4. **Smart Session Management**: AI-powered learning sessions with real-time vocabulary tracking and progress analytics
+
+**Key Personalization Features:**
+
+- **Intelligent Tutoring**: AI adapts conversations based on user proficiency and mistakes
+- **Contextual Vocabulary Learning**: Automatically discovers and tracks new words from conversations with Telugu translations
+- **Mistake Pattern Analysis**: AI identifies common errors and generates targeted practice activities
+- **Daily Challenges**: Personalized conversation starters and activities based on learning goals
+- **Adaptive Content**: Difficulty and content type adjust based on assessment results and ongoing performance
+
 ### 🤖 AI-Powered Activity Generation
 
 - **Quiz Generation**: Multiple-choice questions with Telugu explanations
@@ -14,12 +31,13 @@ A comprehensive AI-powered language learning platform specifically designed for 
 - **Image Recognition**: Vocabulary learning through camera/uploaded images
 - **AI Tutor Chat**: Interactive conversations for practice
 
-### 📊 Progress Tracking
+### 📊 Advanced Progress Tracking
 
-- **Learning Paths**: Structured course progression
-- **Activity Logging**: Detailed completion tracking with scores
+- **Learning Sessions**: Detailed session tracking with time spent, words learned, and AI-generated summaries
+- **Vocabulary Mastery**: Track word discovery, practice frequency, and mastery levels (new → learning → mastered)
+- **Proficiency Progression**: Monitor improvement across grammar, vocabulary, fluency, and confidence
+- **Goal Achievement**: Daily and weekly goal tracking with streak maintenance
 - **Performance Analytics**: Average scores, time spent, improvement trends
-- **Streak Tracking**: Daily activity streaks to maintain motivation
 
 ### 🎮 Gamification System
 
@@ -53,21 +71,26 @@ language-learning-platform/
 │   │   ├── user.py             # User & Profile models
 │   │   ├── activity.py         # Activity & UserActivityLog models
 │   │   ├── course.py           # LearningPath & Course models
-│   │   └── gamification.py     # Badge & Achievement models
+│   │   ├── gamification.py     # Badge & Achievement models
+│   │   └── personalization.py  # Personalization models (NEW!)
 │   ├── services/               # Business logic
 │   │   ├── activity_generator_service.py  # AI activity generation
 │   │   ├── progress_service.py           # Progress tracking
-│   │   └── gamification_service.py       # Badges & achievements
+│   │   ├── gamification_service.py       # Badges & achievements
+│   │   └── personalization_service.py    # Personalization features (NEW!)
 │   └── api/                    # REST API endpoints
 │       ├── auth_routes.py      # Authentication endpoints
 │       ├── user_routes.py      # User management endpoints
 │       ├── activity_routes.py  # Activity generation endpoints
-│       └── gamification_routes.py # Gamification endpoints
+│       ├── gamification_routes.py # Gamification endpoints
+│       └── personalization_routes.py # Personalization API (NEW!)
 ├── config.py                   # Configuration settings
 ├── app.py                      # Application entry point
 ├── init_db.py                  # Database initialization
-├── test_activity_generator.py  # Testing script
+├── test_activity_generator.py  # Activity testing script
+├── test_personalization.py     # Personalization testing script (NEW!)
 ├── requirements.txt            # Python dependencies
+├── PERSONALIZATION_API.md      # Personalization API documentation (NEW!)
 └── .env.example               # Environment variables template
 ```
 
@@ -121,6 +144,9 @@ The application will be available at `http://localhost:5000`
 ```bash
 # Test the AI activity generation (without API key)
 python test_activity_generator.py
+
+# Test the new personalization features (with running server)
+python test_personalization.py
 ```
 
 ## 📚 API Endpoints
@@ -149,6 +175,21 @@ python test_activity_generator.py
 - `POST /api/activity/chat` - Chat with AI tutor
 - `POST /api/activity/feedback` - Get writing feedback
 
+### Personalization (NEW!)
+
+- `POST /api/personalization/goals` - Set user learning goals
+- `POST /api/personalization/assessment/start` - Start proficiency assessment
+- `POST /api/personalization/assessment/{id}/respond` - Submit assessment response
+- `POST /api/personalization/assessment/{id}/complete` - Complete assessment
+- `GET /api/personalization/dashboard` - Get personalized dashboard
+- `POST /api/personalization/session/start` - Start learning session
+- `POST /api/personalization/session/{id}/end` - End learning session
+- `POST /api/personalization/vocabulary/track` - Track vocabulary learning
+- `GET /api/personalization/vocabulary` - Get user vocabulary
+- `POST /api/personalization/vocabulary/{id}/practice` - Practice vocabulary
+
+**📖 See [PERSONALIZATION_API.md](PERSONALIZATION_API.md) for detailed documentation.**
+
 ### Gamification
 
 - `GET /api/gamification/badges/<user_id>` - Get user badges
@@ -157,11 +198,29 @@ python test_activity_generator.py
 
 ## 🧪 Testing
 
-### Test Activity Generation
+### Test Activity Generation (Basic Features)
 
 ```bash
 python test_activity_generator.py
 ```
+
+### Test Personalization Features (Full 4-Phase Journey)
+
+```bash
+# Start the server first
+python app.py
+
+# In another terminal, run the comprehensive test
+python test_personalization.py
+```
+
+**Personalization Test Coverage:**
+
+- ✅ User authentication and goal setting
+- ✅ AI-powered proficiency assessment with conversational evaluation
+- ✅ Personalized dashboard with streaks, challenges, and vocabulary
+- ✅ Learning session management with vocabulary tracking
+- ✅ Vocabulary mastery progression and practice recording
 
 ### API Testing
 
@@ -169,13 +228,19 @@ Use tools like Postman or curl to test the API endpoints:
 
 ```bash
 # Register a new user
-curl -X POST http://localhost:5000/api/auth/register \\
-  -H "Content-Type: application/json" \\
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
   -d '{"username": "telugu_learner", "email": "user@example.com", "password": "password123"}'
 
+# Set learning goals
+curl -X POST http://localhost:5000/api/personalization/goals \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{"daily_time_goal": 15, "learning_focus": "conversation"}'
+
 # Generate a quiz
-curl -X POST http://localhost:5000/api/activity/generate/quiz \\
-  -H "Content-Type: application/json" \\
+curl -X POST http://localhost:5000/api/activity/generate/quiz \
+  -H "Content-Type: application/json" \
   -d '{"topic": "English greetings", "level": "beginner"}'
 ```
 
