@@ -1,6 +1,7 @@
 
 from flask import Flask
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 from app.models import db
 from app.api.auth_routes import auth_bp
 from app.api.user_routes import user_bp
@@ -10,6 +11,7 @@ from app.api.personalization_routes import personalization_bp
 from config import config
 
 migrate = Migrate()
+jwt = JWTManager()
 
 def create_app(config_name='development'):
     app = Flask(__name__)
@@ -20,6 +22,7 @@ def create_app(config_name='development'):
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
+    jwt.init_app(app)
     
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
