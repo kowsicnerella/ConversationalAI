@@ -1,8 +1,9 @@
 import os
+from dotenv import load_dotenv
 from mem0 import Memory
 
 # # Set environment variables
-os.environ["GOOGLE_API_KEY"] = "AIzaSyD3b5kg3ClLw7XLyO0li3_efk0t5-2k9j8"
+load_dotenv()
 
 config = {
     # Vector Store - Weaviate
@@ -10,8 +11,8 @@ config = {
         "provider": "weaviate",
         "config": {
             "collection_name": "convai",
-            "cluster_url": "z1w4coury6f0vbogfyw.c0.asia-southeast1.gcp.weaviate.cloud",  # Your Weaviate instance URL
-            "auth_client_secret": "VEdWRVZGOVZrTzNMaWNqUF9WbzhudENSNExUaC9sdEk4ZTZRSTFhZzNBTlQwMEkxTk5FZEVMVGVtdDk4PV92MjAw",  # Add if using Weaviate Cloud
+            "cluster_url": os.getenv("CLUSTER_URL"),
+            "auth_client_secret": os.getenv("AUTH_CLIENT_SECRET"),
             "embedding_model_dims": 1536,  # Google AI embedding dimensions
         }
     },
