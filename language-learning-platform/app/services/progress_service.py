@@ -193,7 +193,12 @@ class ProgressService:
         Fetches all learning paths for a user with their progress.
         """
         try:
-            learning_paths = LearningPath.query.filter_by(user_id=user_id).all()
+            # Get user's enrolled learning paths through the many-to-many relationship
+            user = User.query.get(user_id)
+            if not user:
+                return {'error': 'User not found'}
+            
+            learning_paths = user.enrolled_paths.all()
             
             paths_with_progress = []
             for path in learning_paths:
@@ -221,14 +226,21 @@ class ProgressService:
         Creates a new learning path for a user.
         """
         try:
+            # Create the learning path
             learning_path = LearningPath(
-                user_id=user_id,
                 title=title,
                 description=description,
                 difficulty_level=difficulty_level
             )
             
             db.session.add(learning_path)
+            db.session.flush()  # Get the ID without committing
+            
+            # Enroll the user in this learning path
+            user = User.query.get(user_id)
+            if user:
+                user.enrolled_paths.append(learning_path)
+            
             db.session.commit()
             
             return learning_path

@@ -22,15 +22,22 @@ class ProficiencyAssessment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     assessment_type = db.Column(db.String(50), default='initial')  # initial, periodic, challenge
-    questions_asked = db.Column(db.JSON)  # Store the questions asked
+    questions_asked = db.Column(db.JSON)  # Store the questions asked (legacy - use questions_data instead)
+    questions_data = db.Column(db.JSON)  # Store the questions for in-progress assessments
     user_responses = db.Column(db.JSON)  # Store user responses
-    ai_evaluation = db.Column(db.JSON)  # Store AI's evaluation
+    ai_evaluation = db.Column(db.JSON)  # Store AI's evaluation (legacy - use evaluation_results instead)
+    evaluation_results = db.Column(db.JSON)  # Store detailed evaluation results
+    skill_breakdown = db.Column(db.JSON)  # Store skill-wise performance breakdown
     proficiency_level = db.Column(db.String(20))  # beginner, intermediate, advanced
     confidence_score = db.Column(db.Float)  # 0.0 to 1.0
+    score = db.Column(db.Float, default=0.0)  # Current score
+    max_score = db.Column(db.Float, default=0.0)  # Maximum possible score
+    status = db.Column(db.String(20), default='not_started')  # not_started, in_progress, completed
+    started_at = db.Column(db.DateTime)  # When assessment was started
+    completed_at = db.Column(db.DateTime)  # When assessment was completed
     strengths = db.Column(db.JSON)  # Array of strength areas
     weaknesses = db.Column(db.JSON)  # Array of areas needing improvement
     recommendations = db.Column(db.JSON)  # Personalized learning recommendations
-    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
         return f'<Assessment {self.user_id}: {self.proficiency_level}>'
@@ -89,6 +96,10 @@ class LearningSession(db.Model):
     session_summary = db.Column(db.JSON)  # AI-generated summary
     user_satisfaction = db.Column(db.Integer)  # 1-5 rating
     goals_achieved = db.Column(db.Boolean, default=False)
+    
+    # Additional fields for enhanced chat functionality
+    conversation_messages = db.Column(db.JSON)  # Store conversation messages
+    user_feedback = db.Column(db.JSON)  # Store user feedback
     
     def __repr__(self):
         return f'<LearningSession {self.session_type}: {self.duration_minutes}min>'

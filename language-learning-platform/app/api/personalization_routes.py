@@ -21,7 +21,7 @@ def set_user_goals():
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         daily_time_goal = data.get('daily_time_goal', 10)
@@ -60,7 +60,7 @@ def start_proficiency_assessment():
     Start the initial proficiency assessment for a user.
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         assessment_data = personalization_service.conduct_proficiency_assessment(user_id)
         
@@ -90,7 +90,7 @@ def respond_to_assessment(assessment_id):
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         question_id = data.get('question_id')
@@ -133,7 +133,7 @@ def complete_assessment(assessment_id):
     Complete the proficiency assessment and get final results.
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         result = personalization_service.finalize_assessment(assessment_id)
         
@@ -163,7 +163,7 @@ def get_dashboard():
     Get personalized dashboard content for the user.
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         
         dashboard_data = personalization_service.get_personalized_dashboard(user_id)
         
@@ -198,7 +198,7 @@ def start_session():
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         session_type = data.get('session_type', 'chat')
@@ -243,7 +243,7 @@ def end_session(session_id):
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json() or {}
         
         user_satisfaction = data.get('user_satisfaction')
@@ -296,7 +296,7 @@ def track_vocabulary():
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         english_word = data.get('english_word')
@@ -339,7 +339,7 @@ def get_user_vocabulary():
     Get user's learned vocabulary with pagination.
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 20, type=int)
         
@@ -391,7 +391,7 @@ def practice_vocabulary_word(vocab_id):
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())
         data = request.get_json()
         
         correct = data.get('correct', False)

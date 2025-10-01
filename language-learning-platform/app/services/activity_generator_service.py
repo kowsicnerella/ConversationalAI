@@ -2,6 +2,10 @@ import google.generativeai as genai
 import os
 import json
 import re
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 # Configure the Gemini API key
 # It's recommended to use environment variables for API keys
@@ -33,8 +37,8 @@ class ActivityGeneratorService:
     """
 
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-pro')
-        self.vision_model = genai.GenerativeModel('gemini-pro-vision')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
+        self.vision_model = genai.GenerativeModel('gemini-2.5-flash')
 
     def generate_quiz(self, topic, level="beginner"):
         """
@@ -245,3 +249,85 @@ class ActivityGeneratorService:
         """
         response = self.model.generate_content(prompt)
         return _extract_json_from_response(response.text)
+
+    def evaluate_activity_submission(self, activity_content, user_answers, activity_type):
+        """
+        Evaluate user's submitted answers for an activity and provide feedback.
+        
+        Args:
+            activity_content (dict): The original activity content with questions/tasks
+            user_answers (dict): User's responses to the activity
+            activity_type (str): Type of activity (quiz, flashcard, etc.)
+        
+        Returns:
+            dict: Evaluation results with score, feedback, and explanations
+        """
+        prompt = f"""
+        Evaluate the user's answers for a Telugu-English learning activity.
+        
+        Activity Type: {activity_type}
+        Activity Content: {json.dumps(activity_content, indent=2)}
+        User Answers: {json.dumps(user_answers, indent=2)}
+        
+        Please evaluate the answers and provide:
+        1. Score achieved (number correct)
+        2. Maximum possible score
+        3. Detailed feedback for each answer
+        4. Encouragement in both English and Telugu
+        5. Suggestions for improvement
+        
+        Return the response in JSON format:
+        ```json
+        {{
+            "score": 4,
+            "max_score": 5,
+            "feedback": {{
+                "question_1": {{
+                    "correct": true,
+                    "user_answer": "book",
+                    "correct_answer": "book", 
+                    "explanation": "Correct! Telugu: సరైనది!"
+                }},
+                "question_2": {{
+                    "correct": false,
+                    "user_answer": "goes",
+                    "correct_answer": "go",
+                    "explanation": "Incorrect. Use 'go' with 'I'. Telugu: 'నేను' తో 'go' వాడాలి."
+                }}
+            }},
+            "overall_feedback": "Good job! You got 4 out of 5 correct.",
+            "telugu_feedback": "బాగుంది! మీరు 5లో 4 సరిగా చేశారు.",
+            "suggestions": [
+                "Practice subject-verb agreement",
+                "Review basic verb forms"
+            ],
+            "encouragement": "Keep practicing! You're making great progress!",
+            "telugu_encouragement": "అభ్యసించడం కొనసాగించండి! మీరు బాగా పురోగతి సాధిస్తున్నారు!"
+        }}
+        ```
+        """
+        
+        try:
+            response = self.model.generate_content(prompt)
+            evaluation_result = _extract_json_from_response(response.text)
+            
+            # Ensure required fields exist
+            if 'score' not in evaluation_result:
+                evaluation_result['score'] = 0
+            if 'max_score' not in evaluation_result:
+                evaluation_result['max_score'] = len(user_answers) if user_answers else 1
+            if 'feedback' not in evaluation_result:
+                evaluation_result['feedback'] = {}
+                
+            return evaluation_result
+            
+        except Exception as e:
+            # Fallback evaluation if AI fails
+            return {
+                'score': 0,
+                'max_score': len(user_answers) if user_answers else 1,
+                'feedback': {},
+                'overall_feedback': 'Unable to evaluate at this time. Please try again.',
+                'telugu_feedback': 'ప్రస్తుతం మూల్యాంకనం చేయలేకపోతున్నాము. దయచేసి మళ్లీ ప్రయత్నించండి.',
+                'error': str(e)
+            }

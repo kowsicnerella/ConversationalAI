@@ -1,0 +1,1947 @@
+{
+    "info": {
+        "_postman_id": "telugu-english-api-collection",
+        "name": "Telugu-English Learning Platform API",
+        "description": "Comprehensive API collection for Telugu-English language learning platform with all endpoints including authentication, user management, chat, courses, media upload, analytics, activities, gamification, and personalization.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "telugu-learning-platform"
+    },
+    "item": [
+        {
+            "name": "Authentication",
+            "item": [
+                {
+                    "name": "Register User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"john_doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"securepassword123\",\n  \"proficiency_level\": \"beginner\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/register",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login User",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.collectionVariables.set('access_token', response.access_token);",
+                                    "    pm.collectionVariables.set('refresh_token', response.refresh_token);",
+                                    "}"
+                                ],
+                                "type": "text/javascript"
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"username\": \"john_doe\",\n  \"password\": \"securepassword123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/login",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Refresh Token",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{refresh_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/refresh",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "refresh"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/auth/logout",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "logout"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "User Management",
+            "item": [
+                {
+                    "name": "Get User Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/user/profile",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "profile"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update User Settings",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"bio\": \"Learning English for my career\",\n  \"learning_goals\": [\"conversation\", \"business_english\"],\n  \"timezone\": \"Asia/Kolkata\",\n  \"notification_preferences\": {\n    \"daily_reminders\": true,\n    \"streak_celebrations\": true,\n    \"weekly_progress\": false\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/user/profile",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "profile"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Change Password",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"current_password\": \"securepassword123\",\n  \"new_password\": \"newsecurepassword456\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/user/change-password",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "change-password"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User Statistics",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/user/statistics",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "statistics"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Delete Account",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"password\": \"securepassword123\",\n  \"confirmation\": \"DELETE\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/user/delete-account",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "user",
+                                "delete-account"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Chat & Conversations",
+            "item": [
+                {
+                    "name": "Get Conversations",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/conversations?page=1&limit=10",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "conversations"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Conversation Messages",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/conversations/1/messages",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "conversations",
+                                "1",
+                                "messages"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Send Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"message\": \"How do you say 'good morning' in Telugu?\",\n  \"conversation_id\": 1,\n  \"conversation_type\": \"learning_chat\",\n  \"context\": {\n    \"topic\": \"greetings\",\n    \"difficulty_level\": \"beginner\"\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/send-message",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "send-message"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Quick Chat",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"message\": \"What are common Telugu greetings?\",\n  \"context\": \"greetings\",\n  \"difficulty_level\": \"beginner\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/quick-chat",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "quick-chat"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Chat Suggestions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/suggestions?topic=greetings&level=beginner&count=5",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "suggestions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "topic",
+                                    "value": "greetings"
+                                },
+                                {
+                                    "key": "level",
+                                    "value": "beginner"
+                                },
+                                {
+                                    "key": "count",
+                                    "value": "5"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit Conversation Feedback",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"conversation_id\": 1,\n  \"rating\": 5,\n  \"feedback_text\": \"Very helpful conversation! The AI tutor explained Telugu greetings clearly.\",\n  \"helpful_aspects\": [\"pronunciation\", \"examples\", \"cultural_context\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/feedback",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "feedback"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Chat with Practice Assistant",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"message\": \"Can you explain this Telugu grammar rule?\",\n  \"session_id\": 123,\n  \"context\": {\n    \"chapter_id\": 1,\n    \"current_topic\": \"basic_grammar\",\n    \"difficulty_level\": \"beginner\"\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/practice-assistant",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "practice-assistant"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Create Note",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Telugu Greetings\",\n  \"content\": \"నమస్కారం means hello, వీడ్కోలు means goodbye\",\n  \"chapter_id\": 1,\n  \"tags\": [\"greetings\", \"vocabulary\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/notes",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "notes"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get User Notes",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/notes?chapter_id=1&limit=10",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "notes"
+                            ],
+                            "query": [
+                                {
+                                    "key": "chapter_id",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Note",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Telugu Greetings\",\n  \"content\": \"నమస్కారం means hello, వీడ్కోలు means goodbye. Also learned: ధన్యవాదాలు means thank you\",\n  \"tags\": [\"greetings\", \"vocabulary\", \"politeness\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/chat/notes/1",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chat",
+                                "notes",
+                                "1"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Chapter Management",
+            "item": [
+                {
+                    "name": "Get All Chapters",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/chapters/all",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chapters",
+                                "all"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Chapter Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/chapters/1",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chapters",
+                                "1"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Start Practice Session",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"difficulty_level\": \"beginner\",\n  \"session_type\": \"practice\",\n  \"preferences\": {\n    \"question_count\": 10,\n    \"time_limit\": 600\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/chapters/1/start-practice",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chapters",
+                                "1",
+                                "start-practice"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Chapter Progress",
+                    "request": {
+                        "method": "PUT",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"completion_percentage\": 75.5,\n  \"score\": 85,\n  \"time_spent_minutes\": 45,\n  \"notes\": \"Completed vocabulary section, need more practice with grammar\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/chapters/1/progress",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chapters",
+                                "1",
+                                "progress"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Progress Graph",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/chapters/progress-graph",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "chapters",
+                                "progress-graph"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Practice Management",
+            "item": [
+                {
+                    "name": "Generate Practice Questions",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"session_id\": 123,\n  \"chapter_id\": 1,\n  \"difficulty_level\": \"beginner\",\n  \"question_count\": 5,\n  \"question_types\": [\"multiple_choice\", \"fill_blank\"],\n  \"focus_areas\": [\"vocabulary\", \"basic_grammar\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/practice/generate-questions",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "practice",
+                                "generate-questions"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit Practice Answer",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"session_id\": 123,\n  \"question_id\": \"q1\",\n  \"answer\": \"నమస్కారం\",\n  \"confidence_level\": 0.8,\n  \"time_taken_seconds\": 15\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/practice/submit-answer",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "practice",
+                                "submit-answer"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Complete Practice Session",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"feedback\": \"Great practice session! Learned new vocabulary.\",\n  \"self_assessment\": {\n    \"difficulty_rating\": 3,\n    \"enjoyment_rating\": 4,\n    \"confidence_improvement\": 4\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/practice/123/complete",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "practice",
+                                "123",
+                                "complete"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Testing System",
+            "item": [
+                {
+                    "name": "Create Test",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Chapter 1 Assessment\",\n  \"description\": \"Comprehensive test for basic Telugu greetings and vocabulary\",\n  \"chapter_ids\": [1],\n  \"question_count\": 15,\n  \"time_limit_minutes\": 30,\n  \"difficulty_levels\": [\"beginner\", \"intermediate\"],\n  \"question_types\": [\"multiple_choice\", \"fill_blank\", \"translation\"]\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/test/create",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "test",
+                                "create"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Start Test",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"preferences\": {\n    \"randomize_questions\": true,\n    \"show_progress\": true\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/test/1/start",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "test",
+                                "1",
+                                "start"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit Test",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"assessment_id\": 456,\n  \"answers\": [\n    {\n      \"question_id\": \"q1\",\n      \"answer\": \"నమస్కారం\",\n      \"confidence_level\": 0.9\n    },\n    {\n      \"question_id\": \"q2\",\n      \"answer\": \"వీడ్కోలు\",\n      \"confidence_level\": 0.8\n    }\n  ],\n  \"time_spent_minutes\": 25\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/test/1/submit",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "test",
+                                "1",
+                                "submit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Test Results",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/test/456/results",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "test",
+                                "456",
+                                "results"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Courses & Learning Paths",
+            "item": [
+                {
+                    "name": "Get Learning Paths",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/learning-paths?page=1&per_page=10&difficulty=beginner&category=vocabulary",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "learning-paths"
+                            ],
+                            "query": [
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "per_page",
+                                    "value": "10"
+                                },
+                                {
+                                    "key": "difficulty",
+                                    "value": "beginner"
+                                },
+                                {
+                                    "key": "category",
+                                    "value": "vocabulary"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Learning Path Details",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/learning-paths/1",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "learning-paths",
+                                "1"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Enroll in Learning Path",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"learning_path_id\": 1,\n  \"enrollment_preferences\": {\n    \"pace\": \"moderate\",\n    \"study_schedule\": \"evening\"\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/enroll",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "enroll"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Enrollment Progress",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/enrollment/1/progress",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "enrollment",
+                                "1",
+                                "progress"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Start Activity",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"enrollment_id\": 1,\n  \"activity_id\": 5,\n  \"activity_preferences\": {\n    \"time_limit\": 600,\n    \"hints_enabled\": true\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/start-activity",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "start-activity"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Complete Activity",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"enrollment_id\": 1,\n  \"activity_id\": 5,\n  \"score\": 85,\n  \"time_spent_minutes\": 15,\n  \"answers\": [\n    {\"question_id\": 1, \"answer\": \"నమస్కారం\", \"correct\": true},\n    {\"question_id\": 2, \"answer\": \"వీడ్కోలు\", \"correct\": true}\n  ],\n  \"feedback\": \"The activity was challenging but helpful!\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/courses/complete-activity",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "courses",
+                                "complete-activity"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Media Upload & Processing",
+            "item": [
+                {
+                    "name": "Upload Image",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "image",
+                                    "type": "file",
+                                    "src": []
+                                },
+                                {
+                                    "key": "context",
+                                    "value": "kitchen_vocabulary",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "learning_objective",
+                                    "value": "Learn Telugu words for kitchen items",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/media/upload/image",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "media",
+                                "upload",
+                                "image"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Upload Audio",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "audio",
+                                    "type": "file",
+                                    "src": []
+                                },
+                                {
+                                    "key": "target_word",
+                                    "value": "నమస్కారం",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "exercise_type",
+                                    "value": "pronunciation_practice",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/media/upload/audio",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "media",
+                                "upload",
+                                "audio"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Analyze Voice Recording",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "audio",
+                                    "type": "file",
+                                    "src": []
+                                },
+                                {
+                                    "key": "reference_text",
+                                    "value": "నమస్కారం",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "analysis_type",
+                                    "value": "pronunciation_accuracy",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/media/analyze/voice",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "media",
+                                "analyze",
+                                "voice"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Pronunciation Exercise",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"target_word\": \"నమస్కారం\",\n  \"difficulty_level\": \"beginner\",\n  \"exercise_type\": \"pronunciation_practice\",\n  \"include_phonetics\": true,\n  \"practice_sentences\": 3\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/media/pronunciation-exercise",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "media",
+                                "pronunciation-exercise"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Media Files",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/media/files?type=image&limit=20",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "media",
+                                "files"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "image"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Serve Media File",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/media/serve/sample_image.jpg",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "media",
+                                "serve",
+                                "sample_image.jpg"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Analytics & Reporting",
+            "item": [
+                {
+                    "name": "Dashboard Summary",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/analytics/dashboard-summary",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics",
+                                "dashboard-summary"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Learning Trends",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/analytics/learning-trends?days=30",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics",
+                                "learning-trends"
+                            ],
+                            "query": [
+                                {
+                                    "key": "days",
+                                    "value": "30"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Performance Analysis",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/analytics/performance-analysis",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics",
+                                "performance-analysis"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Vocabulary Analytics",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/analytics/vocabulary-analytics",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics",
+                                "vocabulary-analytics"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Export Progress Report",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/analytics/export/progress-report?type=summary",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "analytics",
+                                "export",
+                                "progress-report"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "summary"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Activity Generation",
+            "item": [
+                {
+                    "name": "Generate Quiz",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"topic\": \"greetings\",\n  \"level\": \"beginner\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/activity/generate/quiz",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "activity",
+                                "generate",
+                                "quiz"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Flashcards",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"topic\": \"family_members\",\n  \"level\": \"beginner\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/activity/generate/flashcards",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "activity",
+                                "generate",
+                                "flashcards"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Generate Reading Exercise",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"topic\": \"daily_routine\",\n  \"level\": \"intermediate\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/activity/generate/reading",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "activity",
+                                "generate",
+                                "reading"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Submit Activity",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"activity_id\": \"activity_12345\",\n  \"answers\": [\n    {\n      \"question_id\": 1,\n      \"answer\": \"నమస్కారం\",\n      \"confidence_level\": 0.9\n    },\n    {\n      \"question_id\": 2,\n      \"answer\": \"వీడ్కోలు\",\n      \"confidence_level\": 0.8\n    }\n  ],\n  \"time_spent_seconds\": 245,\n  \"hints_used\": 1\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/activity/submit",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "activity",
+                                "submit"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Activity History",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/activity/history?limit=20&activity_type=vocabulary_quiz",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "activity",
+                                "history"
+                            ],
+                            "query": [
+                                {
+                                    "key": "limit",
+                                    "value": "20"
+                                },
+                                {
+                                    "key": "activity_type",
+                                    "value": "vocabulary_quiz"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Gamification",
+            "item": [
+                {
+                    "name": "Get Gamification Profile",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gamification/profile",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "gamification",
+                                "profile"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Leaderboard",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gamification/leaderboard?period=weekly&limit=10",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "gamification",
+                                "leaderboard"
+                            ],
+                            "query": [
+                                {
+                                    "key": "period",
+                                    "value": "weekly"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "10"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Achievements",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gamification/achievements",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "gamification",
+                                "achievements"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Claim Daily Reward",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/gamification/daily-reward",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "gamification",
+                                "daily-reward"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Personalization",
+            "item": [
+                {
+                    "name": "Get Insights",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/personalization/insights",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "personalization",
+                                "insights"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Update Learning Preferences",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"learning_style\": \"visual\",\n  \"preferred_difficulty\": \"intermediate\",\n  \"activity_preferences\": {\n    \"vocabulary_quiz\": 0.8,\n    \"conversation_practice\": 0.9,\n    \"grammar_exercises\": 0.6\n  },\n  \"time_preferences\": {\n    \"session_length\": \"medium\",\n    \"best_time\": \"evening\"\n  },\n  \"goals\": {\n    \"weekly_time_minutes\": 210,\n    \"vocabulary_target\": 20\n  }\n}"
+                        },
+                        "url": {
+                            "raw": "{{base_url}}/api/personalization/preferences",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "personalization",
+                                "preferences"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Recommended Activities",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/personalization/recommendations?count=5&type=activity",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "personalization",
+                                "recommendations"
+                            ],
+                            "query": [
+                                {
+                                    "key": "count",
+                                    "value": "5"
+                                },
+                                {
+                                    "key": "type",
+                                    "value": "activity"
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Learning Path",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{access_token}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/personalization/learning-path",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "personalization",
+                                "learning-path"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Health Check",
+            "item": [
+                {
+                    "name": "Health Check",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "{{base_url}}/health",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "health"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    ""
+                ]
+            }
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:5000",
+            "type": "string"
+        },
+        {
+            "key": "access_token",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "refresh_token",
+            "value": "",
+            "type": "string"
+        }
+    ]
+}
