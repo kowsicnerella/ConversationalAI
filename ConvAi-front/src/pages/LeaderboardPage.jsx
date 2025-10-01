@@ -78,8 +78,8 @@ TabPanel.propTypes = {
 
 const LeaderboardPage = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState(0);
   const [selectedPeriod, setSelectedPeriod] = useState("weekly");
@@ -496,7 +496,10 @@ const LeaderboardPage = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3 } }}>
+    <Container
+      maxWidth="lg"
+      sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3 } }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -533,7 +536,12 @@ const LeaderboardPage = () => {
         >
           <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
             <Grid container spacing={{ xs: 2, sm: 3 }} alignItems="center">
-              <Grid item xs={12} sm="auto" sx={{ textAlign: { xs: "center", sm: "left" } }}>
+              <Grid
+                item
+                xs={12}
+                sm="auto"
+                sx={{ textAlign: { xs: "center", sm: "left" } }}
+              >
                 <Avatar
                   sx={{
                     width: { xs: 64, sm: 80 },
@@ -551,7 +559,11 @@ const LeaderboardPage = () => {
               <Grid item xs={12} sm>
                 <Typography
                   variant={isMobile ? "h6" : "h5"}
-                  sx={{ color: "white", fontWeight: "bold", textAlign: { xs: "center", sm: "left" } }}
+                  sx={{
+                    color: "white",
+                    fontWeight: "bold",
+                    textAlign: { xs: "center", sm: "left" },
+                  }}
                 >
                   Your Progress
                 </Typography>
@@ -575,7 +587,11 @@ const LeaderboardPage = () => {
                     sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
                   />
                   <Chip
-                    icon={<LocalFireDepartment sx={{ fontSize: { xs: 16, sm: 20 } }} />}
+                    icon={
+                      <LocalFireDepartment
+                        sx={{ fontSize: { xs: 16, sm: 20 } }}
+                      />
+                    }
                     label={`${userStats.streak} Day Streak`}
                     size={isMobile ? "small" : "medium"}
                     sx={{ bgcolor: "rgba(255,255,255,0.2)", color: "white" }}
@@ -589,7 +605,10 @@ const LeaderboardPage = () => {
                 </Stack>
 
                 <Box sx={{ mt: 2 }}>
-                  <Typography variant={isMobile ? "caption" : "body2"} sx={{ color: "white", mb: 1 }}>
+                  <Typography
+                    variant={isMobile ? "caption" : "body2"}
+                    sx={{ color: "white", mb: 1 }}
+                  >
                     Progress to next level: {userStats.totalPoints}/
                     {userStats.nextLevelPoints}
                   </Typography>
@@ -621,21 +640,21 @@ const LeaderboardPage = () => {
             variant={isMobile ? "scrollable" : "fullWidth"}
             scrollButtons="auto"
           >
-            <Tab 
-              icon={<Timeline />} 
-              label="Leaderboard" 
+            <Tab
+              icon={<Timeline />}
+              label="Leaderboard"
               iconPosition={isMobile ? "start" : "top"}
               sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
             />
-            <Tab 
-              icon={<EmojiEvents />} 
-              label="Achievements" 
+            <Tab
+              icon={<EmojiEvents />}
+              label="Achievements"
               iconPosition={isMobile ? "start" : "top"}
               sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
             />
-            <Tab 
-              icon={<TrendingUp />} 
-              label="Statistics" 
+            <Tab
+              icon={<TrendingUp />}
+              label="Statistics"
               iconPosition={isMobile ? "start" : "top"}
               sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
             />
@@ -654,8 +673,13 @@ const LeaderboardPage = () => {
                 spacing={{ xs: 2, sm: 0 }}
                 sx={{ mb: 3 }}
               >
-                <Typography variant={isMobile ? "subtitle1" : "h6"}>Rankings</Typography>
-                <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 120 } }}>
+                <Typography variant={isMobile ? "subtitle1" : "h6"}>
+                  Rankings
+                </Typography>
+                <FormControl
+                  size="small"
+                  sx={{ minWidth: { xs: "100%", sm: 120 } }}
+                >
                   <InputLabel>Period</InputLabel>
                   <Select
                     value={selectedPeriod}
@@ -676,9 +700,13 @@ const LeaderboardPage = () => {
                       <TableCell>Rank</TableCell>
                       <TableCell>User</TableCell>
                       {!isMobile && <TableCell align="center">Level</TableCell>}
-                      {!isMobile && <TableCell align="center">Streak</TableCell>}
+                      {!isMobile && (
+                        <TableCell align="center">Streak</TableCell>
+                      )}
                       <TableCell align="right">Points</TableCell>
-                      {!isMobile && <TableCell align="center">Change</TableCell>}
+                      {!isMobile && (
+                        <TableCell align="center">Change</TableCell>
+                      )}
                     </TableRow>
                   </TableHead>
                   <TableBody>

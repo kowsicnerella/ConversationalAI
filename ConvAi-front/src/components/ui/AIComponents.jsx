@@ -246,13 +246,14 @@ const ShimmerCard = ({ height = 200, className = "", sx = {}, ...props }) => {
       className={`shimmer-card ${className}`}
       sx={{
         height,
-        background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%)',
-        backgroundSize: '200% 100%',
-        animation: 'shimmer 1.5s ease-in-out infinite',
+        background:
+          "linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%)",
+        backgroundSize: "200% 100%",
+        animation: "shimmer 1.5s ease-in-out infinite",
         borderRadius: 2,
-        '@keyframes shimmer': {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
+        "@keyframes shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
         },
         ...sx,
       }}
@@ -268,36 +269,36 @@ ShimmerCard.propTypes = {
 };
 
 // Animated Icon Button with ripple effect
-const AnimatedIconButton = ({ 
-  children, 
-  onClick, 
-  color = 'primary',
-  size = 'medium',
-  className = '',
+const AnimatedIconButton = ({
+  children,
+  onClick,
+  color = "primary",
+  size = "medium",
+  className = "",
   sx = {},
-  ...props 
+  ...props
 }) => {
   const theme = useTheme();
-  
+
   return (
     <motion.button
       className={`animated-icon-button ${className}`}
       onClick={onClick}
       whileHover={{ scale: 1.1, rotate: 5 }}
       whileTap={{ scale: 0.95 }}
-      transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
       style={{
-        padding: size === 'small' ? '8px' : size === 'large' ? '16px' : '12px',
-        background: 'transparent',
-        border: 'none',
-        cursor: 'pointer',
-        borderRadius: '50%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        padding: size === "small" ? "8px" : size === "large" ? "16px" : "12px",
+        background: "transparent",
+        border: "none",
+        cursor: "pointer",
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         color: theme.palette[color]?.main || theme.palette.primary.main,
-        position: 'relative',
-        overflow: 'hidden',
+        position: "relative",
+        overflow: "hidden",
         ...sx,
       }}
       {...props}
@@ -307,9 +308,9 @@ const AnimatedIconButton = ({
         whileHover={{ scale: 2, opacity: 0 }}
         transition={{ duration: 0.6 }}
         style={{
-          position: 'absolute',
+          position: "absolute",
           inset: 0,
-          borderRadius: '50%',
+          borderRadius: "50%",
           background: theme.palette[color]?.main || theme.palette.primary.main,
         }}
       />
@@ -322,27 +323,27 @@ AnimatedIconButton.propTypes = {
   children: PropTypes.node.isRequired,
   onClick: PropTypes.func,
   color: PropTypes.string,
-  size: PropTypes.oneOf(['small', 'medium', 'large']),
+  size: PropTypes.oneOf(["small", "medium", "large"]),
   className: PropTypes.string,
   sx: PropTypes.object,
 };
 
 // Gradient Border Card
-const GradientBorderCard = ({ 
-  children, 
+const GradientBorderCard = ({
+  children,
   borderWidth = 2,
-  gradient = 'linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)',
-  className = '',
+  gradient = "linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%)",
+  className = "",
   sx = {},
-  ...props 
+  ...props
 }) => {
   const theme = useTheme();
-  
+
   return (
     <Box
       className={`gradient-border-card ${className}`}
       sx={{
-        position: 'relative',
+        position: "relative",
         padding: `${borderWidth}px`,
         background: gradient,
         borderRadius: 3,
@@ -354,8 +355,8 @@ const GradientBorderCard = ({
         sx={{
           background: theme.palette.background.paper,
           borderRadius: 2.5,
-          height: '100%',
-          width: '100%',
+          height: "100%",
+          width: "100%",
         }}
       >
         {children}
@@ -373,21 +374,21 @@ GradientBorderCard.propTypes = {
 };
 
 // Pulse Dot Indicator
-const PulseDot = ({ 
-  color = 'success',
+const PulseDot = ({
+  color = "success",
   size = 8,
-  className = '',
+  className = "",
   sx = {},
-  ...props 
+  ...props
 }) => {
   const theme = useTheme();
   const dotColor = theme.palette[color]?.main || color;
-  
+
   return (
     <Box
       className={`pulse-dot ${className}`}
       sx={{
-        position: 'relative',
+        position: "relative",
         width: size,
         height: size,
         ...sx,
@@ -396,17 +397,17 @@ const PulseDot = ({
     >
       <Box
         sx={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          borderRadius: '50%',
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          borderRadius: "50%",
           background: dotColor,
-          animation: 'pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          '@keyframes pulse-dot': {
-            '0%, 100%': {
+          animation: "pulse-dot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+          "@keyframes pulse-dot": {
+            "0%, 100%": {
               opacity: 1,
             },
-            '50%': {
+            "50%": {
               opacity: 0.5,
             },
           },
@@ -414,19 +415,19 @@ const PulseDot = ({
       />
       <Box
         sx={{
-          position: 'absolute',
-          width: '100%',
-          height: '100%',
-          borderRadius: '50%',
+          position: "absolute",
+          width: "100%",
+          height: "100%",
+          borderRadius: "50%",
           background: dotColor,
-          animation: 'pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          '@keyframes pulse-ring': {
-            '0%': {
-              transform: 'scale(1)',
+          animation: "pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+          "@keyframes pulse-ring": {
+            "0%": {
+              transform: "scale(1)",
               opacity: 1,
             },
-            '100%': {
-              transform: 'scale(2)',
+            "100%": {
+              transform: "scale(2)",
               opacity: 0,
             },
           },
@@ -444,28 +445,29 @@ PulseDot.propTypes = {
 };
 
 // Skeleton Loader Component
-const SkeletonLoader = ({ 
-  variant = 'rectangular',
-  width = '100%',
+const SkeletonLoader = ({
+  variant = "rectangular",
+  width = "100%",
   height = 200,
   borderRadius = 2,
-  className = '',
+  className = "",
   sx = {},
-  ...props 
+  ...props
 }) => {
   return (
     <Box
       className={`skeleton-loader ${className}`}
       sx={{
         width,
-        height: variant === 'circular' ? width : height,
-        borderRadius: variant === 'circular' ? '50%' : borderRadius,
-        background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%)',
-        backgroundSize: '200% 100%',
-        animation: 'skeleton-loading 1.5s ease-in-out infinite',
-        '@keyframes skeleton-loading': {
-          '0%': { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
+        height: variant === "circular" ? width : height,
+        borderRadius: variant === "circular" ? "50%" : borderRadius,
+        background:
+          "linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0.1) 100%)",
+        backgroundSize: "200% 100%",
+        animation: "skeleton-loading 1.5s ease-in-out infinite",
+        "@keyframes skeleton-loading": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
         },
         ...sx,
       }}
@@ -475,7 +477,7 @@ const SkeletonLoader = ({
 };
 
 SkeletonLoader.propTypes = {
-  variant: PropTypes.oneOf(['rectangular', 'circular', 'text']),
+  variant: PropTypes.oneOf(["rectangular", "circular", "text"]),
   width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   borderRadius: PropTypes.number,
@@ -484,44 +486,44 @@ SkeletonLoader.propTypes = {
 };
 
 // Animated Badge with glow
-const GlowBadge = ({ 
+const GlowBadge = ({
   children,
-  color = 'primary',
+  color = "primary",
   glow = true,
   pulse = false,
-  className = '',
+  className = "",
   sx = {},
-  ...props 
+  ...props
 }) => {
   const theme = useTheme();
   const badgeColor = theme.palette[color]?.main || color;
-  
+
   return (
     <motion.div
       className={`glow-badge ${className}`}
       initial={{ scale: 0 }}
       animate={{ scale: 1 }}
       whileHover={{ scale: 1.1 }}
-      transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
     >
       <Box
         sx={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '4px 12px',
-          borderRadius: '999px',
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "4px 12px",
+          borderRadius: "999px",
           background: badgeColor,
-          color: 'white',
-          fontSize: '0.75rem',
+          color: "white",
+          fontSize: "0.75rem",
           fontWeight: 600,
-          boxShadow: glow ? `0 0 20px ${badgeColor}40` : 'none',
-          animation: pulse ? 'badge-pulse 2s ease-in-out infinite' : 'none',
-          '@keyframes badge-pulse': {
-            '0%, 100%': {
+          boxShadow: glow ? `0 0 20px ${badgeColor}40` : "none",
+          animation: pulse ? "badge-pulse 2s ease-in-out infinite" : "none",
+          "@keyframes badge-pulse": {
+            "0%, 100%": {
               boxShadow: `0 0 20px ${badgeColor}40`,
             },
-            '50%': {
+            "50%": {
               boxShadow: `0 0 30px ${badgeColor}80`,
             },
           },
@@ -545,46 +547,46 @@ GlowBadge.propTypes = {
 };
 
 // Animated Progress Ring
-const ProgressRing = ({ 
+const ProgressRing = ({
   progress = 0,
   size = 100,
   strokeWidth = 8,
-  color = 'primary',
+  color = "primary",
   showPercentage = true,
-  className = '',
+  className = "",
   sx = {},
-  ...props 
+  ...props
 }) => {
   const theme = useTheme();
   const ringColor = theme.palette[color]?.main || color;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (progress / 100) * circumference;
-  
+
   return (
     <Box
       className={`progress-ring ${className}`}
       sx={{
-        position: 'relative',
+        position: "relative",
         width: size,
         height: size,
-        display: 'inline-flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
         ...sx,
       }}
       {...props}
     >
-      <svg
-        width={size}
-        height={size}
-        style={{ transform: 'rotate(-90deg)' }}
-      >
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}
+          stroke={
+            theme.palette.mode === "dark"
+              ? "rgba(255,255,255,0.1)"
+              : "rgba(0,0,0,0.1)"
+          }
           strokeWidth={strokeWidth}
           fill="none"
         />
@@ -599,14 +601,14 @@ const ProgressRing = ({
           strokeDasharray={circumference}
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 1, ease: 'easeOut' }}
+          transition={{ duration: 1, ease: "easeOut" }}
         />
       </svg>
       {showPercentage && (
         <Typography
           variant="h6"
           sx={{
-            position: 'absolute',
+            position: "absolute",
             fontWeight: 700,
             color: ringColor,
           }}
@@ -629,29 +631,36 @@ ProgressRing.propTypes = {
 };
 
 // Animated Stat Card
-const StatCard = ({ 
+const StatCard = ({
   title,
   value,
   icon,
   trend,
   trendValue,
-  color = 'primary',
-  className = '',
+  color = "primary",
+  className = "",
   sx = {},
-  ...props 
+  ...props
 }) => {
   const theme = useTheme();
   const cardColor = theme.palette[color]?.main || color;
-  
+
   return (
     <motion.div
       className={`stat-card ${className}`}
       whileHover={{ y: -8, boxShadow: `0 12px 24px ${cardColor}20` }}
-      transition={{ type: 'spring', stiffness: 300 }}
+      transition={{ type: "spring", stiffness: 300 }}
     >
       <GlassCard sx={{ ...sx }} {...props}>
         <Box sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
             <Typography variant="body2" color="text.secondary" fontWeight={500}>
               {title}
             </Typography>
@@ -661,9 +670,9 @@ const StatCard = ({
                 height: 48,
                 borderRadius: 2,
                 background: `${cardColor}20`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
                 color: cardColor,
               }}
             >
@@ -674,15 +683,18 @@ const StatCard = ({
             {value}
           </Typography>
           {trend && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
               <Typography
                 variant="body2"
                 sx={{
-                  color: trend === 'up' ? theme.palette.success.main : theme.palette.error.main,
+                  color:
+                    trend === "up"
+                      ? theme.palette.success.main
+                      : theme.palette.error.main,
                   fontWeight: 600,
                 }}
               >
-                {trend === 'up' ? '↑' : '↓'} {trendValue}
+                {trend === "up" ? "↑" : "↓"} {trendValue}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 from last week
@@ -699,7 +711,7 @@ StatCard.propTypes = {
   title: PropTypes.string.isRequired,
   value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   icon: PropTypes.node,
-  trend: PropTypes.oneOf(['up', 'down']),
+  trend: PropTypes.oneOf(["up", "down"]),
   trendValue: PropTypes.string,
   color: PropTypes.string,
   className: PropTypes.string,

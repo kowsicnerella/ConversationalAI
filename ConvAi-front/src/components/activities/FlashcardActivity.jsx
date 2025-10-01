@@ -27,23 +27,28 @@ import {
   SwipeLeft,
   SwipeRight,
 } from "@mui/icons-material";
-import { motion, useMotionValue, useTransform, AnimatePresence } from "framer-motion";
+import {
+  motion,
+  useMotionValue,
+  useTransform,
+  AnimatePresence,
+} from "framer-motion";
 import { toast } from "react-hot-toast";
 import PropTypes from "prop-types";
 import { vocabularyAPI } from "../../services/api";
 
 const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [knownCards, setKnownCards] = useState(new Set());
   const [unknownCards, setUnknownCards] = useState(new Set());
   const [bookmarkedCards, setBookmarkedCards] = useState(new Set());
   const [showResults, setShowResults] = useState(false);
-  
+
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-25, 25]);
   const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
@@ -261,14 +266,17 @@ const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
                     backdropFilter: "blur(10px)",
                   }}
                 >
-                  <Typography variant="h4" sx={{ fontWeight: 700, color: "#4caf50" }}>
+                  <Typography
+                    variant="h4"
+                    sx={{ fontWeight: 700, color: "#4caf50" }}
+                  >
                     {knownCards.size}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
                     Known
                   </Typography>
                 </Box>
-                
+
                 <Box
                   className="hover-scale"
                   sx={{
@@ -278,7 +286,10 @@ const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
                     backdropFilter: "blur(10px)",
                   }}
                 >
-                  <Typography variant="h4" sx={{ fontWeight: 700, color: "#ff5252" }}>
+                  <Typography
+                    variant="h4"
+                    sx={{ fontWeight: 700, color: "#ff5252" }}
+                  >
                     {unknownCards.size}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
@@ -295,7 +306,10 @@ const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
                     backdropFilter: "blur(10px)",
                   }}
                 >
-                  <Typography variant="h4" sx={{ fontWeight: 700, color: "#ffa726" }}>
+                  <Typography
+                    variant="h4"
+                    sx={{ fontWeight: 700, color: "#ffa726" }}
+                  >
                     {bookmarkedCards.size}
                   </Typography>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
@@ -358,10 +372,11 @@ const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
             p: { xs: 2, sm: 3 },
             mb: { xs: 2, sm: 3 },
             borderRadius: { xs: 2, sm: 3 },
-            background: theme.palette.mode === 'dark'
-              ? 'rgba(30, 41, 59, 0.6)'
-              : 'rgba(255, 255, 255, 0.8)',
-            backdropFilter: 'blur(20px)',
+            background:
+              theme.palette.mode === "dark"
+                ? "rgba(30, 41, 59, 0.6)"
+                : "rgba(255, 255, 255, 0.8)",
+            backdropFilter: "blur(20px)",
           }}
         >
           <Stack
@@ -395,9 +410,10 @@ const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
               height: { xs: 6, sm: 8 },
               borderRadius: 4,
               mb: 2,
-              bgcolor: theme.palette.mode === 'dark'
-                ? 'rgba(255,255,255,0.1)'
-                : 'rgba(0,0,0,0.05)',
+              bgcolor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.05)",
             }}
           />
 
@@ -559,7 +575,11 @@ const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
                         e.stopPropagation();
                         handleBookmark();
                       }}
-                      color={bookmarkedCards.has(currentCard.id) ? "warning" : "default"}
+                      color={
+                        bookmarkedCards.has(currentCard.id)
+                          ? "warning"
+                          : "default"
+                      }
                       className="hover-scale"
                       sx={{
                         bgcolor: bookmarkedCards.has(currentCard.id)
@@ -578,7 +598,10 @@ const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    sx={{ mt: "auto", fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+                    sx={{
+                      mt: "auto",
+                      fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                    }}
                   >
                     {isMobile ? "Tap to flip" : "Click to flip or drag to mark"}
                   </Typography>
@@ -813,7 +836,10 @@ const FlashcardActivity = ({ flashcards, onComplete, onProgress }) => {
               size={isMobile ? "medium" : "large"}
               className="hover-scale"
               sx={{
-                bgcolor: currentIndex === 0 ? "transparent" : theme.palette.action.hover,
+                bgcolor:
+                  currentIndex === 0
+                    ? "transparent"
+                    : theme.palette.action.hover,
                 "&:hover": {
                   bgcolor: theme.palette.action.selected,
                 },

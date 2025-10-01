@@ -135,8 +135,8 @@ const vocabularyCategories = [
 const VocabularyPage = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const user = useAuthStore((state) => state.user);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
@@ -556,7 +556,10 @@ const VocabularyPage = () => {
   };
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3 } }}>
+    <Container
+      maxWidth="xl"
+      sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3 } }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -575,10 +578,16 @@ const VocabularyPage = () => {
           }}
         >
           <Book sx={{ fontSize: { xs: 40, sm: 48 }, mb: 1.5 }} />
-          <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: "bold", mb: 1.5 }}>
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            sx={{ fontWeight: "bold", mb: 1.5 }}
+          >
             Vocabulary Builder
           </Typography>
-          <Typography variant={isMobile ? "body2" : "body1"} sx={{ opacity: 0.9, mb: 2 }}>
+          <Typography
+            variant={isMobile ? "body2" : "body1"}
+            sx={{ opacity: 0.9, mb: 2 }}
+          >
             Master Telugu vocabulary with smart spaced repetition
           </Typography>
 
@@ -590,7 +599,10 @@ const VocabularyPage = () => {
             sx={{ mt: 2.5 }}
           >
             <Box sx={{ textAlign: "center" }}>
-              <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: "bold" }}>
+              <Typography
+                variant={isMobile ? "h6" : "h5"}
+                sx={{ fontWeight: "bold" }}
+              >
                 {vocabularyList.length}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>
@@ -598,7 +610,10 @@ const VocabularyPage = () => {
               </Typography>
             </Box>
             <Box sx={{ textAlign: "center" }}>
-              <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: "bold" }}>
+              <Typography
+                variant={isMobile ? "h6" : "h5"}
+                sx={{ fontWeight: "bold" }}
+              >
                 {vocabularyList.filter((w) => w.mastery >= 80).length}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>
@@ -606,7 +621,10 @@ const VocabularyPage = () => {
               </Typography>
             </Box>
             <Box sx={{ textAlign: "center" }}>
-              <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: "bold" }}>
+              <Typography
+                variant={isMobile ? "h6" : "h5"}
+                sx={{ fontWeight: "bold" }}
+              >
                 {reviewWords.length}
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.8 }}>
@@ -618,7 +636,10 @@ const VocabularyPage = () => {
 
         {/* Categories */}
         <Box sx={{ mb: { xs: 3, sm: 4 } }}>
-          <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: "bold", mb: 2 }}>
+          <Typography
+            variant={isMobile ? "h6" : "h5"}
+            sx={{ fontWeight: "bold", mb: 2 }}
+          >
             Categories
           </Typography>
           <Grid container spacing={{ xs: 1.5, sm: 2 }}>
@@ -638,9 +659,20 @@ const VocabularyPage = () => {
                 }}
                 onClick={() => setSelectedCategory("all")}
               >
-                <CardContent sx={{ textAlign: "center", py: { xs: 2, sm: 3 }, px: 1 }}>
-                  <Star sx={{ fontSize: { xs: 32, sm: 40 }, color: "primary.main", mb: 1 }} />
-                  <Typography variant={isMobile ? "body2" : "h6"} sx={{ fontWeight: "bold" }}>
+                <CardContent
+                  sx={{ textAlign: "center", py: { xs: 2, sm: 3 }, px: 1 }}
+                >
+                  <Star
+                    sx={{
+                      fontSize: { xs: 32, sm: 40 },
+                      color: "primary.main",
+                      mb: 1,
+                    }}
+                  />
+                  <Typography
+                    variant={isMobile ? "body2" : "h6"}
+                    sx={{ fontWeight: "bold" }}
+                  >
                     All Words
                   </Typography>
                 </CardContent>
@@ -655,7 +687,9 @@ const VocabularyPage = () => {
         </Box>
 
         {/* Controls */}
-        <Paper sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+        <Paper
+          sx={{ p: { xs: 2, sm: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 2 }}
+        >
           <Stack
             direction={{ xs: "column", sm: "row" }}
             spacing={{ xs: 2, sm: 2 }}
@@ -674,10 +708,16 @@ const VocabularyPage = () => {
                   </InputAdornment>
                 ),
               }}
-              sx={{ flex: { xs: 1, sm: "1 1 250px" }, minWidth: { xs: "100%", sm: 250 } }}
+              sx={{
+                flex: { xs: 1, sm: "1 1 250px" },
+                minWidth: { xs: "100%", sm: 250 },
+              }}
             />
 
-            <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 120 } }}>
+            <FormControl
+              size="small"
+              sx={{ minWidth: { xs: "100%", sm: 120 } }}
+            >
               <InputLabel>Sort by</InputLabel>
               <Select
                 value={sortBy}
@@ -691,7 +731,10 @@ const VocabularyPage = () => {
               </Select>
             </FormControl>
 
-            <FormControl size="small" sx={{ minWidth: { xs: "100%", sm: 120 } }}>
+            <FormControl
+              size="small"
+              sx={{ minWidth: { xs: "100%", sm: 120 } }}
+            >
               <InputLabel>Filter</InputLabel>
               <Select
                 value={filterBy}
@@ -732,7 +775,10 @@ const VocabularyPage = () => {
         </Paper>
 
         {/* Vocabulary List */}
-        <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: "bold", mb: 2 }}>
+        <Typography
+          variant={isMobile ? "h6" : "h5"}
+          sx={{ fontWeight: "bold", mb: 2 }}
+        >
           {selectedCategory === "all"
             ? "All Vocabulary"
             : vocabularyCategories.find((c) => c.id === selectedCategory)
@@ -742,7 +788,10 @@ const VocabularyPage = () => {
 
         {sortedVocabulary.length === 0 ? (
           <Paper sx={{ p: { xs: 3, sm: 4 }, textAlign: "center" }}>
-            <Typography variant={isMobile ? "subtitle1" : "h6"} color="text.secondary">
+            <Typography
+              variant={isMobile ? "subtitle1" : "h6"}
+              color="text.secondary"
+            >
               No words found matching your criteria
             </Typography>
             <Button
@@ -782,7 +831,10 @@ const VocabularyPage = () => {
             p: { xs: 2, sm: 3 },
           }}
         >
-          <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: "bold" }}>
+          <Typography
+            variant={isMobile ? "h6" : "h5"}
+            sx={{ fontWeight: "bold" }}
+          >
             {selectedWord?.english}
           </Typography>
           <IconButton onClick={() => setShowWordDialog(false)}>
@@ -794,7 +846,10 @@ const VocabularyPage = () => {
           {selectedWord && (
             <Box>
               <Box sx={{ textAlign: "center", mb: 3 }}>
-                <Typography variant={isMobile ? "h5" : "h4"} sx={{ color: "primary.main", mb: 1 }}>
+                <Typography
+                  variant={isMobile ? "h5" : "h4"}
+                  sx={{ color: "primary.main", mb: 1 }}
+                >
                   {selectedWord.telugu}
                 </Typography>
                 <Typography

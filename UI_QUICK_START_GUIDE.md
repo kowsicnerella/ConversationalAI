@@ -45,15 +45,15 @@ import {
 </GlowBadge>
 
 // Example 2: Progress Ring
-<ProgressRing 
-  progress={75} 
+<ProgressRing
+  progress={75}
   size={120}
   color="success"
   showPercentage
 />
 
 // Example 3: Stat Card
-<StatCard 
+<StatCard
   title="Total Users"
   value={1250}
   icon={<People />}
@@ -70,7 +70,7 @@ import {
 )}
 
 // Example 5: Animated Icon Button
-<AnimatedIconButton 
+<AnimatedIconButton
   color="primary"
   size="large"
   onClick={handleClick}
@@ -79,7 +79,7 @@ import {
 </AnimatedIconButton>
 
 // Example 6: Gradient Border Card
-<GradientBorderCard 
+<GradientBorderCard
   borderWidth={2}
   gradient="linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
 >
@@ -193,28 +193,28 @@ import { motion } from 'framer-motion';
 ### 5. Loading States
 
 ```jsx
-import { SkeletonLoader, ShimmerCard } from './components/ui/AIComponents';
+import { SkeletonLoader, ShimmerCard } from "./components/ui/AIComponents";
 
 // Method 1: Skeleton Loader
-{isLoading ? (
-  <Box>
-    <SkeletonLoader variant="rectangular" height={200} />
-    <SkeletonLoader variant="text" height={30} sx={{ mt: 2 }} />
-    <SkeletonLoader variant="text" height={30} />
-  </Box>
-) : (
-  <ActualContent />
-)}
+{
+  isLoading ? (
+    <Box>
+      <SkeletonLoader variant="rectangular" height={200} />
+      <SkeletonLoader variant="text" height={30} sx={{ mt: 2 }} />
+      <SkeletonLoader variant="text" height={30} />
+    </Box>
+  ) : (
+    <ActualContent />
+  );
+}
 
 // Method 2: Shimmer Card
-{isLoading ? (
-  <ShimmerCard height={300} />
-) : (
-  <Card>Content</Card>
-)}
+{
+  isLoading ? <ShimmerCard height={300} /> : <Card>Content</Card>;
+}
 
 // Method 3: MUI Skeleton (already enhanced in theme)
-<Skeleton variant="rectangular" height={200} animation="wave" />
+<Skeleton variant="rectangular" height={200} animation="wave" />;
 ```
 
 ### 6. Responsive Design
@@ -323,8 +323,8 @@ import { GradientText } from './components/ui/AIComponents';
 
 ```jsx
 // Progress Ring
-<ProgressRing 
-  progress={85} 
+<ProgressRing
+  progress={85}
   size={100}
   strokeWidth={10}
   color="primary"
@@ -332,7 +332,7 @@ import { GradientText } from './components/ui/AIComponents';
 />
 
 // With stat card
-<StatCard 
+<StatCard
   title="Completion Rate"
   value={85}
   icon={<TrendingUp />}
@@ -400,24 +400,25 @@ info.main: '#3b82f6'
 ## ⚡ Performance Tips
 
 1. **Use CSS animations over JS when possible**
+
    ```jsx
    // Good
    <div className="animate-fade-in-up">Content</div>
-   
+
    // Also good for complex animations
    <motion.div animate={{ opacity: 1 }}>Content</motion.div>
    ```
 
 2. **Lazy load heavy animations**
+
    ```jsx
-   const HeavyAnimation = lazy(() => import('./HeavyAnimation'));
+   const HeavyAnimation = lazy(() => import("./HeavyAnimation"));
    ```
 
 3. **Use will-change for animated elements**
+
    ```jsx
-   <Box sx={{ willChange: 'transform' }}>
-     Animated content
-   </Box>
+   <Box sx={{ willChange: "transform" }}>Animated content</Box>
    ```
 
 4. **Reduce motion for accessibility**
@@ -433,6 +434,7 @@ info.main: '#3b82f6'
 ## 🔥 Common Patterns
 
 ### Loading State Pattern
+
 ```jsx
 const [loading, setLoading] = useState(true);
 
@@ -450,11 +452,12 @@ return (
 ```
 
 ### Success Feedback Pattern
+
 ```jsx
 <motion.div
   initial={{ scale: 0 }}
   animate={{ scale: 1 }}
-  transition={{ type: 'spring', stiffness: 500 }}
+  transition={{ type: "spring", stiffness: 500 }}
 >
   <GlowBadge color="success" pulse>
     ✓ Success!
@@ -463,20 +466,21 @@ return (
 ```
 
 ### Interactive List Pattern
+
 ```jsx
 <motion.div
   initial="hidden"
   animate="visible"
   variants={{
-    visible: { transition: { staggerChildren: 0.1 } }
+    visible: { transition: { staggerChildren: 0.1 } },
   }}
 >
-  {items.map(item => (
+  {items.map((item) => (
     <motion.div
       key={item.id}
       variants={{
         hidden: { x: -20, opacity: 0 },
-        visible: { x: 0, opacity: 1 }
+        visible: { x: 0, opacity: 1 },
       }}
       className="hover-lift"
     >
@@ -510,7 +514,7 @@ Want immediate impact? Add these to any component:
 </Card>
 
 // Engaging button
-<Button 
+<Button
   variant="contained"
   className="animate-scale-in"
   component={motion.button}
@@ -533,12 +537,11 @@ Want immediate impact? Add these to any component:
 ---
 
 **Pro Tip:** Combine multiple effects for maximum impact! For example:
+
 ```jsx
 <motion.div whileHover={{ y: -8 }}>
   <Card className="hover-glow backdrop-blur-lg gradient-border">
-    <CardContent>
-      Ultra-modern card with multiple effects!
-    </CardContent>
+    <CardContent>Ultra-modern card with multiple effects!</CardContent>
   </Card>
 </motion.div>
 ```

@@ -70,7 +70,7 @@ const getDifficultyColor = (difficulty) => {
 
 const LearningPathsPage = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [learningPaths, setLearningPaths] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -155,12 +155,30 @@ const LearningPathsPage = () => {
                     </Box>
                     <Skeleton variant="text" height={20} />
                     <Skeleton variant="text" height={20} width="90%" />
-                    <Skeleton variant="rectangular" height={8} sx={{ borderRadius: 4 }} />
+                    <Skeleton
+                      variant="rectangular"
+                      height={8}
+                      sx={{ borderRadius: 4 }}
+                    />
                     <Box sx={{ display: "flex", gap: 1 }}>
-                      <Skeleton variant="rectangular" width={80} height={24} sx={{ borderRadius: 2 }} />
-                      <Skeleton variant="rectangular" width={100} height={24} sx={{ borderRadius: 2 }} />
+                      <Skeleton
+                        variant="rectangular"
+                        width={80}
+                        height={24}
+                        sx={{ borderRadius: 2 }}
+                      />
+                      <Skeleton
+                        variant="rectangular"
+                        width={100}
+                        height={24}
+                        sx={{ borderRadius: 2 }}
+                      />
                     </Box>
-                    <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 2 }} />
+                    <Skeleton
+                      variant="rectangular"
+                      height={40}
+                      sx={{ borderRadius: 2 }}
+                    />
                   </Stack>
                 </CardContent>
               </Card>
@@ -271,12 +289,18 @@ const LearningPathsPage = () => {
                       display: "flex",
                       flexDirection: "column",
                       gap: { xs: 1.5, sm: 1.75 },
-                      '&:last-child': { pb: { xs: 1.75, sm: 2 } }
+                      "&:last-child": { pb: { xs: 1.75, sm: 2 } },
                     }}
                   >
                     {/* Header Section */}
                     <Stack spacing={1.25}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.25 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 1.25,
+                        }}
+                      >
                         <Avatar
                           className="hover-scale"
                           sx={{
@@ -286,20 +310,25 @@ const LearningPathsPage = () => {
                             height: { xs: 36, sm: 40 },
                             boxShadow: `0 3px 10px ${path.color}30`,
                             border: `2px solid ${path.color}40`,
-                            '& svg': { fontSize: '1.25rem' }
+                            "& svg": { fontSize: "1.25rem" },
                           }}
                         >
                           {path.icon}
                         </Avatar>
                         <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Stack direction="row" alignItems="center" spacing={0.75} flexWrap="wrap">
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={0.75}
+                            flexWrap="wrap"
+                          >
                             <Typography
                               variant={isMobile ? "body1" : "subtitle1"}
                               sx={{
                                 fontWeight: 600,
                                 lineHeight: 1.3,
                                 wordBreak: "break-word",
-                                fontSize: { xs: '0.9375rem', sm: '1rem' }
+                                fontSize: { xs: "0.9375rem", sm: "1rem" },
                               }}
                             >
                               {path.title}
@@ -313,7 +342,7 @@ const LearningPathsPage = () => {
                                   fontWeight: 600,
                                   fontSize: "0.625rem",
                                   height: 18,
-                                  '& .MuiChip-label': { px: 0.75 }
+                                  "& .MuiChip-label": { px: 0.75 },
                                 }}
                               />
                             )}
@@ -387,7 +416,12 @@ const LearningPathsPage = () => {
                     </Stack>
 
                     {/* Tags Section */}
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      flexWrap="wrap"
+                      useFlexGap
+                    >
                       <Chip
                         label={path.difficulty}
                         size="small"
@@ -442,7 +476,9 @@ const LearningPathsPage = () => {
                         }}
                         disabled={!path.isActive && path.progress === 0}
                       >
-                        {path.progress > 0 ? "Continue Learning" : "Start Learning"}
+                        {path.progress > 0
+                          ? "Continue Learning"
+                          : "Start Learning"}
                       </Button>
                       {path.progress === 100 && (
                         <Button

@@ -157,8 +157,8 @@ const MainLayout = ({ children }) => {
                     borderRadius: { xs: 1.5, sm: 2 },
                     py: { xs: 1, sm: 1.5 },
                     px: { xs: 1.5, sm: 2 },
-                    position: 'relative',
-                    overflow: 'hidden',
+                    position: "relative",
+                    overflow: "hidden",
                     backgroundColor: isActive
                       ? theme.palette.primary.main
                       : "transparent",
@@ -166,26 +166,26 @@ const MainLayout = ({ children }) => {
                       ? theme.palette.primary.contrastText
                       : theme.palette.text.primary,
                     transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    '&::before': {
+                    "&::before": {
                       content: '""',
-                      position: 'absolute',
+                      position: "absolute",
                       left: 0,
                       top: 0,
-                      height: '100%',
-                      width: '4px',
+                      height: "100%",
+                      width: "4px",
                       background: theme.palette.primary.main,
                       opacity: isActive ? 1 : 0,
-                      transition: 'opacity 0.3s ease',
+                      transition: "opacity 0.3s ease",
                     },
                     "&:hover": {
                       backgroundColor: isActive
                         ? theme.palette.primary.dark
                         : theme.palette.action.hover,
                       transform: "translateX(8px)",
-                      boxShadow: isActive 
-                        ? '0 4px 12px rgba(79, 70, 229, 0.3)' 
-                        : '0 2px 8px rgba(0, 0, 0, 0.1)',
-                      '&::before': {
+                      boxShadow: isActive
+                        ? "0 4px 12px rgba(79, 70, 229, 0.3)"
+                        : "0 2px 8px rgba(0, 0, 0, 0.1)",
+                      "&::before": {
                         opacity: 1,
                       },
                     },
@@ -208,7 +208,9 @@ const MainLayout = ({ children }) => {
                       whileTap={{ scale: 0.95 }}
                       transition={{ type: "spring", stiffness: 400 }}
                     >
-                      <Icon sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }} />
+                      <Icon
+                        sx={{ fontSize: { xs: "1.25rem", sm: "1.5rem" } }}
+                      />
                     </motion.div>
                   </ListItemIcon>
                   <ListItemText
@@ -294,10 +296,11 @@ const MainLayout = ({ children }) => {
           boxShadow: "none",
           borderBottom: `1px solid ${theme.palette.divider}`,
           zIndex: theme.zIndex.drawer + 1,
-          backdropFilter: 'blur(20px)',
-          background: theme.palette.mode === 'dark' 
-            ? 'rgba(15, 23, 42, 0.8)' 
-            : 'rgba(255, 255, 255, 0.8)',
+          backdropFilter: "blur(20px)",
+          background:
+            theme.palette.mode === "dark"
+              ? "rgba(15, 23, 42, 0.8)"
+              : "rgba(255, 255, 255, 0.8)",
           transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         }}
       >
@@ -307,10 +310,7 @@ const MainLayout = ({ children }) => {
             px: { xs: 2, sm: 3 },
           }}
         >
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <IconButton
               color="inherit"
               aria-label="open drawer"
@@ -321,9 +321,9 @@ const MainLayout = ({ children }) => {
                 display: { md: "none" },
                 p: { xs: 1, sm: 1.5 },
                 transition: "all 0.2s ease",
-                '&:hover': {
+                "&:hover": {
                   background: theme.palette.action.hover,
-                  transform: 'rotate(90deg)',
+                  transform: "rotate(90deg)",
                 },
               }}
             >
@@ -364,9 +364,9 @@ const MainLayout = ({ children }) => {
                   p: { xs: 1, sm: 1.5 },
                   display: { xs: "none", sm: "flex" },
                   transition: "all 0.3s ease",
-                  '&:hover': {
+                  "&:hover": {
                     background: theme.palette.action.hover,
-                    boxShadow: '0 4px 12px rgba(79, 70, 229, 0.2)',
+                    boxShadow: "0 4px 12px rgba(79, 70, 229, 0.2)",
                   },
                 }}
               >
@@ -389,8 +389,8 @@ const MainLayout = ({ children }) => {
                     p: { xs: 0.5, sm: 1 },
                     ml: { xs: 0.5, sm: 1 },
                     transition: "all 0.3s ease",
-                    '&:hover': {
-                      boxShadow: '0 4px 12px rgba(79, 70, 229, 0.3)',
+                    "&:hover": {
+                      boxShadow: "0 4px 12px rgba(79, 70, 229, 0.3)",
                     },
                   }}
                 >
@@ -401,8 +401,8 @@ const MainLayout = ({ children }) => {
                       backgroundColor: theme.palette.primary.main,
                       fontSize: { xs: "0.875rem", sm: "1rem" },
                       transition: "all 0.3s ease",
-                      '&:hover': {
-                        transform: 'scale(1.1)',
+                      "&:hover": {
+                        transform: "scale(1.1)",
                       },
                     }}
                   >
@@ -463,11 +463,11 @@ const MainLayout = ({ children }) => {
         transformOrigin={{ horizontal: "right", vertical: "top" }}
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         sx={{
-          '& .MuiPaper-root': {
+          "& .MuiPaper-root": {
             borderRadius: 2,
             mt: 1,
             minWidth: 180,
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.15)',
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.15)",
           },
         }}
         TransitionComponent={motion.div}
@@ -487,45 +487,45 @@ const MainLayout = ({ children }) => {
             gap: 1,
             py: 1.5,
             transition: "all 0.2s ease",
-            '&:hover': {
+            "&:hover": {
               background: theme.palette.action.hover,
-              transform: 'translateX(4px)',
+              transform: "translateX(4px)",
             },
           }}
         >
-          <Person sx={{ fontSize: '1.25rem' }} />
+          <Person sx={{ fontSize: "1.25rem" }} />
           Profile
         </MenuItem>
-        <MenuItem 
+        <MenuItem
           onClick={handleProfileMenuClose}
           sx={{
             gap: 1,
             py: 1.5,
             transition: "all 0.2s ease",
-            '&:hover': {
+            "&:hover": {
               background: theme.palette.action.hover,
-              transform: 'translateX(4px)',
+              transform: "translateX(4px)",
             },
           }}
         >
-          <Settings sx={{ fontSize: '1.25rem' }} />
+          <Settings sx={{ fontSize: "1.25rem" }} />
           Settings
         </MenuItem>
         <Divider sx={{ my: 0.5 }} />
-        <MenuItem 
+        <MenuItem
           onClick={handleLogout}
           sx={{
             gap: 1,
             py: 1.5,
             color: theme.palette.error.main,
             transition: "all 0.2s ease",
-            '&:hover': {
+            "&:hover": {
               background: `${theme.palette.error.main}10`,
-              transform: 'translateX(4px)',
+              transform: "translateX(4px)",
             },
           }}
         >
-          <Logout sx={{ fontSize: '1.25rem' }} />
+          <Logout sx={{ fontSize: "1.25rem" }} />
           Logout
         </MenuItem>
       </Menu>

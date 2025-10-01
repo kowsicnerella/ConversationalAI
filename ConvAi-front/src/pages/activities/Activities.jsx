@@ -268,8 +268,8 @@ const mockActivities = {
 const Activities = () => {
   const navigate = useNavigate();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const { activityType } = useParams();
   const [selectedTab, setSelectedTab] = useState(0);
   const [currentActivity, setCurrentActivity] = useState(null);
@@ -351,7 +351,11 @@ const Activities = () => {
           }}
         >
           <activity.icon
-            sx={{ fontSize: { xs: 56, sm: 64 }, color: activity.color, opacity: 0.8 }}
+            sx={{
+              fontSize: { xs: 56, sm: 64 },
+              color: activity.color,
+              opacity: 0.8,
+            }}
           />
           <Box
             sx={{
@@ -422,7 +426,10 @@ const Activities = () => {
   );
 
   return (
-    <Container maxWidth="xl" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3 } }}>
+    <Container
+      maxWidth="xl"
+      sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3 } }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -441,28 +448,49 @@ const Activities = () => {
           }}
         >
           <School sx={{ fontSize: { xs: 40, sm: 48 }, mb: 1.5 }} />
-          <Typography variant={isMobile ? "h5" : "h4"} sx={{ fontWeight: "bold", mb: 1.5 }}>
+          <Typography
+            variant={isMobile ? "h5" : "h4"}
+            sx={{ fontWeight: "bold", mb: 1.5 }}
+          >
             Interactive Activities
           </Typography>
-          <Typography variant={isMobile ? "body2" : "body1"} sx={{ opacity: 0.9 }}>
+          <Typography
+            variant={isMobile ? "body2" : "body1"}
+            sx={{ opacity: 0.9 }}
+          >
             Engage with dynamic learning experiences designed to accelerate your
             progress
           </Typography>
         </Paper>
 
         {/* Stats Cards */}
-        <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }} sx={{ mb: { xs: 3, sm: 4 } }}>
+        <Grid
+          container
+          spacing={{ xs: 2, sm: 2.5, md: 3 }}
+          sx={{ mb: { xs: 3, sm: 4 } }}
+        >
           <Grid item xs={12} sm={4}>
             <motion.div whileHover={{ scale: isMobile ? 1 : 1.02 }}>
-              <Paper sx={{ p: { xs: 2, sm: 2.5 }, textAlign: "center", borderRadius: 3 }}>
-                <TrendingUp sx={{ fontSize: { xs: 28, sm: 32 }, color: "#4caf50", mb: 1 }} />
+              <Paper
+                sx={{
+                  p: { xs: 2, sm: 2.5 },
+                  textAlign: "center",
+                  borderRadius: 3,
+                }}
+              >
+                <TrendingUp
+                  sx={{ fontSize: { xs: 28, sm: 32 }, color: "#4caf50", mb: 1 }}
+                />
                 <Typography
                   variant={isMobile ? "h6" : "h5"}
                   sx={{ fontWeight: "bold", color: "#4caf50" }}
                 >
                   {activityTypes.length}
                 </Typography>
-                <Typography variant={isMobile ? "caption" : "body2"} color="text.secondary">
+                <Typography
+                  variant={isMobile ? "caption" : "body2"}
+                  color="text.secondary"
+                >
                   Activity Types
                 </Typography>
               </Paper>
@@ -470,15 +498,26 @@ const Activities = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <motion.div whileHover={{ scale: isMobile ? 1 : 1.02 }}>
-              <Paper sx={{ p: { xs: 2, sm: 2.5 }, textAlign: "center", borderRadius: 3 }}>
-                <Quiz sx={{ fontSize: { xs: 28, sm: 32 }, color: "#2196f3", mb: 1 }} />
+              <Paper
+                sx={{
+                  p: { xs: 2, sm: 2.5 },
+                  textAlign: "center",
+                  borderRadius: 3,
+                }}
+              >
+                <Quiz
+                  sx={{ fontSize: { xs: 28, sm: 32 }, color: "#2196f3", mb: 1 }}
+                />
                 <Typography
                   variant={isMobile ? "h6" : "h5"}
                   sx={{ fontWeight: "bold", color: "#2196f3" }}
                 >
                   50+
                 </Typography>
-                <Typography variant={isMobile ? "caption" : "body2"} color="text.secondary">
+                <Typography
+                  variant={isMobile ? "caption" : "body2"}
+                  color="text.secondary"
+                >
                   Interactive Exercises
                 </Typography>
               </Paper>
@@ -486,15 +525,26 @@ const Activities = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <motion.div whileHover={{ scale: isMobile ? 1 : 1.02 }}>
-              <Paper sx={{ p: { xs: 2, sm: 2.5 }, textAlign: "center", borderRadius: 3 }}>
-                <Star sx={{ fontSize: { xs: 28, sm: 32 }, color: "#ff9800", mb: 1 }} />
+              <Paper
+                sx={{
+                  p: { xs: 2, sm: 2.5 },
+                  textAlign: "center",
+                  borderRadius: 3,
+                }}
+              >
+                <Star
+                  sx={{ fontSize: { xs: 28, sm: 32 }, color: "#ff9800", mb: 1 }}
+                />
                 <Typography
                   variant={isMobile ? "h6" : "h5"}
                   sx={{ fontWeight: "bold", color: "#ff9800" }}
                 >
                   4.9
                 </Typography>
-                <Typography variant={isMobile ? "caption" : "body2"} color="text.secondary">
+                <Typography
+                  variant={isMobile ? "caption" : "body2"}
+                  color="text.secondary"
+                >
                   Average Rating
                 </Typography>
               </Paper>
@@ -503,7 +553,9 @@ const Activities = () => {
         </Grid>
 
         {/* Activity Categories */}
-        <Paper sx={{ borderRadius: 3, overflow: "hidden", mb: { xs: 3, sm: 4 } }}>
+        <Paper
+          sx={{ borderRadius: 3, overflow: "hidden", mb: { xs: 3, sm: 4 } }}
+        >
           <Tabs
             value={selectedTab}
             onChange={handleTabChange}
@@ -511,9 +563,12 @@ const Activities = () => {
             scrollButtons="auto"
             sx={{ borderBottom: 1, borderColor: "divider" }}
           >
-            <Tab 
-              label="All Activities" 
-              sx={{ minHeight: { xs: 56, sm: 72 }, fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
+            <Tab
+              label="All Activities"
+              sx={{
+                minHeight: { xs: 56, sm: 72 },
+                fontSize: { xs: "0.8rem", sm: "0.875rem" },
+              }}
             />
             {activityTypes.map((activity) => (
               <Tab
@@ -521,7 +576,10 @@ const Activities = () => {
                 label={activity.title}
                 icon={<activity.icon sx={{ fontSize: { xs: 18, sm: 20 } }} />}
                 iconPosition={isMobile ? "start" : "start"}
-                sx={{ minHeight: { xs: 56, sm: 72 }, fontSize: { xs: "0.8rem", sm: "0.875rem" } }}
+                sx={{
+                  minHeight: { xs: 56, sm: 72 },
+                  fontSize: { xs: "0.8rem", sm: "0.875rem" },
+                }}
               />
             ))}
           </Tabs>

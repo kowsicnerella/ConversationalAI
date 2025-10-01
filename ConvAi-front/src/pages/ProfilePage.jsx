@@ -84,7 +84,7 @@ TabPanel.propTypes = {
 
 const ProfilePage = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user, updateProfile } = useAuthStore();
   const [activeTab, setActiveTab] = useState(0);
   const [editMode, setEditMode] = useState(false);
@@ -299,7 +299,10 @@ const ProfilePage = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3 } }}>
+    <Container
+      maxWidth="lg"
+      sx={{ py: { xs: 2, sm: 3, md: 4 }, px: { xs: 2, sm: 3 } }}
+    >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -311,16 +314,22 @@ const ProfilePage = () => {
           sx={{
             mb: { xs: 2, sm: 3 },
             borderRadius: { xs: 2, sm: 3 },
-            background: theme.palette.mode === 'dark'
-              ? 'rgba(30, 41, 59, 0.6)'
-              : 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(20px)',
+            background:
+              theme.palette.mode === "dark"
+                ? "rgba(30, 41, 59, 0.6)"
+                : "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(20px)",
           }}
         >
           <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 } }}>
             <Grid container spacing={{ xs: 2, sm: 3 }} alignItems="center">
-              <Grid item xs={12} sm="auto" sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
-                <Box sx={{ position: "relative", display: 'inline-block' }}>
+              <Grid
+                item
+                xs={12}
+                sm="auto"
+                sx={{ textAlign: { xs: "center", sm: "left" } }}
+              >
+                <Box sx={{ position: "relative", display: "inline-block" }}>
                   <Avatar
                     className="hover-scale"
                     sx={{
@@ -342,7 +351,7 @@ const ProfilePage = () => {
                       bottom: 0,
                       right: 0,
                       bgcolor: theme.palette.primary.main,
-                      color: 'white',
+                      color: "white",
                       border: 2,
                       borderColor: "background.paper",
                       width: { xs: 36, sm: 40 },
@@ -358,13 +367,19 @@ const ProfilePage = () => {
                 </Box>
               </Grid>
 
-              <Grid item xs={12} sm sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
+              <Grid
+                item
+                xs={12}
+                sm
+                sx={{ textAlign: { xs: "center", sm: "left" } }}
+              >
                 <Typography
                   variant={isMobile ? "h5" : "h4"}
                   sx={{
                     fontWeight: 700,
                     mb: 1,
-                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                     backgroundClip: "text",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
@@ -375,7 +390,7 @@ const ProfilePage = () => {
                 <Typography
                   variant="body1"
                   color="text.secondary"
-                  sx={{ mb: 1, fontSize: { xs: '0.875rem', sm: '1rem' } }}
+                  sx={{ mb: 1, fontSize: { xs: "0.875rem", sm: "1rem" } }}
                 >
                   {profileData.email}
                 </Typography>
@@ -384,7 +399,7 @@ const ProfilePage = () => {
                   color="text.secondary"
                   sx={{
                     mb: 2,
-                    fontSize: { xs: '0.875rem', sm: '0.9375rem' },
+                    fontSize: { xs: "0.875rem", sm: "0.9375rem" },
                     lineHeight: 1.6,
                   }}
                 >
@@ -396,7 +411,7 @@ const ProfilePage = () => {
                   spacing={1}
                   flexWrap="wrap"
                   useFlexGap
-                  justifyContent={{ xs: 'center', sm: 'flex-start' }}
+                  justifyContent={{ xs: "center", sm: "flex-start" }}
                 >
                   <Chip
                     icon={<School />}
@@ -422,7 +437,12 @@ const ProfilePage = () => {
                 </Stack>
               </Grid>
 
-              <Grid item xs={12} sm="auto" sx={{ textAlign: { xs: 'center', sm: 'right' } }}>
+              <Grid
+                item
+                xs={12}
+                sm="auto"
+                sx={{ textAlign: { xs: "center", sm: "right" } }}
+              >
                 <Button
                   variant={editMode ? "outlined" : "contained"}
                   startIcon={editMode ? <Cancel /> : <Edit />}
@@ -434,7 +454,7 @@ const ProfilePage = () => {
                     borderRadius: 2,
                     py: { xs: 1, sm: 1.25 },
                     fontWeight: 600,
-                    textTransform: 'none',
+                    textTransform: "none",
                   }}
                 >
                   {editMode ? "Cancel" : "Edit Profile"}
@@ -450,10 +470,11 @@ const ProfilePage = () => {
           sx={{
             mb: { xs: 2, sm: 3 },
             borderRadius: { xs: 2, sm: 3 },
-            background: theme.palette.mode === 'dark'
-              ? 'rgba(30, 41, 59, 0.6)'
-              : 'rgba(255, 255, 255, 0.9)',
-            backdropFilter: 'blur(20px)',
+            background:
+              theme.palette.mode === "dark"
+                ? "rgba(30, 41, 59, 0.6)"
+                : "rgba(255, 255, 255, 0.9)",
+            backdropFilter: "blur(20px)",
           }}
         >
           <Tabs
@@ -463,14 +484,14 @@ const ProfilePage = () => {
             scrollButtons="auto"
             allowScrollButtonsMobile
             sx={{
-              '& .MuiTab-root': {
+              "& .MuiTab-root": {
                 minHeight: { xs: 48, sm: 56 },
-                fontSize: { xs: '0.8125rem', sm: '0.9375rem' },
+                fontSize: { xs: "0.8125rem", sm: "0.9375rem" },
                 fontWeight: 600,
-                textTransform: 'none',
+                textTransform: "none",
                 px: { xs: 2, sm: 3 },
               },
-              '& .Mui-selected': {
+              "& .Mui-selected": {
                 fontWeight: 700,
               },
             }}
@@ -493,7 +514,7 @@ const ProfilePage = () => {
                 className="hover-lift"
                 sx={{
                   borderRadius: { xs: 2, sm: 3 },
-                  height: '100%',
+                  height: "100%",
                 }}
               >
                 <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
@@ -514,7 +535,10 @@ const ProfilePage = () => {
                       >
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: 500, fontSize: { xs: '0.8125rem', sm: '0.875rem' } }}
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                          }}
                         >
                           Overall Progress
                         </Typography>
@@ -523,7 +547,7 @@ const ProfilePage = () => {
                           sx={{
                             fontWeight: 700,
                             color: theme.palette.primary.main,
-                            fontSize: { xs: '0.875rem', sm: '1rem' },
+                            fontSize: { xs: "0.875rem", sm: "1rem" },
                           }}
                         >
                           {learningStats.progress}%
@@ -535,8 +559,11 @@ const ProfilePage = () => {
                         sx={{
                           height: { xs: 8, sm: 10 },
                           borderRadius: 5,
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                          '& .MuiLinearProgress-bar': {
+                          bgcolor:
+                            theme.palette.mode === "dark"
+                              ? "rgba(255,255,255,0.1)"
+                              : "rgba(0,0,0,0.05)",
+                          "& .MuiLinearProgress-bar": {
                             borderRadius: 5,
                             background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.primary.light})`,
                           },
@@ -553,7 +580,10 @@ const ProfilePage = () => {
                       >
                         <Typography
                           variant="body2"
-                          sx={{ fontWeight: 500, fontSize: { xs: '0.8125rem', sm: '0.875rem' } }}
+                          sx={{
+                            fontWeight: 500,
+                            fontSize: { xs: "0.8125rem", sm: "0.875rem" },
+                          }}
                         >
                           Weekly Goal
                         </Typography>
@@ -562,22 +592,28 @@ const ProfilePage = () => {
                           sx={{
                             fontWeight: 700,
                             color: theme.palette.secondary.main,
-                            fontSize: { xs: '0.875rem', sm: '1rem' },
+                            fontSize: { xs: "0.875rem", sm: "1rem" },
                           }}
                         >
-                          {learningStats.weeklyProgress}/{learningStats.weeklyGoal} min
+                          {learningStats.weeklyProgress}/
+                          {learningStats.weeklyGoal} min
                         </Typography>
                       </Stack>
                       <LinearProgress
                         variant="determinate"
                         value={
-                          (learningStats.weeklyProgress / learningStats.weeklyGoal) * 100
+                          (learningStats.weeklyProgress /
+                            learningStats.weeklyGoal) *
+                          100
                         }
                         sx={{
                           height: { xs: 8, sm: 10 },
                           borderRadius: 5,
-                          bgcolor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                          '& .MuiLinearProgress-bar': {
+                          bgcolor:
+                            theme.palette.mode === "dark"
+                              ? "rgba(255,255,255,0.1)"
+                              : "rgba(0,0,0,0.05)",
+                          "& .MuiLinearProgress-bar": {
                             borderRadius: 5,
                             background: `linear-gradient(90deg, ${theme.palette.secondary.main}, ${theme.palette.secondary.light})`,
                           },
@@ -596,7 +632,7 @@ const ProfilePage = () => {
                 className="hover-lift"
                 sx={{
                   borderRadius: { xs: 2, sm: 3 },
-                  height: '100%',
+                  height: "100%",
                 }}
               >
                 <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
@@ -612,7 +648,7 @@ const ProfilePage = () => {
                         px: 0,
                         py: { xs: 1, sm: 1.5 },
                         borderRadius: 2,
-                        '&:hover': {
+                        "&:hover": {
                           bgcolor: theme.palette.action.hover,
                         },
                       }}
@@ -625,10 +661,10 @@ const ProfilePage = () => {
                         secondary="Total study time"
                         primaryTypographyProps={{
                           fontWeight: 600,
-                          fontSize: { xs: '0.9375rem', sm: '1rem' },
+                          fontSize: { xs: "0.9375rem", sm: "1rem" },
                         }}
                         secondaryTypographyProps={{
-                          fontSize: { xs: '0.75rem', sm: '0.8125rem' },
+                          fontSize: { xs: "0.75rem", sm: "0.8125rem" },
                         }}
                       />
                     </ListItem>
@@ -638,7 +674,7 @@ const ProfilePage = () => {
                         px: 0,
                         py: { xs: 1, sm: 1.5 },
                         borderRadius: 2,
-                        '&:hover': {
+                        "&:hover": {
                           bgcolor: theme.palette.action.hover,
                         },
                       }}
@@ -651,10 +687,10 @@ const ProfilePage = () => {
                         secondary="Vocabulary learned"
                         primaryTypographyProps={{
                           fontWeight: 600,
-                          fontSize: { xs: '0.9375rem', sm: '1rem' },
+                          fontSize: { xs: "0.9375rem", sm: "1rem" },
                         }}
                         secondaryTypographyProps={{
-                          fontSize: { xs: '0.75rem', sm: '0.8125rem' },
+                          fontSize: { xs: "0.75rem", sm: "0.8125rem" },
                         }}
                       />
                     </ListItem>
@@ -664,7 +700,7 @@ const ProfilePage = () => {
                         px: 0,
                         py: { xs: 1, sm: 1.5 },
                         borderRadius: 2,
-                        '&:hover': {
+                        "&:hover": {
                           bgcolor: theme.palette.action.hover,
                         },
                       }}
@@ -677,10 +713,10 @@ const ProfilePage = () => {
                         secondary="Completed"
                         primaryTypographyProps={{
                           fontWeight: 600,
-                          fontSize: { xs: '0.9375rem', sm: '1rem' },
+                          fontSize: { xs: "0.9375rem", sm: "1rem" },
                         }}
                         secondaryTypographyProps={{
-                          fontSize: { xs: '0.75rem', sm: '0.8125rem' },
+                          fontSize: { xs: "0.75rem", sm: "0.8125rem" },
                         }}
                       />
                     </ListItem>

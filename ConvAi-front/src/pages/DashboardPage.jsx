@@ -96,11 +96,12 @@ const DashboardPage = () => {
                 >
                   <CardContent
                     className="card-content-flex"
-                    sx={{ p: { xs: 1.5, sm: 2 }, '&:last-child': { pb: { xs: 1.5, sm: 2 } } }}
+                    sx={{
+                      p: { xs: 1.5, sm: 2 },
+                      "&:last-child": { pb: { xs: 1.5, sm: 2 } },
+                    }}
                   >
-                    <Box
-                      sx={{ display: "flex", alignItems: "center", mb: 1 }}
-                    >
+                    <Box sx={{ display: "flex", alignItems: "center", mb: 1 }}>
                       <Box
                         sx={{
                           p: 0.75,
@@ -108,22 +109,25 @@ const DashboardPage = () => {
                           background: `${stat.color}20`,
                           color: stat.color,
                           mr: 1.25,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          '& svg': { fontSize: '1.25rem' }
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          "& svg": { fontSize: "1.25rem" },
                         }}
                       >
                         {stat.icon}
                       </Box>
-                      <Typography variant="body1" sx={{ fontWeight: 600, fontSize: '1rem' }}>
+                      <Typography
+                        variant="body1"
+                        sx={{ fontWeight: 600, fontSize: "1rem" }}
+                      >
                         {stat.value}
                       </Typography>
                     </Box>
                     <Typography
                       variant="body2"
                       color="text.secondary"
-                      sx={{ mb: 1.5, fontSize: '0.813rem' }}
+                      sx={{ mb: 1.5, fontSize: "0.813rem" }}
                     >
                       {stat.title}
                     </Typography>
@@ -147,10 +151,17 @@ const DashboardPage = () => {
                         mt: 0.75,
                       }}
                     >
-                      <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.688rem' }}>
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        sx={{ fontSize: "0.688rem" }}
+                      >
                         Progress
                       </Typography>
-                      <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.688rem' }}>
+                      <Typography
+                        variant="caption"
+                        sx={{ fontWeight: 600, fontSize: "0.688rem" }}
+                      >
                         {stat.progress}%
                       </Typography>
                     </Box>
@@ -162,7 +173,10 @@ const DashboardPage = () => {
         </Grid>
 
         <Box sx={{ mt: { xs: 2.5, sm: 3 } }}>
-          <Typography variant="h6" sx={{ mb: 1.5, fontWeight: 600, fontSize: '1.125rem' }}>
+          <Typography
+            variant="h6"
+            sx={{ mb: 1.5, fontWeight: 600, fontSize: "1.125rem" }}
+          >
             Recent Activity
           </Typography>
           <Card sx={{ borderRadius: 2 }}>

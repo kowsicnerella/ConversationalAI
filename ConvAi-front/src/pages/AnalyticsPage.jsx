@@ -163,8 +163,8 @@ TabPanel.propTypes = {
 
 const AnalyticsPage = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
   const [tabValue, setTabValue] = useState(0);
   const [timeRange, setTimeRange] = useState("week");
   const [isLoading, setIsLoading] = useState(false);
@@ -323,9 +323,9 @@ const AnalyticsPage = () => {
                   sx={{
                     mb: 0.5,
                     fontWeight: 800,
-                    display: 'flex',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
+                    display: "flex",
+                    alignItems: "center",
+                    flexWrap: "wrap",
                   }}
                 >
                   AI Learning Analytics
@@ -352,11 +352,14 @@ const AnalyticsPage = () => {
                 direction="row"
                 spacing={1.5}
                 alignItems="center"
-                sx={{ width: { xs: '100%', md: 'auto' } }}
+                sx={{ width: { xs: "100%", md: "auto" } }}
               >
                 <FormControl
                   size={isMobile ? "small" : "medium"}
-                  sx={{ minWidth: { xs: 120, sm: 140 }, flex: { xs: 1, md: 0 } }}
+                  sx={{
+                    minWidth: { xs: 120, sm: 140 },
+                    flex: { xs: 1, md: 0 },
+                  }}
                 >
                   <InputLabel>Time Range</InputLabel>
                   <Select
@@ -375,12 +378,14 @@ const AnalyticsPage = () => {
                   disabled={isLoading}
                   className="hover-scale"
                   sx={{
-                    background: "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
+                    background:
+                      "linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)",
                     color: "white",
                     width: { xs: 40, sm: 48 },
                     height: { xs: 40, sm: 48 },
                     "&:hover": {
-                      background: "linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)",
+                      background:
+                        "linear-gradient(135deg, #4338ca 0%, #6d28d9 100%)",
                     },
                     "&:disabled": {
                       background: alpha(theme.palette.action.disabled, 0.3),
@@ -398,7 +403,11 @@ const AnalyticsPage = () => {
           </Box>
 
           {/* AI-Enhanced Stats Cards */}
-          <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }} sx={{ mb: { xs: 3, sm: 4 } }}>
+          <Grid
+            container
+            spacing={{ xs: 2, sm: 2.5, md: 3 }}
+            sx={{ mb: { xs: 3, sm: 4 } }}
+          >
             {statCards.map((stat, index) => (
               <Grid item xs={12} sm={6} lg={3} key={index}>
                 <FloatingElement delay={index * 0.1} amplitude={6}>
@@ -601,10 +610,13 @@ const AnalyticsPage = () => {
                           gap: { xs: 1, sm: 0 },
                         }}
                       >
-                        <GradientText 
-                          variant={isMobile ? "subtitle1" : "h6"} 
+                        <GradientText
+                          variant={isMobile ? "subtitle1" : "h6"}
                           gradient="secondary"
-                          sx={{ textAlign: { xs: "center", sm: "left" }, width: { xs: "100%", sm: "auto" } }}
+                          sx={{
+                            textAlign: { xs: "center", sm: "left" },
+                            width: { xs: "100%", sm: "auto" },
+                          }}
                         >
                           Weekly AI Learning Progress
                         </GradientText>
@@ -620,10 +632,17 @@ const AnalyticsPage = () => {
                               }}
                             />
                           }
-                          label={<Typography variant={isMobile ? "body2" : "body1"}>Show AI predictions</Typography>}
+                          label={
+                            <Typography variant={isMobile ? "body2" : "body1"}>
+                              Show AI predictions
+                            </Typography>
+                          }
                         />
                       </Box>
-                      <ResponsiveContainer width="100%" height={isMobile ? 280 : isTablet ? 320 : 350}>
+                      <ResponsiveContainer
+                        width="100%"
+                        height={isMobile ? 280 : isTablet ? 320 : 350}
+                      >
                         <ComposedChart
                           data={dashboardData?.weekly_progress || []}
                         >
@@ -722,7 +741,10 @@ const AnalyticsPage = () => {
                       >
                         AI Activity Breakdown
                       </GradientText>
-                      <ResponsiveContainer width="100%" height={isMobile ? 250 : 300}>
+                      <ResponsiveContainer
+                        width="100%"
+                        height={isMobile ? 250 : 300}
+                      >
                         <PieChart>
                           <Pie
                             data={activityBreakdownData}
@@ -817,7 +839,10 @@ const AnalyticsPage = () => {
                       >
                         AI Skills Radar Analysis
                       </GradientText>
-                      <ResponsiveContainer width="100%" height={isMobile ? 300 : isTablet ? 350 : 400}>
+                      <ResponsiveContainer
+                        width="100%"
+                        height={isMobile ? 300 : isTablet ? 350 : 400}
+                      >
                         <RadarChart data={skillRadarData}>
                           <PolarGrid
                             stroke={alpha(theme.palette.text.secondary, 0.3)}
@@ -937,7 +962,9 @@ const AnalyticsPage = () => {
             {/* Additional tabs content can be added here */}
             <TabPanel value={tabValue} index={2}>
               <GlassCard>
-                <CardContent sx={{ p: { xs: 2.5, sm: 3 }, textAlign: "center" }}>
+                <CardContent
+                  sx={{ p: { xs: 2.5, sm: 3 }, textAlign: "center" }}
+                >
                   <Psychology
                     sx={{
                       fontSize: { xs: 40, sm: 48 },
@@ -945,14 +972,17 @@ const AnalyticsPage = () => {
                       mb: 1.5,
                     }}
                   />
-                  <GradientText 
-                    variant={isMobile ? "body1" : "h6"} 
-                    gradient="primary" 
+                  <GradientText
+                    variant={isMobile ? "body1" : "h6"}
+                    gradient="primary"
                     sx={{ mb: 1.5 }}
                   >
                     Learning Patterns Analysis
                   </GradientText>
-                  <Typography variant={isMobile ? "body2" : "body1"} color="text.secondary">
+                  <Typography
+                    variant={isMobile ? "body2" : "body1"}
+                    color="text.secondary"
+                  >
                     Advanced AI pattern recognition coming soon...
                   </Typography>
                 </CardContent>
@@ -961,7 +991,9 @@ const AnalyticsPage = () => {
 
             <TabPanel value={tabValue} index={3}>
               <GlassCard>
-                <CardContent sx={{ p: { xs: 2.5, sm: 3 }, textAlign: "center" }}>
+                <CardContent
+                  sx={{ p: { xs: 2.5, sm: 3 }, textAlign: "center" }}
+                >
                   <Insights
                     sx={{
                       fontSize: { xs: 40, sm: 48 },
@@ -976,7 +1008,10 @@ const AnalyticsPage = () => {
                   >
                     Performance Insights
                   </GradientText>
-                  <Typography variant={isMobile ? "body2" : "body1"} color="text.secondary">
+                  <Typography
+                    variant={isMobile ? "body2" : "body1"}
+                    color="text.secondary"
+                  >
                     Deep performance analytics and recommendations coming
                     soon...
                   </Typography>
