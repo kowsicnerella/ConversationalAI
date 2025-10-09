@@ -38,7 +38,10 @@ const InitialAssessment = () => {
     try {
       setLoading(true);
       const response = await axiosInstance.post(
-        API_ENDPOINTS.ASSESSMENT.GENERATE
+        API_ENDPOINTS.ASSESSMENT.GENERATE,
+        {
+          assessment_type: "comprehensive" // Can be 'quick', 'adaptive', or 'comprehensive'
+        }
       );
       setAssessment(response.data.assessment);
       setTimeStarted(Date.now());
@@ -67,27 +70,36 @@ const InitialAssessment = () => {
     }
 
     try {
-      // Submit the answer for this question
-      await axiosInstance.post(
-        API_ENDPOINTS.ASSESSMENT.SUBMIT_ANSWER(assessment.id),
+      // Submit the answer for this question using the new endpoint
+      const response = await axiosInstance.post(
+        API_ENDPOINTS.ASSESSMENT.SUBMIT_ANSWER(assessment.assessment_id),
         {
-          question_id: currentQuestion.id,
+          question_id: currentQuestion.question_id,
           answer: answer,
         }
       );
 
       setError("");
+      
+      const result = response.data.result;
+
+      // Show feedback briefly (optional)
+      if (result.evaluation) {
+        console.log("Answer feedback:", result.evaluation.feedback);
+      }
 
       // Move to next question
       if (currentQuestionIndex < assessment.questions.length - 1) {
         setCurrentQuestionIndex((prev) => prev + 1);
       } else {
-        // Assessment complete
+        // All questions answered, complete assessment
         handleComplete();
       }
     } catch (err) {
       console.error("Error submitting answer:", err);
-      setError("Failed to submit answer. Please try again.");
+      setError(
+        err.response?.data?.error || "Failed to submit answer. Please try again."
+      );
     }
   };
 
@@ -98,7 +110,7 @@ const InitialAssessment = () => {
 
       // Complete the assessment
       const response = await axiosInstance.post(
-        API_ENDPOINTS.ASSESSMENT.COMPLETE(assessment.id),
+        API_ENDPOINTS.ASSESSMENT.COMPLETE(assessment.assessment_id),
         {
           time_spent_seconds: timeSpent,
         }
@@ -110,13 +122,15 @@ const InitialAssessment = () => {
       navigate("/assessment-results", {
         state: {
           results: response.data.results,
-          assessmentId: assessment.id,
+          assessmentId: assessment.assessment_id,
           fromOnboarding: fromOnboarding,
         },
       });
     } catch (err) {
       console.error("Error completing assessment:", err);
-      setError("Failed to complete assessment. Please try again.");
+      setError(
+        err.response?.data?.error || "Failed to complete assessment. Please try again."
+      );
       setSubmitting(false);
     }
   };
@@ -125,7 +139,7 @@ const InitialAssessment = () => {
   const progress =
     ((currentQuestionIndex + 1) / (assessment?.questions?.length || 1)) * 100;
   const currentAnswer = currentQuestion
-    ? answers[currentQuestion.id] || ""
+    ? answers[currentQuestion.question_id] || ""
     : "";
 
   if (loading) {
@@ -216,7 +230,7 @@ const InitialAssessment = () => {
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
             <Chip
-              label={currentQuestion.skill_focus}
+              label={currentQuestion.skill_area || "General"}
               sx={{
                 backgroundColor: "rgba(255,255,255,0.2)",
                 color: "white",
@@ -224,7 +238,7 @@ const InitialAssessment = () => {
               }}
             />
             <Chip
-              label={currentQuestion.difficulty}
+              label={currentQuestion.difficulty_level || "Mixed"}
               sx={{
                 backgroundColor: "rgba(255,255,255,0.2)",
                 color: "white",
@@ -236,12 +250,12 @@ const InitialAssessment = () => {
             {currentQuestion.question_text}
           </Typography>
 
-          {currentQuestion.question_text_telugu && (
+          {currentQuestion.telugu_hint && (
             <Typography
               variant="body1"
               sx={{ opacity: 0.9, fontStyle: "italic" }}
             >
-              {currentQuestion.question_text_telugu}
+              💡 {currentQuestion.telugu_hint}
             </Typography>
           )}
         </CardContent>
@@ -254,7 +268,7 @@ const InitialAssessment = () => {
             <RadioGroup
               value={currentAnswer}
               onChange={(e) =>
-                handleAnswerChange(currentQuestion.id, e.target.value)
+                handleAnswerChange(currentQuestion.question_id, e.target.value)
               }
             >
               {currentQuestion.options?.map((option, index) => (
@@ -293,7 +307,7 @@ const InitialAssessment = () => {
               placeholder="Type your answer here..."
               value={currentAnswer}
               onChange={(e) =>
-                handleAnswerChange(currentQuestion.id, e.target.value)
+                handleAnswerChange(currentQuestion.question_id, e.target.value)
               }
               variant="outlined"
               sx={{

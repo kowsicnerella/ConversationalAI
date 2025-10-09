@@ -4,6 +4,7 @@ from app.services.initial_assessment_service import InitialAssessmentService
 from app.models import User, ProficiencyAssessment
 from app.models import db
 from typing import Dict, List
+from datetime import datetime
 import traceback
 
 assessment_routes = Blueprint('assessment', __name__)
@@ -138,6 +139,196 @@ def submit_assessment(assessment_id):
         return jsonify({
             'error': 'Failed to submit assessment',
             'telugu_error': 'మూల్యాంకనం సమర్పణలో వైఫల్యం',
+            'details': str(e)
+        }), 500
+
+
+@assessment_routes.route('/api/assessment/<int:assessment_id>/submit-answer', methods=['POST'])
+@jwt_required()
+def submit_single_answer(assessment_id):
+    """
+    Submit a single answer for an assessment question (adaptive/step-by-step).
+    Expected JSON body:
+    {
+        "question_id": "q_vocab_beginner_1",
+        "answer": "A"
+    }
+    """
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json()
+        
+        if not data or 'question_id' not in data or 'answer' not in data:
+            return jsonify({
+                'error': 'question_id and answer are required',
+                'telugu_error': 'ప్రశ్న ID మరియు సమాధానం అవసరం'
+            }), 400
+        
+        question_id = data['question_id']
+        answer = data['answer']
+        
+        # Verify assessment belongs to current user
+        assessment = ProficiencyAssessment.query.get(assessment_id)
+        if not assessment or assessment.user_id != user_id:
+            return jsonify({
+                'error': 'Assessment not found or unauthorized',
+                'telugu_error': 'మూల్యాంకనం కనుగొనబడలేదు లేదా అనధికృతం'
+            }), 404
+        
+        # Submit single answer and get next question
+        result = assessment_service.submit_single_answer(assessment_id, question_id, answer)
+        
+        return jsonify({
+            'success': True,
+            'result': result,
+            'message': 'Answer submitted successfully',
+            'telugu_message': 'సమాధానం విజయవంతంగా సమర్పించబడింది'
+        }), 200
+        
+    except ValueError as e:
+        return jsonify({
+            'error': str(e),
+            'telugu_error': 'సమాధానం సమర్పణలో లోపం'
+        }), 400
+    except Exception as e:
+        print(f"Error in single answer submission: {str(e)}")
+        traceback.print_exc()
+        return jsonify({
+            'error': 'Failed to submit answer',
+            'telugu_error': 'సమాధానం సమర్పణలో వైఫల్యం',
+            'details': str(e)
+        }), 500
+
+
+@assessment_routes.route('/api/assessment/<int:assessment_id>/complete', methods=['POST'])
+@jwt_required()
+def complete_assessment(assessment_id):
+    """
+    Complete the assessment and update user profile.
+    Can be called after all answers are submitted via submit-answer endpoint.
+    Expected JSON body (optional):
+    {
+        "time_spent_seconds": 300
+    }
+    """
+    try:
+        user_id = get_jwt_identity()
+        data = request.get_json() or {}
+        
+        # Verify assessment belongs to current user
+        assessment = ProficiencyAssessment.query.get(assessment_id)
+        if not assessment or assessment.user_id != user_id:
+            return jsonify({
+                'error': 'Assessment not found or unauthorized',
+                'telugu_error': 'మూల్యాంకనం కనుగొనబడలేదు లేదా అనధికృతం'
+            }), 404
+        
+        # Check if already completed
+        if assessment.completed_at:
+            return jsonify({
+                'error': 'Assessment is already completed',
+                'telugu_error': 'మూల్యాంకనం ఇప్పటికే పూర్తయింది',
+                'results': {
+                    'proficiency_level': assessment.proficiency_level,
+                    'score': assessment.score,
+                    'max_score': assessment.max_score
+                }
+            }), 400
+        
+        # Check if all questions have been answered
+        current_responses = assessment.user_responses if assessment.user_responses else {}
+        questions = assessment.questions_asked if assessment.questions_asked else []
+        
+        if len(current_responses) < len(questions):
+            return jsonify({
+                'error': f'Not all questions answered. {len(current_responses)}/{len(questions)} completed.',
+                'telugu_error': 'అన్ని ప్రశ్నలకు సమాధానం ఇవ్వలేదు'
+            }), 400
+        
+        # Prepare answers dict for evaluation
+        answers = {qid: resp['answer'] for qid, resp in current_responses.items()}
+        
+        # Submit and evaluate if not already evaluated
+        if not assessment.ai_evaluation:
+            results = assessment_service.submit_assessment_answers(assessment_id, answers)
+        else:
+            # Already evaluated, just format the results
+            max_score = sum(q.get('points', 2) for q in questions) if questions else 1
+            results = {
+                'assessment_completed': True,
+                'assessment_id': assessment_id,
+                'results': {
+                    'overall_score': assessment.score or 0,
+                    'max_score': max_score,
+                    'percentage': (assessment.score / max_score) * 100 if max_score > 0 else 0,
+                    'proficiency_level': assessment.proficiency_level,
+                    'skill_breakdown': assessment.ai_evaluation.get('skill_scores', {}) if assessment.ai_evaluation else {}
+                },
+                'recommendations': assessment.recommendations or [],
+                'next_steps': []
+            }
+        
+        # Format response for frontend
+        formatted_results = {
+            'overall_score': results['results']['percentage'],
+            'overall_proficiency_level': results['results']['proficiency_level'],
+            'max_score': results['results']['max_score'],
+            'raw_score': results['results']['overall_score'],
+            'skill_breakdown': {},
+            'strengths': [],
+            'weaknesses': [],
+            'recommendations': results.get('recommendations', []),
+            'next_steps': results.get('next_steps', [])
+        }
+        
+        # Format skill breakdown - extract percentage from nested object
+        if isinstance(results['results']['skill_breakdown'], dict):
+            for skill, data in results['results']['skill_breakdown'].items():
+                if isinstance(data, dict):
+                    formatted_results['skill_breakdown'][skill] = data.get('percentage', 0)
+                    # Identify strengths and weaknesses
+                    if data.get('level') == 'strong':
+                        formatted_results['strengths'].append(skill)
+                    elif data.get('level') == 'needs_improvement':
+                        formatted_results['weaknesses'].append(skill)
+                else:
+                    formatted_results['skill_breakdown'][skill] = data
+        
+        # Update user profile
+        user = User.query.get(user_id)
+        if user:
+            user.proficiency_level = results['results']['proficiency_level']
+            user.needs_initial_assessment = False
+            user.assessment_taken_at = datetime.utcnow()
+            user.initial_assessment_id = assessment_id
+            user.current_learning_phase = 'learning'
+            
+            # Also update Profile if exists
+            from app.models import Profile
+            profile = Profile.query.filter_by(user_id=user_id).first()
+            if profile:
+                profile.proficiency_level = results['results']['proficiency_level']
+            
+            db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'results': formatted_results,
+            'message': 'Assessment completed successfully! Your profile has been updated.',
+            'telugu_message': 'మూల్యాంకనం విజయవంతంగా పూర్తయింది! మీ ప్రొఫైల్ నవీకరించబడింది.'
+        }), 200
+        
+    except ValueError as e:
+        return jsonify({
+            'error': str(e),
+            'telugu_error': 'మూల్యాంకనం పూర్తి చేయడంలో లోపం'
+        }), 400
+    except Exception as e:
+        print(f"Error in assessment completion: {str(e)}")
+        traceback.print_exc()
+        return jsonify({
+            'error': 'Failed to complete assessment',
+            'telugu_error': 'మూల్యాంకనం పూర్తి చేయడంలో వైఫల్యం',
             'details': str(e)
         }), 500
 

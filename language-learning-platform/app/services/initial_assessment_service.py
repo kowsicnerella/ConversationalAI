@@ -191,6 +191,77 @@ class InitialAssessmentService:
         
         return history
 
+    def submit_single_answer(self, assessment_id: int, question_id: str, answer: str) -> Dict:
+        """
+        Submit a single answer for adaptive assessment and get the next question.
+        Used for step-by-step assessment progression.
+        
+        Args:
+            assessment_id: Assessment ID
+            question_id: ID of the question being answered
+            answer: User's answer
+            
+        Returns:
+            Dictionary with evaluation and next question (if available)
+        """
+        assessment = ProficiencyAssessment.query.get(assessment_id)
+        if not assessment:
+            raise ValueError("Assessment not found")
+        
+        # Initialize or load current responses
+        current_responses = assessment.user_responses if assessment.user_responses else {}
+        
+        # Find the question in the assessment
+        questions = assessment.questions_asked if assessment.questions_asked else []
+        current_question = None
+        for q in questions:
+            if q.get('question_id') == question_id:
+                current_question = q
+                break
+        
+        if not current_question:
+            raise ValueError(f"Question {question_id} not found in assessment")
+        
+        # Evaluate the answer
+        evaluation = self._evaluate_single_answer(current_question, answer)
+        
+        # Store the answer and evaluation
+        current_responses[question_id] = {
+            'answer': answer,
+            'evaluation': evaluation,
+            'timestamp': datetime.utcnow().isoformat()
+        }
+        
+        assessment.user_responses = current_responses
+        db.session.commit()
+        
+        # Check if this was the last question
+        answered_count = len(current_responses)
+        total_questions = len(questions)
+        
+        response = {
+            'evaluation': evaluation,
+            'progress': {
+                'answered': answered_count,
+                'total': total_questions,
+                'percentage': (answered_count / total_questions) * 100 if total_questions > 0 else 0
+            }
+        }
+        
+        # If there are more questions, return the next one
+        if answered_count < total_questions:
+            # Find next unanswered question
+            for q in questions:
+                if q.get('question_id') not in current_responses:
+                    response['next_question'] = q
+                    response['is_complete'] = False
+                    break
+        else:
+            response['is_complete'] = True
+            response['message'] = 'All questions answered. Call complete endpoint to get final results.'
+        
+        return response
+
     def retake_assessment(self, user_id: int, previous_assessment_id: int) -> Dict:
         """
         Allow user to retake assessment with adaptive difficulty.
@@ -535,6 +606,45 @@ class InitialAssessmentService:
                 level_data['percentage'] = (level_data['score'] / level_data['max_score']) * 100
             else:
                 level_data['percentage'] = 0
+        
+        return evaluation
+
+    def _evaluate_single_answer(self, question: Dict, answer: str) -> Dict:
+        """
+        Evaluate a single answer for real-time feedback.
+        
+        Args:
+            question: Question dictionary
+            answer: User's answer
+            
+        Returns:
+            Dictionary with evaluation results
+        """
+        correct_answer = question.get('correct_answer', '').strip().upper()
+        user_answer = answer.strip().upper()
+        points = question.get('points', 2)
+        
+        # Check if answer is correct
+        is_correct = user_answer == correct_answer
+        
+        evaluation = {
+            'correct': is_correct,
+            'user_answer': answer,
+            'correct_answer': question.get('correct_answer'),
+            'points_earned': points if is_correct else 0,
+            'points_possible': points,
+            'skill_area': question.get('skill_area'),
+            'difficulty_level': question.get('difficulty_level'),
+            'explanation': question.get('explanation', 'Answer recorded.')
+        }
+        
+        # Add feedback message
+        if is_correct:
+            evaluation['feedback'] = '✅ Correct! Well done!'
+            evaluation['feedback_telugu'] = '✅ సరైనది! మంచిది!'
+        else:
+            evaluation['feedback'] = f'❌ Incorrect. The correct answer is: {question.get("correct_answer")}'
+            evaluation['feedback_telugu'] = f'❌ తప్పు. సరైన సమాధానం: {question.get("correct_answer")}'
         
         return evaluation
 
