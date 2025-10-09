@@ -55,7 +55,10 @@ def register():
         # Create new user
         user = User(
             username=username,
-            email=email
+            email=email,
+            onboarding_completed=False,
+            needs_initial_assessment=True,
+            current_learning_phase='onboarding'
         )
         user.set_password(password)
         
@@ -154,12 +157,16 @@ def login():
                 'username': user.username,
                 'email': user.email,
                 'last_login': user.last_login.isoformat(),
+                'onboarding_completed': user.onboarding_completed,
+                'needs_initial_assessment': user.needs_initial_assessment,
+                'current_learning_phase': user.current_learning_phase,
                 'profile': {
                     'native_language': user.profile.native_language,
                     'target_language': user.profile.target_language,
                     'proficiency_level': user.profile.proficiency_level,
                     'current_streak': user.profile.current_streak,
-                    'points': user.profile.points
+                    'points': user.profile.points,
+                    'mastery_metrics': user.profile.mastery_metrics
                 }
             }
         }), 200

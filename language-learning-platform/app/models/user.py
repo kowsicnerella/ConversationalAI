@@ -24,6 +24,13 @@ class User(db.Model):
     privacy_settings = db.Column(db.Text)  # JSON string for privacy settings
     enrollment_data = db.Column(db.JSON, default=dict)  # JSON for enrollment tracking data
     
+    # Onboarding and learning workflow tracking
+    onboarding_completed = db.Column(db.Boolean, default=False)  # Has user completed onboarding?
+    needs_initial_assessment = db.Column(db.Boolean, default=True)  # Does user need to take initial assessment?
+    assessment_taken_at = db.Column(db.DateTime)  # When was the assessment taken?
+    current_learning_phase = db.Column(db.String(20), default='onboarding')  # onboarding, assessment, learning, mastery
+    initial_assessment_id = db.Column(db.Integer)  # Reference to initial assessment
+    
     # Relationships
     profile = db.relationship('Profile', backref='user', uselist=False, cascade='all, delete-orphan')
     activity_logs = db.relationship('UserActivityLog', backref='user', lazy='dynamic', cascade='all, delete-orphan')
@@ -81,6 +88,18 @@ class Profile(db.Model):
     longest_streak = db.Column(db.Integer, default=0)  # Track longest learning streak
     points = db.Column(db.Integer, default=0)
     last_activity_date = db.Column(db.Date)
+    
+    # Mastery tracking - JSON field for detailed skill mastery percentages
+    mastery_metrics = db.Column(db.JSON, default=lambda: {
+        'vocabulary': 0,
+        'grammar': 0,
+        'reading': 0,
+        'writing': 0,
+        'listening': 0,
+        'speaking': 0,
+        'overall': 0
+    })
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     

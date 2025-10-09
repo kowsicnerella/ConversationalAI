@@ -14,6 +14,7 @@ from .analytics import (
     AssessmentQuestionResponse, ActivityQuestionResponse, UserAnalytics,
     LearningStreak, AIGeneratedContent, UserLearningTimeline, PerformanceTrend
 )
+from .milestone import Milestone, LessonReview
 
 __all__ = [
     'db', 'User', 'Profile', 'LearningPath', 'Course', 
@@ -24,5 +25,6 @@ __all__ = [
     'Chapter', 'UserChapterProgress', 'PracticeSession', 'UserNotes', 
     'TestAssessment', 'ChapterDependency', 'AIConversationContext',
     'AssessmentQuestionResponse', 'ActivityQuestionResponse', 'UserAnalytics',
-    'LearningStreak', 'AIGeneratedContent', 'UserLearningTimeline', 'PerformanceTrend'
+    'LearningStreak', 'AIGeneratedContent', 'UserLearningTimeline', 'PerformanceTrend',
+    'Milestone', 'LessonReview'
 ]

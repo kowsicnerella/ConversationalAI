@@ -1,5 +1,5 @@
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -23,6 +23,9 @@ from app.api.enhanced_analytics_routes import analytics_bp as enhanced_analytics
 from app.api.enhanced_question_routes import enhanced_assessment_bp, enhanced_activity_bp
 from app.api.vocabulary_routes import vocabulary_bp
 from app.api.notifications_routes import notifications_bp
+from app.api.test_auth_routes import test_auth_bp
+from app.api.onboarding_routes import onboarding_bp
+from app.api.lesson_routes import lesson_bp
 from config import config
 
 migrate = Migrate()
@@ -38,6 +41,39 @@ def create_app(config_name='development'):
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
+    
+    # JWT Error Handlers for better debugging
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error_string):
+        return jsonify({
+            'error': 'Invalid token',
+            'message': error_string,
+            'telugu_message': 'చెల్లని టోకెన్'
+        }), 422
+    
+    @jwt.unauthorized_loader
+    def unauthorized_callback(error_string):
+        return jsonify({
+            'error': 'Missing Authorization Header',
+            'message': error_string,
+            'telugu_message': 'అధికార శీర్షిక లేదు'
+        }), 401
+    
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            'error': 'Token has expired',
+            'message': 'Please log in again',
+            'telugu_message': 'టోకెన్ గడువు ముగిసింది. దయచేసి మళ్లీ లాగిన్ అవ్వండి'
+        }), 401
+    
+    @jwt.revoked_token_loader
+    def revoked_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            'error': 'Token has been revoked',
+            'message': 'Please log in again',
+            'telugu_message': 'టోకెన్ రద్దు చేయబడింది'
+        }), 401
     
     # Configure CORS to allow frontend requests
     CORS(app, origins=["*"], 
@@ -76,6 +112,15 @@ def create_app(config_name='development'):
     
     # Register notifications blueprint
     app.register_blueprint(notifications_bp, url_prefix='/api/notifications')
+    
+    # Register onboarding workflow blueprint
+    app.register_blueprint(onboarding_bp, url_prefix='/api/onboarding')
+    
+    # Register lesson completion and review blueprint
+    app.register_blueprint(lesson_bp, url_prefix='/api/lesson')
+    
+    # Register test auth blueprint (for debugging)
+    app.register_blueprint(test_auth_bp, url_prefix='/api')
     
     # Also register with singular 'test' for alternative URL patterns
     app.register_blueprint(test_bp, url_prefix='/api/test', name='test_singular')
