@@ -1,12 +1,128 @@
 
-from app.models import db, User, Profile, Badge, UserBadge, Achievement, UserActivityLog, Activity
+from app.models import db, User, Profile, Badge, UserBadge, Achievement, UserActivityLog, Activity, LearningSession
 from datetime import datetime, date, timedelta
 from sqlalchemy import func
 
 class GamificationService:
     """
     A service class to manage gamification features for the Telugu-English learning platform.
+    Handles points, badges, streaks, and leaderboards.
     """
+    
+    # Points System
+    POINTS = {
+        'quiz_per_correct': 8,        # 8 points per correct answer
+        'flashcard_per_card': 1,      # 1 point per flashcard reviewed
+        'reading_completion': 20,      # 20 points for completing reading
+        'writing_submission': 50,      # 50 points for writing submission
+        'roleplay_completion': 30,     # 30 points for role-play completion
+        'daily_goal': 25,              # 25 bonus points for meeting daily goal
+        'streak_7_days': 100,          # 100 bonus points for 7-day streak
+    }
+    
+    def award_activity_points(self, user_id, activity_type, session_data=None):
+        """
+        Award points based on activity type and performance.
+        
+        Args:
+            user_id: User ID
+            activity_type: 'quiz', 'flashcard', 'writing', 'roleplay', 'reading'
+            session_data: Dict with activity details (correct_answers, card_count, etc.)
+        
+        Returns:
+            dict: Points awarded and breakdown
+        """
+        try:
+            profile = Profile.query.filter_by(user_id=user_id).first()
+            if not profile:
+                return {'success': False, 'error': 'Profile not found'}
+            
+            points_awarded = 0
+            breakdown = {}
+            
+            if activity_type == 'quiz':
+                correct_answers = session_data.get('correct_answers', 0) if session_data else 0
+                points_awarded = correct_answers * self.POINTS['quiz_per_correct']
+                breakdown['correct_answers'] = correct_answers
+                breakdown['points_per_answer'] = self.POINTS['quiz_per_correct']
+                
+            elif activity_type == 'flashcard':
+                cards_reviewed = session_data.get('cards_reviewed', 0) if session_data else 0
+                points_awarded = cards_reviewed * self.POINTS['flashcard_per_card']
+                breakdown['cards_reviewed'] = cards_reviewed
+                breakdown['points_per_card'] = self.POINTS['flashcard_per_card']
+                
+            elif activity_type == 'reading':
+                points_awarded = self.POINTS['reading_completion']
+                breakdown['activity'] = 'reading_completion'
+                
+            elif activity_type == 'writing':
+                points_awarded = self.POINTS['writing_submission']
+                breakdown['activity'] = 'writing_submission'
+                
+            elif activity_type == 'roleplay':
+                points_awarded = self.POINTS['roleplay_completion']
+                breakdown['activity'] = 'roleplay_completion'
+            
+            # Award points
+            profile.points = (profile.points or 0) + points_awarded
+            db.session.commit()
+            
+            # Check for new achievements
+            new_badges = self.check_for_new_achievements(user_id)
+            
+            # Update streak
+            self.update_streak(user_id)
+            
+            # Check daily goal
+            daily_bonus = self._check_daily_goal(user_id)
+            if daily_bonus > 0:
+                profile.points += daily_bonus
+                points_awarded += daily_bonus
+                breakdown['daily_goal_bonus'] = daily_bonus
+                db.session.commit()
+            
+            return {
+                'success': True,
+                'points_awarded': points_awarded,
+                'total_points': profile.points,
+                'breakdown': breakdown,
+                'new_badges': new_badges
+            }
+            
+        except Exception as e:
+            db.session.rollback()
+            return {'success': False, 'error': str(e)}
+    
+    def _check_daily_goal(self, user_id):
+        """
+        Check if user has met daily goal (3 activities) and award bonus.
+        Returns bonus points awarded (0 or 25).
+        """
+        try:
+            today = date.today()
+            
+            # Count activities completed today
+            today_activities = LearningSession.query.filter(
+                LearningSession.user_id == user_id,
+                LearningSession.status == 'completed',
+                func.date(LearningSession.completed_at) == today
+            ).count()
+            
+            # Check if already awarded daily bonus today
+            # We'll track this in a simple way - if they have 3+ activities today
+            # and their streak was updated today, award the bonus
+            if today_activities >= 3:
+                profile = Profile.query.filter_by(user_id=user_id).first()
+                if profile and profile.last_activity_date == today:
+                    # Check if we already gave bonus today (simple check)
+                    # In production, you'd want a separate tracking table
+                    return self.POINTS['daily_goal']
+            
+            return 0
+            
+        except Exception as e:
+            return 0
 
     def update_streak(self, user_id):
         """

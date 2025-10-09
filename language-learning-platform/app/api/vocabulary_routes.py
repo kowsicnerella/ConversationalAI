@@ -360,11 +360,24 @@ def get_vocabulary_stats():
         intermediate_words = VocabularyWord.query.filter_by(user_id=user_id, difficulty_level='intermediate').count()
         advanced_words = VocabularyWord.query.filter_by(user_id=user_id, difficulty_level='advanced').count()
         
+        # Get words needing review (not practiced in last 7 days)
+        from datetime import timedelta
+        seven_days_ago = datetime.utcnow() - timedelta(days=7)
+        review_needed = VocabularyWord.query.filter(
+            VocabularyWord.user_id == user_id,
+            or_(
+                VocabularyWord.last_practiced.is_(None),
+                VocabularyWord.last_practiced < seven_days_ago
+            ),
+            VocabularyWord.mastery_level != 'mastered'
+        ).count()
+        
         return jsonify({
             'message': 'Vocabulary statistics retrieved successfully',
             'telugu_message': 'పదజాలం గణాంకాలు విజయవంతంగా పొందబడ్డాయి',
             'stats': {
                 'total_words': total_words,
+                'review_needed': review_needed,
                 'mastery_distribution': {
                     'learning': learning_words,
                     'familiar': familiar_words,
@@ -388,4 +401,98 @@ def get_vocabulary_stats():
         return jsonify({
             'error': 'Failed to get vocabulary statistics',
             'telugu_error': 'పదజాలం గణాంకాలు పొందడంలో విఫలం'
+        }), 500
+
+@vocabulary_bp.route('/practice-flashcards', methods=['POST'])
+@jwt_required()
+def generate_practice_flashcards():
+    """Generate flashcards from user's vocabulary for practice"""
+    try:
+        user_id = int(get_jwt_identity())
+        data = request.get_json() or {}
+        
+        # Get filter parameters
+        mastery_level = data.get('mastery_level')  # 'learning', 'familiar', 'mastered'
+        difficulty_level = data.get('difficulty_level')  # 'beginner', 'intermediate', 'advanced'
+        num_cards = min(data.get('num_cards', 10), 50)  # Max 50 cards
+        review_only = data.get('review_only', False)  # Only words needing review
+        
+        # Build query
+        query = VocabularyWord.query.filter_by(user_id=user_id)
+        
+        if mastery_level:
+            query = query.filter_by(mastery_level=mastery_level)
+        
+        if difficulty_level:
+            query = query.filter_by(difficulty_level=difficulty_level)
+        
+        if review_only:
+            from datetime import timedelta
+            seven_days_ago = datetime.utcnow() - timedelta(days=7)
+            query = query.filter(
+                or_(
+                    VocabularyWord.last_practiced.is_(None),
+                    VocabularyWord.last_practiced < seven_days_ago
+                )
+            )
+        
+        # Get words
+        words = query.order_by(VocabularyWord.last_practiced.asc().nullsfirst()).limit(num_cards).all()
+        
+        if not words:
+            return jsonify({
+                'error': 'No vocabulary words found matching criteria',
+                'telugu_error': 'ప్రమాణాలకు సరిపోలే పదజాలం పదాలు కనుగొనబడలేదు'
+            }), 404
+        
+        # Convert to flashcard format
+        flashcards = []
+        for word in words:
+            flashcards.append({
+                'id': word.id,
+                'front': word.english_word,
+                'back': word.telugu_translation,
+                'definition': word.definition or f"The word '{word.english_word}' in English",
+                'example': word.example_sentence or f"I learned the word '{word.english_word}' today.",
+                'phonetic': word.phonetic_spelling or '',
+                'difficulty': word.difficulty_level,
+                'mastery_level': word.mastery_level,
+                'practice_count': word.practice_count or 0
+            })
+        
+        # Create a learning session for tracking
+        session = LearningSession(
+            user_id=user_id,
+            activity_type='flashcard',
+            topic='vocabulary_practice',
+            level=difficulty_level or 'mixed',
+            status='in_progress',
+            started_at=datetime.utcnow(),
+            activity_data={
+                'source': 'vocabulary_practice',
+                'filters': {
+                    'mastery_level': mastery_level,
+                    'difficulty_level': difficulty_level,
+                    'review_only': review_only
+                },
+                'word_count': len(flashcards)
+            }
+        )
+        db.session.add(session)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Practice flashcards generated successfully',
+            'telugu_message': 'అభ్యాస ఫ్లాష్‌కార్డ్‌లు విజయవంతంగా సృష్టించబడ్డాయి',
+            'session_id': session.id,
+            'flashcards': flashcards,
+            'count': len(flashcards)
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error generating practice flashcards: {str(e)}")
+        return jsonify({
+            'error': 'Failed to generate practice flashcards',
+            'telugu_error': 'అభ్యాస ఫ్లాష్‌కార్డ్‌లు సృష్టించడంలో విఫలం'
         }), 500

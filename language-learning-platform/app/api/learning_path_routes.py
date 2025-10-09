@@ -1,334 +1,665 @@
-from flask import Blueprint, request, jsonify
-from app.models import db, LearningPath, Activity, UserActivityLog
-from app.models.user import User
-from app.services.activity_generator_service import ActivityGeneratorService
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from datetime import datetime
-import json
+"""from flask import Blueprint, request, jsonify
 
-learning_path_bp = Blueprint('learning_path', __name__)
+Learning Path API Routesfrom app.models import db, LearningPath, Activity, UserActivityLog
+
+Handles enrollment, progress tracking, and path management.from app.models.user import User
+
+"""from app.services.activity_generator_service import ActivityGeneratorService
+
+from flask_jwt_extended import jwt_required, get_jwt_identity
+
+from flask import Blueprint, request, jsonifyfrom datetime import datetime
+
+from flask_jwt_extended import jwt_required, get_jwt_identityimport json
+
+from app.services.learning_path_service import LearningPathService
+
+from app.models.user import dblearning_path_bp = Blueprint('learning_path', __name__)
+
 activity_service = ActivityGeneratorService()
+
+learning_paths_bp = Blueprint('learning_paths', __name__, url_prefix='/api/learning-paths')
 
 # ===== DYNAMIC LEARNING PATH SYSTEM =====
 
-@learning_path_bp.route('/personalized-recommendation', methods=['POST'])
-@jwt_required()
-def get_personalized_learning_path_recommendation():
-    """Generate personalized learning path recommendations based on user assessment"""
-    try:
-        user_id = int(get_jwt_identity())
-        data = request.get_json()
-        
-        if not data:
-            return jsonify({
-                'error': 'Assessment data required',
-                'telugu_message': 'అంచనా డేటా అవసరం'
-            }), 400
-        
-        # Extract assessment data
-        english_level = data.get('english_level', 'beginner')  # beginner, intermediate, advanced
-        learning_goals = data.get('learning_goals', [])  # conversation, business, academic, travel
-        interests = data.get('interests', [])  # technology, culture, movies, food, etc.
-        time_available = data.get('time_available_minutes', 30)  # daily learning time
-        previous_experience = data.get('previous_experience', {})
-        
-        # Use AI to generate personalized recommendations
-        recommendation_prompt = f"""
-        Generate personalized learning path recommendations for a Telugu speaker learning English.
-        
-        User Profile:
-        - English Level: {english_level}
-        - Learning Goals: {', '.join(learning_goals)}
-        - Interests: {', '.join(interests)}
-        - Daily Time Available: {time_available} minutes
-        - Previous Experience: {json.dumps(previous_experience)}
-        
-        Based on this profile, recommend:
+
+
+@learning_paths_bp.route('', methods=['GET'])@learning_path_bp.route('/personalized-recommendation', methods=['POST'])
+
+def get_learning_paths():@jwt_required()
+
+    """def get_personalized_learning_path_recommendation():
+
+    Get all available learning paths with optional filters.    """Generate personalized learning path recommendations based on user assessment"""
+
+        try:
+
+    Query Parameters:        user_id = int(get_jwt_identity())
+
+        - difficulty_level: beginner, intermediate, advanced        data = request.get_json()
+
+        - category: vocabulary, grammar, conversation, etc.        
+
+            if not data:
+
+    Returns:            return jsonify({
+
+        List of learning paths                'error': 'Assessment data required',
+
+    """                'telugu_message': 'అంచనా డేటా అవసరం'
+
+    try:            }), 400
+
+        difficulty = request.args.get('difficulty_level')        
+
+        category = request.args.get('category')        # Extract assessment data
+
+                english_level = data.get('english_level', 'beginner')  # beginner, intermediate, advanced
+
+        paths = LearningPathService.get_all_paths(        learning_goals = data.get('learning_goals', [])  # conversation, business, academic, travel
+
+            difficulty_level=difficulty,        interests = data.get('interests', [])  # technology, culture, movies, food, etc.
+
+            category=category        time_available = data.get('time_available_minutes', 30)  # daily learning time
+
+        )        previous_experience = data.get('previous_experience', {})
+
+                
+
+        return jsonify({        # Use AI to generate personalized recommendations
+
+            'success': True,        recommendation_prompt = f"""
+
+            'learning_paths': paths,        Generate personalized learning path recommendations for a Telugu speaker learning English.
+
+            'total': len(paths)        
+
+        }), 200        User Profile:
+
+            - English Level: {english_level}
+
+    except Exception as e:        - Learning Goals: {', '.join(learning_goals)}
+
+        return jsonify({        - Interests: {', '.join(interests)}
+
+            'success': False,        - Daily Time Available: {time_available} minutes
+
+            'message': f'Error fetching learning paths: {str(e)}',        - Previous Experience: {json.dumps(previous_experience)}
+
+            'message_telugu': 'నేర్చుకునే మార్గాలను పొందడంలో లోపం'        
+
+        }), 500        Based on this profile, recommend:
+
         1. 3-5 most suitable learning paths with priorities
+
         2. Suggested learning sequence
-        3. Estimated timeline for each path
-        4. Customization suggestions
+
+@learning_paths_bp.route('/<int:path_id>', methods=['GET'])        3. Estimated timeline for each path
+
+@jwt_required(optional=True)        4. Customization suggestions
+
+def get_path_detail(path_id):        
+
+    """        Return in JSON format:
+
+    Get detailed information about a specific learning path.        ```json
+
+    Includes chapters and activities.        {{
+
+    If user is authenticated, includes enrollment status.            "recommended_paths": [
+
+                    {{
+
+    Args:                    "path_id": 1,
+
+        path_id: Learning path ID                    "title": "Business English Fundamentals",
+
+                        "priority": "high",
+
+    Returns:                    "match_score": 95,
+
+        Detailed path information                    "estimated_weeks": 8,
+
+    """                    "reasoning": "Perfect match for business goals and intermediate level",
+
+    try:                    "telugu_reasoning": "వ్యాపార లక్ష్యాలకు మరియు మధ్యస్థ స్థాయికి సరైన సరిపోలిక"
+
+        # Get user ID if authenticated                }}
+
+        user_id = None            ],
+
+        try:            "learning_sequence": [
+
+            user_id = get_jwt_identity()                "Start with Business English Fundamentals",
+
+        except:                "Progress to Conversation Skills",
+
+            pass                "Advanced: Professional Communication"
+
+                    ],
+
+        path = LearningPathService.get_path_detail(path_id, user_id=user_id)            "customizations": [
+
+                        "Include more technology vocabulary based on interests",
+
+        if not path:                "Focus on formal communication for business goals"
+
+            return jsonify({            ],
+
+                'success': False,            "daily_plan": {{
+
+                'message': 'Learning path not found',                "activities_per_day": 3,
+
+                'message_telugu': 'నేర్చుకునే మార్గం కనుగొనబడలేదు'                "estimated_time_per_activity": 10,
+
+            }), 404                "recommended_schedule": "Morning vocabulary, Afternoon practice, Evening review"
+
+                    }}
+
+        return jsonify({        }}
+
+            'success': True,        ```
+
+            'learning_path': path        """
+
+        }), 200        
+
+            response = activity_service.model.generate_content(recommendation_prompt)
+
+    except Exception as e:        from app.services.activity_generator_service import _extract_json_from_response
+
+        return jsonify({        recommendation_data = _extract_json_from_response(response.text)
+
+            'success': False,        
+
+            'message': f'Error fetching path details: {str(e)}',        # Get actual learning paths from database
+
+            'message_telugu': 'మార్గం వివరాలను పొందడంలో లోపం'        available_paths = LearningPath.query.all()
+
+        }), 500        path_details = []
+
         
-        Return in JSON format:
-        ```json
-        {{
-            "recommended_paths": [
-                {{
-                    "path_id": 1,
-                    "title": "Business English Fundamentals",
-                    "priority": "high",
-                    "match_score": 95,
-                    "estimated_weeks": 8,
-                    "reasoning": "Perfect match for business goals and intermediate level",
-                    "telugu_reasoning": "వ్యాపార లక్ష్యాలకు మరియు మధ్యస్థ స్థాయికి సరైన సరిపోలిక"
-                }}
-            ],
-            "learning_sequence": [
-                "Start with Business English Fundamentals",
-                "Progress to Conversation Skills",
-                "Advanced: Professional Communication"
-            ],
-            "customizations": [
-                "Include more technology vocabulary based on interests",
-                "Focus on formal communication for business goals"
-            ],
-            "daily_plan": {{
-                "activities_per_day": 3,
-                "estimated_time_per_activity": 10,
-                "recommended_schedule": "Morning vocabulary, Afternoon practice, Evening review"
-            }}
-        }}
-        ```
-        """
-        
-        response = activity_service.model.generate_content(recommendation_prompt)
-        from app.services.activity_generator_service import _extract_json_from_response
-        recommendation_data = _extract_json_from_response(response.text)
-        
-        # Get actual learning paths from database
-        available_paths = LearningPath.query.all()
-        path_details = []
-        
+
         for rec_path in recommendation_data.get('recommended_paths', []):
-            # Find matching path in database (match by title similarity or create new logic)
-            matching_path = None
-            for db_path in available_paths:
-                if any(keyword in db_path.title.lower() for keyword in rec_path['title'].lower().split()):
-                    matching_path = db_path
-                    break
-            
-            if matching_path:
-                path_info = {
-                    'id': matching_path.id,
-                    'title': matching_path.title,
-                    'description': matching_path.description,
-                    'category': matching_path.category,
-                    'difficulty_level': matching_path.difficulty_level,
-                    'estimated_duration_hours': matching_path.estimated_duration_hours,
-                    'recommendation_data': rec_path
-                }
-                path_details.append(path_info)
-        
-        return jsonify({
-            'message': 'Personalized learning paths recommended successfully!',
-            'telugu_message': 'వ్యక్తిగతీకరించిన అభ్యాస మార్గాలు విజయవంతంగా సిఫార్సు చేయబడ్డాయి!',
-            'user_profile': {
-                'english_level': english_level,
-                'learning_goals': learning_goals,
-                'interests': interests,
-                'time_available': time_available
+
+@learning_paths_bp.route('/<int:path_id>/enroll', methods=['POST'])            # Find matching path in database (match by title similarity or create new logic)
+
+@jwt_required()            matching_path = None
+
+def enroll_in_path(path_id):            for db_path in available_paths:
+
+    """                if any(keyword in db_path.title.lower() for keyword in rec_path['title'].lower().split()):
+
+    Enroll the authenticated user in a learning path.                    matching_path = db_path
+
+    Creates enrollment record and unlocks Chapter 1.                    break
+
+                
+
+    Args:            if matching_path:
+
+        path_id: Learning path ID                path_info = {
+
+                        'id': matching_path.id,
+
+    Returns:                    'title': matching_path.title,
+
+        Enrollment confirmation                    'description': matching_path.description,
+
+    """                    'category': matching_path.category,
+
+    try:                    'difficulty_level': matching_path.difficulty_level,
+
+        user_id = get_jwt_identity()                    'estimated_duration_hours': matching_path.estimated_duration_hours,
+
+                            'recommendation_data': rec_path
+
+        result = LearningPathService.enroll_user(user_id, path_id)                }
+
+                        path_details.append(path_info)
+
+        status_code = 200 if result['success'] else 400        
+
+        return jsonify(result), status_code        return jsonify({
+
+                'message': 'Personalized learning paths recommended successfully!',
+
+    except Exception as e:            'telugu_message': 'వ్యక్తిగతీకరించిన అభ్యాస మార్గాలు విజయవంతంగా సిఫార్సు చేయబడ్డాయి!',
+
+        return jsonify({            'user_profile': {
+
+            'success': False,                'english_level': english_level,
+
+            'message': f'Error enrolling in path: {str(e)}',                'learning_goals': learning_goals,
+
+            'message_telugu': 'మార్గంలో నమోదు చేసుకోవడంలో లోపం'                'interests': interests,
+
+        }), 500                'time_available': time_available
+
             },
+
             'recommended_paths': path_details,
-            'ai_recommendations': recommendation_data,
-            'next_steps': [
-                'Review recommended paths',
-                'Enroll in your preferred path',
-                'Take initial assessment for personalized difficulty',
-                'Start your learning journey'
-            ]
-        }), 200
-        
-    except Exception as e:
-        return jsonify({
-            'error': 'Failed to generate personalized recommendations',
-            'telugu_message': 'వ్యక్తిగతీకరించిన సిఫార్సులు రూపొందించడంలో విఫలం',
-            'details': str(e)
-        }), 500
 
-@learning_path_bp.route('/create-custom-path', methods=['POST'])
-@jwt_required()
-def create_custom_learning_path():
-    """Create a custom learning path based on user specifications"""
-    try:
-        user_id = int(get_jwt_identity())
-        data = request.get_json()
+@learning_paths_bp.route('/enrolled', methods=['GET'])            'ai_recommendations': recommendation_data,
+
+@jwt_required()            'next_steps': [
+
+def get_enrolled_paths():                'Review recommended paths',
+
+    """                'Enroll in your preferred path',
+
+    Get all learning paths the user is enrolled in.                'Take initial assessment for personalized difficulty',
+
+                    'Start your learning journey'
+
+    Query Parameters:            ]
+
+        - status: active, paused, completed, dropped        }), 200
+
+            
+
+    Returns:    except Exception as e:
+
+        List of enrolled paths with progress        return jsonify({
+
+    """            'error': 'Failed to generate personalized recommendations',
+
+    try:            'telugu_message': 'వ్యక్తిగతీకరించిన సిఫార్సులు రూపొందించడంలో విఫలం',
+
+        user_id = get_jwt_identity()            'details': str(e)
+
+        status = request.args.get('status')        }), 500
+
         
-        if not data:
-            return jsonify({
-                'error': 'Path specifications required',
-                'telugu_message': 'మార్గ వివరణలు అవసరం'
-            }), 400
-        
+
+        enrollments = LearningPathService.get_user_enrollments(user_id, status=status)@learning_path_bp.route('/create-custom-path', methods=['POST'])
+
+        @jwt_required()
+
+        return jsonify({def create_custom_learning_path():
+
+            'success': True,    """Create a custom learning path based on user specifications"""
+
+            'enrollments': enrollments,    try:
+
+            'total': len(enrollments)        user_id = int(get_jwt_identity())
+
+        }), 200        data = request.get_json()
+
+            
+
+    except Exception as e:        if not data:
+
+        return jsonify({            return jsonify({
+
+            'success': False,                'error': 'Path specifications required',
+
+            'message': f'Error fetching enrollments: {str(e)}',                'telugu_message': 'మార్గ వివరణలు అవసరం'
+
+            'message_telugu': 'నమోదులను పొందడంలో లోపం'            }), 400
+
+        }), 500        
+
         title = data.get('title')
-        description = data.get('description', '')
-        focus_areas = data.get('focus_areas', [])  # vocabulary, grammar, conversation, etc.
-        difficulty_level = data.get('difficulty_level', 'beginner')
-        duration_weeks = data.get('duration_weeks', 4)
-        activities_per_week = data.get('activities_per_week', 5)
-        
-        if not title:
-            return jsonify({
-                'error': 'Path title is required',
-                'telugu_message': 'మార్గ శీర్షిక అవసరం'
-            }), 400
-        
-        # Generate custom learning path structure using AI
-        generation_prompt = f"""
-        Create a custom learning path for Telugu speakers learning English.
-        
-        Specifications:
-        - Title: {title}
-        - Description: {description}
-        - Focus Areas: {', '.join(focus_areas)}
-        - Difficulty Level: {difficulty_level}
-        - Duration: {duration_weeks} weeks
-        - Activities per week: {activities_per_week}
-        
-        Generate a structured learning path with:
-        1. Week-by-week breakdown
-        2. Activity types and topics for each week
-        3. Progressive difficulty
-        4. Balance of different skill areas
-        
-        Return in JSON format:
-        ```json
-        {{
-            "path_structure": {{
-                "week_1": {{
-                    "theme": "Basic Vocabulary Building",
-                    "activities": [
-                        {{
-                            "title": "Common Greetings Quiz",
-                            "type": "quiz",
-                            "order": 1,
-                            "estimated_minutes": 15,
-                            "topics": ["greetings", "basic_conversation"]
-                        }}
-                    ]
-                }}
-            }},
-            "learning_objectives": [
-                "Master basic vocabulary",
-                "Understand simple sentences",
-                "Basic conversation skills"
-            ],
-            "prerequisites": ["Basic Telugu literacy", "Motivation to learn"],
-            "estimated_total_hours": 20
-        }}
-        ```
-        """
-        
-        response = activity_service.model.generate_content(generation_prompt)
-        from app.services.activity_generator_service import _extract_json_from_response
-        path_structure = _extract_json_from_response(response.text)
-        
-        # Create the learning path in database
-        new_learning_path = LearningPath(
-            title=title,
-            description=description,
-            category='custom',
-            difficulty_level=difficulty_level,
-            estimated_duration_hours=path_structure.get('estimated_total_hours', duration_weeks * 2),
-            is_premium=False,
-            created_at=datetime.utcnow()
-        )
-        
-        db.session.add(new_learning_path)
-        db.session.flush()  # Get the ID
-        
-        # Generate and save activities for this path
-        activities_created = []
-        activity_order = 1
-        
-        for week_key, week_data in path_structure.get('path_structure', {}).items():
-            for activity_spec in week_data.get('activities', []):
-                # Generate actual activity content using existing methods
-                activity_content = None
-                activity_type = activity_spec.get('type', 'quiz')
-                
-                if activity_type == 'quiz':
-                    activity_content = activity_service.generate_quiz(
-                        ', '.join(activity_spec.get('topics', [])), 
-                        difficulty_level
-                    )
-                elif activity_type == 'flashcard':
-                    activity_content = activity_service.generate_flashcards(
-                        ', '.join(activity_spec.get('topics', [])), 
-                        difficulty_level
-                    )
-                
-                if activity_content:
-                    new_activity = Activity(
-                        learning_path_id=new_learning_path.id,
-                        activity_type=activity_type,
-                        title=activity_spec.get('title', f'Activity {activity_order}'),
-                        content=activity_content,
-                        difficulty_level=difficulty_level,
-                        order_in_path=activity_order,
-                        estimated_duration_minutes=activity_spec.get('estimated_minutes', 15),
-                        points_reward=15,  # Custom activities get bonus points
-                        created_at=datetime.utcnow()
-                    )
-                    
-                    db.session.add(new_activity)
-                    activities_created.append({
-                        'title': new_activity.title,
-                        'type': activity_type,
-                        'order': activity_order
-                    })
-                    activity_order += 1
-        
-        db.session.commit()
-        
-        return jsonify({
-            'message': 'Custom learning path created successfully!',
-            'telugu_message': 'అనుకూల అభ్యాస మార్గం విజయవంతంగా సృష్టించబడింది!',
-            'learning_path': {
-                'id': new_learning_path.id,
-                'title': new_learning_path.title,
-                'description': new_learning_path.description,
-                'difficulty_level': new_learning_path.difficulty_level,
-                'estimated_duration_hours': new_learning_path.estimated_duration_hours,
-                'activities_count': len(activities_created)
-            },
-            'generated_structure': path_structure,
-            'activities_created': activities_created,
-            'next_steps': [
-                'Enroll in your custom path',
-                'Start with the first activity',
-                'Track your progress',
-                'Provide feedback for improvements'
-            ]
-        }), 201
-        
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({
-            'error': 'Failed to create custom learning path',
-            'telugu_message': 'అనుకూల అభ్యాస మార్గం సృష్టించడంలో విఫలం',
-            'details': str(e)
-        }), 500
 
-@learning_path_bp.route('/adaptive-difficulty', methods=['POST'])
-@jwt_required()
-def adjust_adaptive_difficulty():
-    """Adjust learning path difficulty based on user performance"""
-    try:
-        user_id = int(get_jwt_identity())
-        data = request.get_json()
+        description = data.get('description', '')
+
+@learning_paths_bp.route('/<int:path_id>/progress', methods=['GET'])        focus_areas = data.get('focus_areas', [])  # vocabulary, grammar, conversation, etc.
+
+@jwt_required()        difficulty_level = data.get('difficulty_level', 'beginner')
+
+def get_path_progress(path_id):        duration_weeks = data.get('duration_weeks', 4)
+
+    """        activities_per_week = data.get('activities_per_week', 5)
+
+    Get detailed progress for user's enrollment in a learning path.        
+
+    Includes chapters, activities, and completion status.        if not title:
+
+                return jsonify({
+
+    Args:                'error': 'Path title is required',
+
+        path_id: Learning path ID                'telugu_message': 'మార్గ శీర్షిక అవసరం'
+
+                }), 400
+
+    Returns:        
+
+        Detailed progress information        # Generate custom learning path structure using AI
+
+    """        generation_prompt = f"""
+
+    try:        Create a custom learning path for Telugu speakers learning English.
+
+        user_id = get_jwt_identity()        
+
+                Specifications:
+
+        progress = LearningPathService.get_path_progress(user_id, path_id)        - Title: {title}
+
+                - Description: {description}
+
+        status_code = 200 if progress.get('success') else 404        - Focus Areas: {', '.join(focus_areas)}
+
+        return jsonify(progress), status_code        - Difficulty Level: {difficulty_level}
+
+            - Duration: {duration_weeks} weeks
+
+    except Exception as e:        - Activities per week: {activities_per_week}
+
+        return jsonify({        
+
+            'success': False,        Generate a structured learning path with:
+
+            'message': f'Error fetching progress: {str(e)}',        1. Week-by-week breakdown
+
+            'message_telugu': 'పురోగతిని పొందడంలో లోపం'        2. Activity types and topics for each week
+
+        }), 500        3. Progressive difficulty
+
+        4. Balance of different skill areas
+
         
-        if not data:
-            return jsonify({
+
+@learning_paths_bp.route('/<int:path_id>/unenroll', methods=['POST'])        Return in JSON format:
+
+@jwt_required()        ```json
+
+def unenroll_from_path(path_id):        {{
+
+    """            "path_structure": {{
+
+    Unenroll user from a learning path.                "week_1": {{
+
+    Marks enrollment as dropped but preserves progress.                    "theme": "Basic Vocabulary Building",
+
+                        "activities": [
+
+    Args:                        {{
+
+        path_id: Learning path ID                            "title": "Common Greetings Quiz",
+
+                                "type": "quiz",
+
+    Returns:                            "order": 1,
+
+        Unenrollment confirmation                            "estimated_minutes": 15,
+
+    """                            "topics": ["greetings", "basic_conversation"]
+
+    try:                        }}
+
+        user_id = get_jwt_identity()                    ]
+
+                        }}
+
+        result = LearningPathService.unenroll_user(user_id, path_id)            }},
+
+                    "learning_objectives": [
+
+        status_code = 200 if result['success'] else 404                "Master basic vocabulary",
+
+        return jsonify(result), status_code                "Understand simple sentences",
+
+                    "Basic conversation skills"
+
+    except Exception as e:            ],
+
+        return jsonify({            "prerequisites": ["Basic Telugu literacy", "Motivation to learn"],
+
+            'success': False,            "estimated_total_hours": 20
+
+            'message': f'Error unenrolling from path: {str(e)}',        }}
+
+            'message_telugu': 'మార్గం నుండి నిష్క్రమించడంలో లోపం'        ```
+
+        }), 500        """
+
+        
+
+        response = activity_service.model.generate_content(generation_prompt)
+
+@learning_paths_bp.route('/<int:path_id>/chapters/<int:chapter_id>/complete-activity', methods=['POST'])        from app.services.activity_generator_service import _extract_json_from_response
+
+@jwt_required()        path_structure = _extract_json_from_response(response.text)
+
+def complete_chapter_activity(path_id, chapter_id):        
+
+    """        # Create the learning path in database
+
+    Mark an activity as completed and update progress.        new_learning_path = LearningPath(
+
+    Unlocks next activity or chapter if applicable.            title=title,
+
+                description=description,
+
+    Args:            category='custom',
+
+        path_id: Learning path ID            difficulty_level=difficulty_level,
+
+        chapter_id: Chapter ID            estimated_duration_hours=path_structure.get('estimated_total_hours', duration_weeks * 2),
+
+                is_premium=False,
+
+    Request Body:            created_at=datetime.utcnow()
+
+        - session_id: Learning session ID        )
+
+        - score: Activity score (0-100)        
+
+        - points_earned: Points from gamification        db.session.add(new_learning_path)
+
+        - time_spent: Time spent in minutes        db.session.flush()  # Get the ID
+
+            
+
+    Returns:        # Generate and save activities for this path
+
+        Updated progress and unlock information        activities_created = []
+
+    """        activity_order = 1
+
+    try:        
+
+        user_id = get_jwt_identity()        for week_key, week_data in path_structure.get('path_structure', {}).items():
+
+        data = request.get_json()            for activity_spec in week_data.get('activities', []):
+
+                        # Generate actual activity content using existing methods
+
+        session_id = data.get('session_id')                activity_content = None
+
+        score = data.get('score', 0)                activity_type = activity_spec.get('type', 'quiz')
+
+        points_earned = data.get('points_earned', 0)                
+
+        time_spent = data.get('time_spent', 0)                if activity_type == 'quiz':
+
+                            activity_content = activity_service.generate_quiz(
+
+        if not session_id:                        ', '.join(activity_spec.get('topics', [])), 
+
+            return jsonify({                        difficulty_level
+
+                'success': False,                    )
+
+                'message': 'session_id is required',                elif activity_type == 'flashcard':
+
+                'message_telugu': 'సెషన్ ID అవసరం'                    activity_content = activity_service.generate_flashcards(
+
+            }), 400                        ', '.join(activity_spec.get('topics', [])), 
+
+                                difficulty_level
+
+        result = LearningPathService.complete_activity(                    )
+
+            user_id=user_id,                
+
+            path_id=path_id,                if activity_content:
+
+            chapter_id=chapter_id,                    new_activity = Activity(
+
+            session_id=session_id,                        learning_path_id=new_learning_path.id,
+
+            score=score,                        activity_type=activity_type,
+
+            points_earned=points_earned,                        title=activity_spec.get('title', f'Activity {activity_order}'),
+
+            time_spent=time_spent                        content=activity_content,
+
+        )                        difficulty_level=difficulty_level,
+
+                                order_in_path=activity_order,
+
+        status_code = 200 if result.get('success') else 400                        estimated_duration_minutes=activity_spec.get('estimated_minutes', 15),
+
+        return jsonify(result), status_code                        points_reward=15,  # Custom activities get bonus points
+
+                            created_at=datetime.utcnow()
+
+    except Exception as e:                    )
+
+        return jsonify({                    
+
+            'success': False,                    db.session.add(new_activity)
+
+            'message': f'Error completing activity: {str(e)}',                    activities_created.append({
+
+            'message_telugu': 'కార్యకలాపాన్ని పూర్తి చేయడంలో లోపం'                        'title': new_activity.title,
+
+        }), 500                        'type': activity_type,
+
+                        'order': activity_order
+
+                    })
+
+@learning_paths_bp.route('/statistics', methods=['GET'])                    activity_order += 1
+
+@jwt_required()        
+
+def get_user_statistics():        db.session.commit()
+
+    """        
+
+    Get overall statistics for user's learning path progress.        return jsonify({
+
+                'message': 'Custom learning path created successfully!',
+
+    Returns:            'telugu_message': 'అనుకూల అభ్యాస మార్గం విజయవంతంగా సృష్టించబడింది!',
+
+        Overall learning statistics            'learning_path': {
+
+    """                'id': new_learning_path.id,
+
+    try:                'title': new_learning_path.title,
+
+        user_id = get_jwt_identity()                'description': new_learning_path.description,
+
+                        'difficulty_level': new_learning_path.difficulty_level,
+
+        enrollments = LearningPathService.get_user_enrollments(user_id)                'estimated_duration_hours': new_learning_path.estimated_duration_hours,
+
+                        'activities_count': len(activities_created)
+
+        # Calculate statistics            },
+
+        total_enrollments = len(enrollments)            'generated_structure': path_structure,
+
+        active_enrollments = len([e for e in enrollments if e['status'] == 'active'])            'activities_created': activities_created,
+
+        completed_enrollments = len([e for e in enrollments if e['status'] == 'completed'])            'next_steps': [
+
+                        'Enroll in your custom path',
+
+        total_points = sum(e.get('points_earned', 0) for e in enrollments)                'Start with the first activity',
+
+        total_time = sum(e.get('total_time_spent_minutes', 0) for e in enrollments)                'Track your progress',
+
+                        'Provide feedback for improvements'
+
+        avg_completion = sum(e.get('completion_percentage', 0) for e in enrollments) / total_enrollments if total_enrollments > 0 else 0            ]
+
+                }), 201
+
+        return jsonify({        
+
+            'success': True,    except Exception as e:
+
+            'statistics': {        db.session.rollback()
+
+                'total_enrollments': total_enrollments,        return jsonify({
+
+                'active_enrollments': active_enrollments,            'error': 'Failed to create custom learning path',
+
+                'completed_enrollments': completed_enrollments,            'telugu_message': 'అనుకూల అభ్యాస మార్గం సృష్టించడంలో విఫలం',
+
+                'total_points_earned': total_points,            'details': str(e)
+
+                'total_time_spent_minutes': total_time,        }), 500
+
+                'total_time_spent_hours': round(total_time / 60, 2),
+
+                'average_completion_percentage': round(avg_completion, 2)@learning_path_bp.route('/adaptive-difficulty', methods=['POST'])
+
+            }@jwt_required()
+
+        }), 200def adjust_adaptive_difficulty():
+
+        """Adjust learning path difficulty based on user performance"""
+
+    except Exception as e:    try:
+
+        return jsonify({        user_id = int(get_jwt_identity())
+
+            'success': False,        data = request.get_json()
+
+            'message': f'Error fetching statistics: {str(e)}',        
+
+            'message_telugu': 'గణాంకాలను పొందడంలో లోపం'        if not data:
+
+        }), 500            return jsonify({
+
                 'error': 'Performance data required',
+
                 'telugu_message': 'పనితీరు డేటా అవసరం'
-            }), 400
+
+# Error handlers            }), 400
+
+@learning_paths_bp.errorhandler(404)        
+
+def not_found(error):        learning_path_id = data.get('learning_path_id')
+
+    return jsonify({        if not learning_path_id:
+
+        'success': False,            return jsonify({
+
+        'message': 'Resource not found',                'error': 'Learning path ID required',
+
+        'message_telugu': 'వనరు కనుగొనబడలేదు'                'telugu_message': 'అభ్యాస మార్గ ID అవసరం'
+
+    }), 404            }), 400
+
         
-        learning_path_id = data.get('learning_path_id')
-        if not learning_path_id:
-            return jsonify({
-                'error': 'Learning path ID required',
-                'telugu_message': 'అభ్యాస మార్గ ID అవసరం'
-            }), 400
-        
+
         # Get user's recent performance in this learning path
-        recent_logs = UserActivityLog.query.filter_by(
-            user_id=user_id, learning_path_id=learning_path_id
-        ).order_by(UserActivityLog.completed_at.desc()).limit(10).all()
-        
-        if not recent_logs:
-            return jsonify({
-                'error': 'No performance data found',
-                'telugu_message': 'పనితీరు డేటా కనుగొనబడలేదు'
+
+@learning_paths_bp.errorhandler(500)        recent_logs = UserActivityLog.query.filter_by(
+
+def internal_error(error):            user_id=user_id, learning_path_id=learning_path_id
+
+    db.session.rollback()        ).order_by(UserActivityLog.completed_at.desc()).limit(10).all()
+
+    return jsonify({        
+
+        'success': False,        if not recent_logs:
+
+        'message': 'Internal server error',            return jsonify({
+
+        'message_telugu': 'అంతర్గత సర్వర్ లోపం'                'error': 'No performance data found',
+
+    }), 500                'telugu_message': 'పనితీరు డేటా కనుగొనబడలేదు'
+
             }), 404
         
         # Calculate performance metrics

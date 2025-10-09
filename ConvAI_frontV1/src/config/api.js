@@ -97,17 +97,26 @@ export const API_ENDPOINTS = {
   
   // Activities
   ACTIVITIES: {
-    // Generation endpoints
-    GENERATE_QUIZ: '/activity/generate/quiz',
-    GENERATE_FLASHCARDS: '/activity/generate/flashcards',
+    // New Activity System (Quiz, Flashcards, Writing & Role-Play)
+    GENERATE_QUIZ: '/activities/generate-quiz',
+    GENERATE_FLASHCARDS: '/activities/generate-flashcards',
+    GENERATE_WRITING_PROMPT: '/activities/generate-writing-prompt',
+    GENERATE_ROLEPLAY: '/activities/generate-role-play',
+    CONVERSATION: '/activities/conversation',
+    COMPLETE_ROLEPLAY: '/activities/complete-roleplay',
+    SUBMIT: '/activities/submit',
+    TOPICS: '/activities/topics',
+    HISTORY: '/activities/history',
+    
+    // Legacy Generation endpoints
     GENERATE_READING: '/activity/generate/reading',
     GENERATE_WRITING: '/activity/generate/writing-prompt',
-    GENERATE_ROLEPLAY: '/activity/generate/role-play',
+    LEGACY_GENERATE_ROLEPLAY: '/activity/generate/role-play',
     
     // Activity management
     LIST: '/activity/all',
     DETAIL: (id) => `/activity/${id}/details`,
-    SUBMIT: (id) => `/activity/${id}/submit`,
+    SUBMIT_LEGACY: (id) => `/activity/${id}/submit`,
     UPDATE: (id) => `/activity/${id}/update`,
     DELETE: (id) => `/activity/${id}/delete`,
     SAVE: '/activity/save',
@@ -167,16 +176,21 @@ export const API_ENDPOINTS = {
     PRACTICE_CHAT: (id) => `/chat/practice-assistant/${id}/chat`,
   },
   
-  // Gamification
+  // Gamification (Updated for new backend implementation)
   GAMIFICATION: {
-    BADGES: (userId) => `/gamification/badges/${userId}`,
-    AVAILABLE_BADGES: '/gamification/badges/available',
+    // Core endpoints (JWT-protected)
+    POINTS: '/gamification/points',                    // GET - User's total points & rank
+    BADGES: '/gamification/badges',                    // GET - Earned + available badges with progress
+    LEADERBOARD: '/gamification/leaderboard',          // GET - Ranked user list (query: timeframe, limit)
+    STATS: '/gamification/stats',                      // GET - Comprehensive gamification stats
+    ACHIEVEMENTS: '/gamification/achievements',        // GET - Achievement history
+    DAILY_CHALLENGE: '/gamification/daily-challenge',  // GET/POST - Get or complete daily challenge
+    
+    // Legacy endpoints (for backward compatibility)
+    USER_BADGES: (userId) => `/gamification/badges/${userId}`,
+    USER_STATS: (userId) => `/gamification/stats/${userId}`,
     CHECK_ACHIEVEMENTS: (userId) => `/gamification/check-achievements/${userId}`,
     UPDATE_STREAK: (userId) => `/gamification/streak/${userId}`,
-    LEADERBOARD: '/gamification/leaderboard',
-    DAILY_CHALLENGE: (userId) => `/gamification/daily-challenge/${userId}`,
-    ACHIEVEMENTS: '/gamification/achievements',
-    STATS: (userId) => `/gamification/stats/${userId}`,
     PROFILE: '/gamification/profile',
     REWARD: (id) => `/gamification/rewards/${id}`,
   },
@@ -190,6 +204,7 @@ export const API_ENDPOINTS = {
     EXAMPLES: (id) => `/vocabulary/words/${id}/examples`,
     PRACTICE_RESULT: (id) => `/vocabulary/words/${id}/practice-result`,
     STATS: '/vocabulary/stats',
+    PRACTICE_FLASHCARDS: '/vocabulary/practice-flashcards',
     LIST: '/vocabulary',
     SEARCH: '/vocabulary/search',
     PRACTICE: '/vocabulary/practice',

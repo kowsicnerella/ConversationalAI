@@ -19,12 +19,14 @@ import axiosInstance, { API_ENDPOINTS } from "../config/api";
 import LearningPathSelector from "../components/LearningPathSelector";
 import GradientText from "../components/common/GradientText";
 import AnimatedButton from "../components/common/AnimatedButton";
+import GoalSetting from "../components/onboarding/GoalSetting";
 
 const steps = [
   { label: "Welcome", teluguLabel: "స్వాగతం" },
   { label: "Assessment Info", teluguLabel: "మూల్యాంకన సమాచారం" },
   { label: "Take Assessment", teluguLabel: "మూల్యాంకనం తీసుకోండి" },
   { label: "View Results", teluguLabel: "ఫలితాలు చూడండి" },
+  { label: "Set Goals", teluguLabel: "లక్ష్యాలను సెట్ చేయండి" },
   { label: "Choose Path", teluguLabel: "మార్గాన్ని ఎంచుకోండి" },
   { label: "Get Started", teluguLabel: "ప్రారంభించండి" },
 ];
@@ -207,15 +209,21 @@ const Onboarding = () => {
                   />
                 )}
                 {activeStep === 4 && (
+                  <GoalSetting
+                    proficiencyLevel={assessmentResults?.overall_proficiency_level}
+                    onComplete={() => setActiveStep(5)}
+                  />
+                )}
+                {activeStep === 5 && (
                   <ChoosePathStep
                     assessmentResults={assessmentResults}
                     onPathSelected={(path) => {
                       setSelectedPath(path);
-                      setActiveStep(5);
+                      setActiveStep(6);
                     }}
                   />
                 )}
-                {activeStep === 5 && <GetStartedStep />}
+                {activeStep === 6 && <GetStartedStep />}
               </CardContent>
 
               {/* Navigation Buttons */}
@@ -247,7 +255,7 @@ const Onboarding = () => {
                       {activeStep === 1 ? "Start Assessment" : "Continue"}
                     </AnimatedButton>
                   )}
-                  {activeStep === 5 && (
+                  {activeStep === 6 && (
                     <AnimatedButton
                       variant="contained"
                       onClick={handleCompleteOnboarding}

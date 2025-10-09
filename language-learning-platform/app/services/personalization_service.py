@@ -228,16 +228,21 @@ class PersonalizationService:
     
     def get_personalized_dashboard(self, user_id):
         """
-        Get personalized dashboard content for the user.
+        Get comprehensive personalized dashboard content for the user.
+        Includes: streak, points, daily progress, recommended activities, vocabulary count, 
+        next milestone, weekly activity, skill breakdown.
         """
         try:
             user = User.query.get(user_id)
             if not user:
                 return {'error': 'User not found'}
             
+            profile = user.profile
+            
             # Get user goals and streak
             goal = UserGoal.query.filter_by(user_id=user_id, is_active=True).first()
-            streak = user.profile.current_streak if user.profile else 0
+            current_streak = profile.current_streak if profile else 0
+            longest_streak = profile.longest_streak if profile else 0
             
             # Get today's progress
             today = date.today()
@@ -247,7 +252,44 @@ class PersonalizationService:
             ).all()
             
             today_time_spent = sum([s.duration_minutes or 0 for s in today_sessions])
-            daily_goal_minutes = goal.daily_time_goal_minutes if goal else 10
+            daily_goal_minutes = goal.daily_time_goal_minutes if goal else 15
+            daily_progress_percentage = min(100, int((today_time_spent / daily_goal_minutes) * 100))
+            
+            # Get total points and level
+            total_points = profile.total_points if profile else 0
+            level = profile.level if profile else 1
+            points_to_next_level = ((level + 1) * 100) - total_points  # 100 points per level
+            
+            # Get vocabulary count
+            total_vocabulary = VocabularyWord.query.filter_by(user_id=user_id).count()
+            words_this_month = VocabularyWord.query.filter(
+                VocabularyWord.user_id == user_id,
+                VocabularyWord.discovered_at >= date.today().replace(day=1)
+            ).count()
+            
+            # Get total study time
+            total_study_minutes = db.session.query(func.sum(LearningSession.duration_minutes))\
+                .filter(LearningSession.user_id == user_id).scalar() or 0
+            total_study_hours = round(total_study_minutes / 60, 1)
+            
+            # Get this week's study time
+            week_start = today - timedelta(days=today.weekday())
+            week_minutes = db.session.query(func.sum(LearningSession.duration_minutes))\
+                .filter(LearningSession.user_id == user_id,
+                       func.date(LearningSession.start_time) >= week_start).scalar() or 0
+            week_hours = round(week_minutes / 60, 1)
+            
+            # Get weekly activity (last 7 days)
+            weekly_activity = self._get_weekly_activity(user_id)
+            
+            # Get skill breakdown from latest assessment
+            skill_breakdown = self._get_skill_breakdown(user_id)
+            
+            # Get recommended activities based on preferences and level
+            recommended_activities = self._get_recommended_activities(user_id)
+            
+            # Get next milestone
+            next_milestone = self._get_next_milestone(user_id, total_points, level)
             
             # Get daily challenge
             daily_challenge = self._get_or_create_daily_challenge(user_id)
@@ -257,25 +299,57 @@ class PersonalizationService:
             
             # Get recent vocabulary words
             recent_vocab = VocabularyWord.query.filter_by(user_id=user_id)\
-                .order_by(VocabularyWord.discovered_at.desc()).limit(3).all()
+                .order_by(VocabularyWord.discovered_at.desc()).limit(5).all()
+            
+            # Get user preferences
+            preferred_topics = user.preferred_topics if user.preferred_topics else []
+            learning_goal_type = user.learning_goal_type if user.learning_goal_type else 'conversational'
             
             return {
                 'dashboard': {
+                    # User Info
                     'user_name': user.username,
-                    'current_streak': streak,
+                    'proficiency_level': profile.proficiency_level if profile else 'beginner',
+                    'learning_goal': learning_goal_type,
+                    'preferred_topics': preferred_topics,
+                    
+                    # Streak & Progress
+                    'current_streak': current_streak,
+                    'longest_streak': longest_streak,
                     'daily_goal_minutes': daily_goal_minutes,
                     'today_time_spent': today_time_spent,
-                    'goal_progress_percentage': min(100, (today_time_spent / daily_goal_minutes) * 100),
+                    'daily_progress_percentage': daily_progress_percentage,
+                    
+                    # Points & Gamification
+                    'total_points': total_points,
+                    'level': level,
+                    'points_to_next_level': points_to_next_level,
+                    'next_milestone': next_milestone,
+                    
+                    # Vocabulary & Learning Stats
+                    'words_learned': total_vocabulary,
+                    'new_words_this_month': words_this_month,
+                    'total_study_time_hours': total_study_hours,
+                    'study_time_this_week': week_hours,
+                    
+                    # Analytics
+                    'weekly_activity': weekly_activity,
+                    'skill_breakdown': skill_breakdown,
+                    
+                    # Recommended Content
+                    'recommended_activities': recommended_activities,
                     'daily_challenge': daily_challenge,
                     'question_of_day': question_of_day,
+                    
+                    # Recent Progress
                     'recent_vocabulary': [
                         {
                             'english': word.english_word,
                             'telugu': word.telugu_translation,
-                            'context': word.context_sentence
+                            'context': word.context_sentence,
+                            'mastery_level': word.mastery_level
                         } for word in recent_vocab
-                    ],
-                    'proficiency_level': user.profile.proficiency_level if user.profile else 'beginner'
+                    ]
                 }
             }
             
@@ -470,6 +544,184 @@ class PersonalizationService:
             'challenge': challenge.challenge_content,
             'completed': completion is not None,
             'completion_time': completion.time_spent_minutes if completion else None
+        }
+    
+    def _get_weekly_activity(self, user_id):
+        """Get activity for the last 7 days"""
+        days = []
+        today = date.today()
+        
+        for i in range(6, -1, -1):
+            day_date = today - timedelta(days=i)
+            day_sessions = LearningSession.query.filter(
+                LearningSession.user_id == user_id,
+                func.date(LearningSession.start_time) == day_date
+            ).all()
+            
+            day_minutes = sum([s.duration_minutes or 0 for s in day_sessions])
+            
+            days.append({
+                'day': day_date.strftime('%a'),  # Mon, Tue, etc.
+                'date': day_date.strftime('%Y-%m-%d'),
+                'minutes': day_minutes
+            })
+        
+        return days
+    
+    def _get_skill_breakdown(self, user_id):
+        """Get skill breakdown from latest assessment or default values"""
+        # Get latest proficiency assessment
+        assessment = ProficiencyAssessment.query.filter_by(user_id=user_id)\
+            .order_by(ProficiencyAssessment.completed_at.desc()).first()
+        
+        if assessment and assessment.skill_breakdown:
+            # Return skill breakdown from assessment
+            skills = []
+            for skill, data in assessment.skill_breakdown.items():
+                skills.append({
+                    'skill': skill.capitalize(),
+                    'score': data.get('score', 0),
+                    'proficiency': data.get('proficiency_level', 'beginner'),
+                    'progress': data.get('score', 0)  # Assuming score is out of 100
+                })
+            return skills
+        
+        # Default skill breakdown
+        return [
+            {'skill': 'Vocabulary', 'score': 0, 'proficiency': 'beginner', 'progress': 0},
+            {'skill': 'Grammar', 'score': 0, 'proficiency': 'beginner', 'progress': 0},
+            {'skill': 'Speaking', 'score': 0, 'proficiency': 'beginner', 'progress': 0},
+            {'skill': 'Listening', 'score': 0, 'proficiency': 'beginner', 'progress': 0},
+            {'skill': 'Reading', 'score': 0, 'proficiency': 'beginner', 'progress': 0},
+            {'skill': 'Writing', 'score': 0, 'proficiency': 'beginner', 'progress': 0}
+        ]
+    
+    def _get_recommended_activities(self, user_id):
+        """
+        Get personalized activity recommendations based on:
+        - User's proficiency level
+        - Preferred topics
+        - Learning goal type
+        - Recent performance
+        """
+        user = User.query.get(user_id)
+        if not user:
+            return []
+        
+        profile = user.profile
+        proficiency = profile.proficiency_level if profile else 'beginner'
+        preferred_topics = user.preferred_topics if user.preferred_topics else []
+        learning_goal = user.learning_goal_type if user.learning_goal_type else 'conversational'
+        
+        recommendations = []
+        
+        # Activity types based on learning goal
+        activity_types = {
+            'conversational': [
+                {'type': 'conversation', 'title': 'Daily Conversation Practice', 'icon': '💬'},
+                {'type': 'role_play', 'title': 'Real-Life Scenarios', 'icon': '🎭'},
+                {'type': 'listening', 'title': 'Listen & Respond', 'icon': '👂'}
+            ],
+            'business': [
+                {'type': 'business_writing', 'title': 'Email Writing Practice', 'icon': '✉️'},
+                {'type': 'presentation', 'title': 'Presentation Skills', 'icon': '📊'},
+                {'type': 'meeting', 'title': 'Meeting Simulation', 'icon': '💼'}
+            ],
+            'travel': [
+                {'type': 'travel_scenarios', 'title': 'Airport & Hotel', 'icon': '✈️'},
+                {'type': 'directions', 'title': 'Asking for Directions', 'icon': '🗺️'},
+                {'type': 'ordering', 'title': 'Restaurant Ordering', 'icon': '🍽️'}
+            ],
+            'academic': [
+                {'type': 'essay_writing', 'title': 'Essay Writing', 'icon': '📝'},
+                {'type': 'research', 'title': 'Academic Reading', 'icon': '📚'},
+                {'type': 'debate', 'title': 'Debate Practice', 'icon': '🗣️'}
+            ]
+        }
+        
+        # Get activities for user's learning goal
+        goal_activities = activity_types.get(learning_goal, activity_types['conversational'])
+        
+        # Add topic-based activities if user has preferred topics
+        for idx, activity in enumerate(goal_activities[:3]):  # Top 3 activities
+            topic = preferred_topics[idx % len(preferred_topics)] if preferred_topics else 'Daily Life'
+            
+            recommendations.append({
+                'id': f'{learning_goal}_{activity["type"]}_{idx}',
+                'title': activity['title'],
+                'description': f'Practice {activity["type"].replace("_", " ")} with {topic} theme',
+                'type': activity['type'],
+                'icon': activity['icon'],
+                'topic': topic,
+                'difficulty': proficiency,
+                'estimated_time': 10,
+                'points': 20
+            })
+        
+        # Add vocabulary building activity
+        if preferred_topics:
+            recommendations.append({
+                'id': 'vocabulary_builder',
+                'title': 'Vocabulary Builder',
+                'description': f'Learn new words about {", ".join(preferred_topics[:2])}',
+                'type': 'vocabulary',
+                'icon': '📖',
+                'topic': preferred_topics[0] if preferred_topics else 'General',
+                'difficulty': proficiency,
+                'estimated_time': 5,
+                'points': 10
+            })
+        
+        # Add grammar practice
+        recommendations.append({
+            'id': 'grammar_practice',
+            'title': 'Grammar Practice',
+            'description': f'{proficiency.capitalize()}-level grammar exercises',
+            'type': 'grammar',
+            'icon': '✏️',
+            'topic': 'Grammar',
+            'difficulty': proficiency,
+            'estimated_time': 10,
+            'points': 15
+        })
+        
+        return recommendations
+    
+    def _get_next_milestone(self, user_id, current_points, current_level):
+        """Get the next milestone/achievement to unlock"""
+        milestones = [
+            {'level': 1, 'points': 100, 'title': 'Beginner Badge', 'icon': '🌱', 'description': 'Complete your first week'},
+            {'level': 2, 'points': 200, 'title': 'Explorer Badge', 'icon': '🔍', 'description': 'Learn 50 new words'},
+            {'level': 3, 'points': 300, 'title': 'Conversationalist', 'icon': '💬', 'description': '10 conversation sessions'},
+            {'level': 5, 'points': 500, 'title': 'Dedicated Learner', 'icon': '⭐', 'description': '7-day streak'},
+            {'level': 10, 'points': 1000, 'title': 'English Master', 'icon': '👑', 'description': '30-day streak'},
+        ]
+        
+        # Find next milestone
+        for milestone in milestones:
+            if current_points < milestone['points']:
+                points_needed = milestone['points'] - current_points
+                return {
+                    'title': milestone['title'],
+                    'icon': milestone['icon'],
+                    'description': milestone['description'],
+                    'target_points': milestone['points'],
+                    'current_points': current_points,
+                    'points_needed': points_needed,
+                    'progress_percentage': int((current_points / milestone['points']) * 100)
+                }
+        
+        # If all milestones completed, return next level milestone
+        next_level = current_level + 1
+        next_level_points = next_level * 100
+        return {
+            'title': f'Level {next_level}',
+            'icon': '🎯',
+            'description': f'Reach level {next_level}',
+            'target_points': next_level_points,
+            'current_points': current_points,
+            'points_needed': next_level_points - current_points,
+            'progress_percentage': int((current_points / next_level_points) * 100)
         }
     
     def _generate_question_of_day(self, user_id):

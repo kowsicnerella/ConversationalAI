@@ -85,7 +85,7 @@ class LearningSession(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    session_type = db.Column(db.String(50), nullable=False)  # chat, guided_conversation, role_play, etc.
+    session_type = db.Column(db.String(50), nullable=False)  # chat, guided_conversation, role_play, quiz, flashcard, etc.
     start_time = db.Column(db.DateTime, default=datetime.utcnow)
     end_time = db.Column(db.DateTime)
     duration_minutes = db.Column(db.Integer)
@@ -100,6 +100,16 @@ class LearningSession(db.Model):
     # Additional fields for enhanced chat functionality
     conversation_messages = db.Column(db.JSON)  # Store conversation messages
     user_feedback = db.Column(db.JSON)  # Store user feedback
+    
+    # New fields for quiz/flashcard activities
+    activity_type = db.Column(db.String(50))  # quiz, flashcard
+    topic = db.Column(db.String(100))  # daily_routine, food, travel, etc.
+    level = db.Column(db.String(20))  # beginner, intermediate, advanced
+    score = db.Column(db.Integer)  # percentage score (0-100)
+    points_earned = db.Column(db.Integer, default=0)  # gamification points
+    time_spent_minutes = db.Column(db.Integer)  # time spent on activity
+    started_at = db.Column(db.DateTime)  # when activity started
+    completed_at = db.Column(db.DateTime)  # when activity completed
     
     def __repr__(self):
         return f'<LearningSession {self.session_type}: {self.duration_minutes}min>'

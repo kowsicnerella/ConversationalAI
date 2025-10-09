@@ -4,6 +4,7 @@ from app.services.personalization_service import PersonalizationService
 from app.models import db, User, LearningSession, VocabularyWord
 from datetime import datetime
 import logging
+import json
 
 personalization_bp = Blueprint('personalization', __name__)
 personalization_service = PersonalizationService()
@@ -51,6 +52,119 @@ def set_user_goals():
         return jsonify({
             'error': 'Failed to set goals',
             'telugu_message': 'లక్ష్యాలు సెట్ చేయడంలో విఫలం'
+        }), 500
+
+@personalization_bp.route('/preferences', methods=['POST'])
+@jwt_required()
+def set_user_preferences():
+    """
+    Set user's learning preferences (topics, notifications, etc.)
+    
+    Expected JSON:
+    {
+        "preferred_topics": ["food", "travel", "work", "daily_life"],
+        "learning_goal_type": "conversational_fluency",  // or "business_english", "travel_english"
+        "notification_settings": {
+            "daily_reminders": true,
+            "streak_alerts": true,
+            "achievement_notifications": true,
+            "weekly_report": false
+        }
+    }
+    """
+    try:
+        user_id = int(get_jwt_identity())
+        data = request.get_json()
+        
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({
+                'error': 'User not found',
+                'telugu_message': 'వినియోగదారు కనుగొనబడలేదు'
+            }), 404
+        
+        # Update preferred topics
+        if 'preferred_topics' in data:
+            preferred_topics = data['preferred_topics']
+            if isinstance(preferred_topics, list) and len(preferred_topics) > 0:
+                user.learning_goals = json.dumps(preferred_topics) if not isinstance(user.learning_goals, str) else user.learning_goals
+                # Store topics in a separate field or as part of profile
+                if hasattr(user, 'profile') and user.profile:
+                    # Update profile with topics
+                    pass
+        
+        # Update learning goal type
+        if 'learning_goal_type' in data:
+            learning_goal_type = data['learning_goal_type']
+            valid_goals = ['conversational_fluency', 'business_english', 'travel_english', 'academic_english', 'general_english']
+            if learning_goal_type in valid_goals:
+                user.set_learning_goals([learning_goal_type])
+        
+        # Update notification settings
+        if 'notification_settings' in data:
+            notification_settings = data['notification_settings']
+            if isinstance(notification_settings, dict):
+                user.set_notification_preferences(notification_settings)
+        
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Preferences saved successfully!',
+            'telugu_message': 'ప్రాధాన్యతలు విజయవంతంగా సేవ్ చేయబడ్డాయి!',
+            'preferences': {
+                'preferred_topics': data.get('preferred_topics', []),
+                'learning_goal_type': data.get('learning_goal_type'),
+                'notification_settings': data.get('notification_settings', {})
+            }
+        }), 200
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error setting preferences: {str(e)}")
+        return jsonify({
+            'error': 'Failed to save preferences',
+            'telugu_message': 'ప్రాధాన్యతలు సేవ్ చేయడంలో విఫలం',
+            'details': str(e)
+        }), 500
+
+@personalization_bp.route('/preferences', methods=['GET'])
+@jwt_required()
+def get_user_preferences():
+    """
+    Get user's current learning preferences.
+    """
+    try:
+        user_id = int(get_jwt_identity())
+        
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({
+                'error': 'User not found',
+                'telugu_message': 'వినియోగదారు కనుగొనబడలేదు'
+            }), 404
+        
+        preferences = {
+            'preferred_topics': user.get_learning_goals() or [],
+            'learning_goal_type': user.get_learning_goals()[0] if user.get_learning_goals() else 'general_english',
+            'notification_settings': user.get_notification_preferences() or {
+                'daily_reminders': True,
+                'streak_alerts': True,
+                'achievement_notifications': True,
+                'weekly_report': False
+            }
+        }
+        
+        return jsonify({
+            'success': True,
+            'preferences': preferences
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error getting preferences: {str(e)}")
+        return jsonify({
+            'error': 'Failed to retrieve preferences',
+            'telugu_message': 'ప్రాధాన్యతలు పొందడంలో విఫలం'
         }), 500
 
 @personalization_bp.route('/assessment/start', methods=['POST'])

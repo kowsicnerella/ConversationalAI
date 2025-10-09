@@ -17,6 +17,7 @@ import LearningPathDetail from "./pages/LearningPathDetail";
 import Activities from "./pages/Activities";
 import ActivityDetail from "./pages/ActivityDetail";
 import Vocabulary from "./pages/Vocabulary";
+import ImageLearning from "./pages/ImageLearning";
 import Chat from "./pages/Chat";
 import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
@@ -97,6 +98,7 @@ function App() {
           element={<ReadingActivity />}
         />
         <Route path="/vocabulary" element={<Vocabulary />} />
+        <Route path="/image-learning" element={<ImageLearning />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
