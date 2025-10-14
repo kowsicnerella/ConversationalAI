@@ -39,6 +39,7 @@ import GradientText from "../components/common/GradientText";
 import HoverCard from "../components/common/HoverCard";
 import AnimatedButton from "../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../config/api";
+import learningPathService from "../services/learningPathService";
 
 const LearningPathDetail = () => {
   const { id } = useParams();
@@ -47,6 +48,9 @@ const LearningPathDetail = () => {
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedChapter, setExpandedChapter] = useState(null);
+  const [chapterProgress, setChapterProgress] = useState({});
+  const [startingChapter, setStartingChapter] = useState(null);
+  const [completingChapter, setCompletingChapter] = useState(null);
 
   useEffect(() => {
     fetchPathDetails();
@@ -55,8 +59,8 @@ const LearningPathDetail = () => {
   const fetchPathDetails = async () => {
     try {
       const [pathResponse, chaptersResponse] = await Promise.all([
-        axiosInstance.get(API_ENDPOINTS.LEARNING_PATHS.DETAIL(id)),
-        axiosInstance.get(API_ENDPOINTS.LEARNING_PATHS.CHAPTERS(id)),
+        axiosInstance.get(API_ENDPOINTS.COURSES.PATH_DETAIL(id)),
+        axiosInstance.get(API_ENDPOINTS.CHAPTERS.LIST(id)),
       ]);
       setPathData(pathResponse.data);
       setChapters(
@@ -179,6 +183,54 @@ const LearningPathDetail = () => {
 
   const handleChapterExpand = (chapterId) => {
     setExpandedChapter(expandedChapter === chapterId ? null : chapterId);
+  };
+
+  const handleStartChapter = async (chapterId) => {
+    try {
+      setStartingChapter(chapterId);
+      const response = await learningPathService.startChapter(chapterId);
+      
+      if (response.success) {
+        // Update chapter status
+        setChapters(prevChapters =>
+          prevChapters.map(ch =>
+            ch.id === chapterId ? { ...ch, inProgress: true } : ch
+          )
+        );
+        // Reload progress
+        await fetchPathDetails();
+      }
+    } catch (error) {
+      console.error('Error starting chapter:', error);
+    } finally {
+      setStartingChapter(null);
+    }
+  };
+
+  const handleCompleteChapter = async (chapterId) => {
+    try {
+      setCompletingChapter(chapterId);
+      const response = await learningPathService.completeChapter(chapterId, {
+        completion_time: 0, // Could track actual time
+        score: null,
+        notes: ''
+      });
+      
+      if (response.success) {
+        // Update chapter status
+        setChapters(prevChapters =>
+          prevChapters.map(ch =>
+            ch.id === chapterId ? { ...ch, completed: true, inProgress: false } : ch
+          )
+        );
+        // Reload to update overall progress
+        await fetchPathDetails();
+      }
+    } catch (error) {
+      console.error('Error completing chapter:', error);
+    } finally {
+      setCompletingChapter(null);
+    }
   };
 
   const handleStartActivity = (activityId) => {
@@ -433,6 +485,48 @@ const LearningPathDetail = () => {
                   >
                     {chapter.description}
                   </Typography>
+                  
+                  {/* Chapter Progress Actions */}
+                  <Box sx={{ mb: 2, display: 'flex', gap: 1 }}>
+                    {!chapter.completed && !chapter.inProgress && (
+                      <Button
+                        variant="contained"
+                        startIcon={<PlayArrow />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartChapter(chapter.id);
+                        }}
+                        disabled={startingChapter === chapter.id}
+                        size="small"
+                      >
+                        {startingChapter === chapter.id ? 'Starting...' : 'Start Chapter'}
+                      </Button>
+                    )}
+                    {chapter.inProgress && !chapter.completed && (
+                      <Button
+                        variant="contained"
+                        color="success"
+                        startIcon={<CheckCircle />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCompleteChapter(chapter.id);
+                        }}
+                        disabled={completingChapter === chapter.id}
+                        size="small"
+                      >
+                        {completingChapter === chapter.id ? 'Completing...' : 'Mark as Complete'}
+                      </Button>
+                    )}
+                    {chapter.completed && (
+                      <Chip 
+                        icon={<CheckCircle />} 
+                        label="Chapter Completed" 
+                        color="success" 
+                        size="small" 
+                      />
+                    )}
+                  </Box>
+                  
                   <Divider sx={{ mb: 2 }} />
                   <Typography variant="subtitle2" fontWeight={600} gutterBottom>
                     Activities

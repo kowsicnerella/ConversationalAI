@@ -4,6 +4,7 @@ from app.models import (
     DailyChallenge, UserDailyChallengeCompletion
 )
 from app.services.activity_generator_service import ActivityGeneratorService
+from app.services.mem0_service import mem0_service
 from datetime import datetime, date, timedelta
 from sqlalchemy import func
 import json
@@ -256,8 +257,8 @@ class PersonalizationService:
             daily_progress_percentage = min(100, int((today_time_spent / daily_goal_minutes) * 100))
             
             # Get total points and level
-            total_points = profile.total_points if profile else 0
-            level = profile.level if profile else 1
+            total_points = profile.points if profile else 0
+            level = (total_points // 100) + 1  # 100 points per level
             points_to_next_level = ((level + 1) * 100) - total_points  # 100 points per level
             
             # Get vocabulary count
@@ -301,9 +302,16 @@ class PersonalizationService:
             recent_vocab = VocabularyWord.query.filter_by(user_id=user_id)\
                 .order_by(VocabularyWord.discovered_at.desc()).limit(5).all()
             
-            # Get user preferences
-            preferred_topics = user.preferred_topics if user.preferred_topics else []
-            learning_goal_type = user.learning_goal_type if user.learning_goal_type else 'conversational'
+            # Get user preferences from learning_goals JSON or use defaults
+            learning_goals_data = user.get_learning_goals() if user else []
+            preferred_topics = []
+            learning_goal_type = 'conversational'
+            
+            if learning_goals_data and isinstance(learning_goals_data, list) and len(learning_goals_data) > 0:
+                first_goal = learning_goals_data[0]
+                if isinstance(first_goal, dict):
+                    preferred_topics = first_goal.get('preferred_topics', [])
+                    learning_goal_type = first_goal.get('learning_goal_type', 'conversational')
             
             return {
                 'dashboard': {
@@ -433,9 +441,13 @@ class PersonalizationService:
                 english_word=english_word.lower()
             ).first()
             
+            telugu_translation = None
+            is_new_word = existing_word is None
+            
             if existing_word:
                 existing_word.times_encountered += 1
                 existing_word.context_sentence = context_sentence  # Update with latest context
+                telugu_translation = existing_word.telugu_translation
             else:
                 # Generate Telugu translation using AI
                 translation_prompt = f"""
@@ -466,10 +478,22 @@ class PersonalizationService:
             
             db.session.commit()
             
+            # Save to mem0
+            mem0_service.save_vocabulary_learning(
+                user_id=user_id,
+                vocabulary_data={
+                    'english_word': english_word,
+                    'telugu_translation': telugu_translation,
+                    'context_sentence': context_sentence,
+                    'is_new_word': is_new_word,
+                    'source': 'personalization_tracking'
+                }
+            )
+            
             return {
                 'english_word': english_word,
-                'telugu_translation': telugu_translation if not existing_word else existing_word.telugu_translation,
-                'is_new_word': existing_word is None
+                'telugu_translation': telugu_translation,
+                'is_new_word': is_new_word
             }
             
         except Exception as e:
@@ -610,8 +634,17 @@ class PersonalizationService:
         
         profile = user.profile
         proficiency = profile.proficiency_level if profile else 'beginner'
-        preferred_topics = user.preferred_topics if user.preferred_topics else []
-        learning_goal = user.learning_goal_type if user.learning_goal_type else 'conversational'
+        
+        # Get user preferences from learning_goals JSON or use defaults
+        learning_goals_data = user.get_learning_goals() if user else []
+        preferred_topics = []
+        learning_goal = 'conversational'
+        
+        if learning_goals_data and isinstance(learning_goals_data, list) and len(learning_goals_data) > 0:
+            first_goal = learning_goals_data[0]
+            if isinstance(first_goal, dict):
+                preferred_topics = first_goal.get('preferred_topics', [])
+                learning_goal = first_goal.get('learning_goal_type', 'conversational')
         
         recommendations = []
         

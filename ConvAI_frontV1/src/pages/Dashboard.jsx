@@ -67,8 +67,13 @@ const Dashboard = () => {
         API_ENDPOINTS.PERSONALIZATION.DASHBOARD
       );
 
+      console.log("Dashboard API Response:", response.data);
+      
       if (response.data && response.data.dashboard) {
+        console.log("Setting dashboard data:", response.data.dashboard);
         setDashboardData(response.data.dashboard);
+      } else {
+        console.warn("No dashboard data in response:", response.data);
       }
     } catch (err) {
       console.error("Error fetching dashboard:", err);
@@ -101,6 +106,7 @@ const Dashboard = () => {
     );
   }
 
+  console.log("Rendering dashboard with data:", dashboardData);
   const data = dashboardData || {};
 
   return (

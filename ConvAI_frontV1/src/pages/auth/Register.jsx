@@ -118,8 +118,13 @@ const Register = () => {
     const result = await register(registerData);
 
     if (result.success) {
-      // Redirect to onboarding for new users
-      navigate("/onboarding");
+      // Redirect to onboarding with assessment data from registration
+      navigate("/onboarding", {
+        state: {
+          assessment: result.assessment, // Pass assessment from registration response
+          fromRegistration: true
+        }
+      });
     } else {
       setError(result.error);
     }

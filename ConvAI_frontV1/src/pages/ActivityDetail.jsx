@@ -43,7 +43,7 @@ import AnimatedButton from "../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../config/api";
 
 const ActivityDetail = () => {
-  const { activityId } = useParams();
+  const { id } = useParams();  // Route uses :id not :activityId
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -52,16 +52,19 @@ const ActivityDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchActivityDetail();
-  }, [activityId]);
+    if (id) {
+      fetchActivityDetail();
+    }
+  }, [id]);
 
   const fetchActivityDetail = async () => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(
-        API_ENDPOINTS.ACTIVITIES.DETAIL(activityId)
+        API_ENDPOINTS.ACTIVITIES.DETAIL(id)
       );
-      setActivity(response.data);
+      // Backend returns {message: ..., activity: {...}}
+      setActivity(response.data.activity || response.data);
     } catch (error) {
       console.error("Error fetching activity detail:", error);
       // Use mock data
@@ -72,7 +75,7 @@ const ActivityDetail = () => {
   };
 
   const getMockActivity = () => ({
-    id: activityId,
+    id: id,
     type: "flashcard",
     title: "Daily Vocabulary Practice",
     description:
@@ -106,11 +109,11 @@ const ActivityDetail = () => {
 
   const handleStartActivity = () => {
     if (activity.type === "flashcard") {
-      navigate(`/activities/flashcards/${activityId}`);
+      navigate(`/activities/flashcards/${id}`);
     } else if (activity.type === "quiz") {
-      navigate(`/activities/quiz/${activityId}`);
+      navigate(`/activities/quiz/${id}`);
     } else if (activity.type === "reading") {
-      navigate(`/activities/reading/${activityId}`);
+      navigate(`/activities/reading/${id}`);
     }
   };
 

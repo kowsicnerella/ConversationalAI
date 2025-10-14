@@ -1,0 +1,24 @@
+{
+  "total_tests": 25,
+  "passed": 8,
+  "failed": 17,
+  "errors": [
+    "Get Initial Assessment: Status: 404",
+    "Submit Assessment: Status: 404",
+    "Get Recommended Learning Paths: Status: 404",
+    "Create User Goal: Status: 400",
+    "Get User Goals: Status: 404",
+    "Generate Vocabulary Activity: Status: 404",
+    "Generate Grammar Activity: Status: 404",
+    "Get Available Activities: Status: 404",
+    "Get Personalized Recommendations: Status: 404",
+    "Get User Progress: Status: 404",
+    "Get Adaptive Content: Status: 404",
+    "Send Chat Message: Status: 404",
+    "Get Chat History: Status: 404",
+    "Start Practice Session: Status: 404",
+    "Get Practice History: Status: 404",
+    "Get Learning Analytics: Status: 404",
+    "Get Performance Metrics: Status: 404"
+  ]
+}

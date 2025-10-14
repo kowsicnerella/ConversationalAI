@@ -6,6 +6,7 @@ from app.models import (
 )
 from app.services.activity_generator_service import ActivityGeneratorService
 from app.services.personalization_service import PersonalizationService
+from app.services.mem0_service import mem0_service
 from datetime import datetime
 import json
 
@@ -152,6 +153,21 @@ def send_message(conversation_id):
         user = User.query.get(user_id)
         proficiency_level = user.profile.proficiency_level if user.profile else 'beginner'
         
+        # Get user context from mem0
+        user_context = mem0_service.get_user_context_for_conversation(
+            user_id=user_id,
+            conversation_type='chat'
+        )
+        
+        # Build enriched context for AI
+        context_summary = ""
+        if user_context.get('relevant_context'):
+            context_summary = "\n\nUser's Learning Context:"
+            for key, memories in user_context['relevant_context'].items():
+                if memories:
+                    context_summary += f"\n- {key.replace('_', ' ').title()}: "
+                    context_summary += ", ".join([m.get('memory', '') for m in memories[:2]])
+        
         # Prepare context for AI response
         conversation_context = f"""
         You are a friendly AI English tutor helping a Telugu speaker learn English.
@@ -160,6 +176,7 @@ def send_message(conversation_id):
         - Native Language: Telugu
         - English Proficiency: {proficiency_level}
         - Learning Focus: Conversation practice
+        {context_summary}
         
         Instructions:
         1. Respond naturally and encouragingly to the user's message
@@ -168,6 +185,7 @@ def send_message(conversation_id):
         4. Ask engaging follow-up questions
         5. Provide Telugu translations for difficult words in parentheses
         6. Keep responses conversational and supportive
+        7. Use the user's learning context to personalize your response
         
         User's message: "{user_message}"
         
@@ -177,6 +195,29 @@ def send_message(conversation_id):
         # Get AI response
         ai_response = activity_service.model.generate_content(conversation_context)
         ai_message = ai_response.text.strip()
+        
+        # Save user message to mem0
+        mem0_service.add_user_interaction(
+            user_id=user_id,
+            message=user_message,
+            context={
+                "activity_type": "chat_conversation",
+                "proficiency_level": proficiency_level,
+                "conversation_id": conversation_id,
+                "message_type": message_type
+            }
+        )
+        
+        # Save AI response context to mem0
+        mem0_service.add_user_interaction(
+            user_id=user_id,
+            message=f"AI tutor response: {ai_message}",
+            context={
+                "activity_type": "chat_conversation",
+                "response_type": "tutor_feedback",
+                "conversation_id": conversation_id
+            }
+        )
         
         # Store messages in conversation
         current_messages = conversation.conversation_messages or []
@@ -226,11 +267,23 @@ def send_message(conversation_id):
             if isinstance(vocab_data, list) and len(vocab_data) > 0:
                 for vocab in vocab_data:
                     if 'english_word' in vocab and 'context_sentence' in vocab:
+                        # Track in database
                         personalization_service.track_vocabulary_learning(
                             user_id, 
                             vocab['english_word'], 
                             vocab['context_sentence'], 
                             conversation_id
+                        )
+                        
+                        # Save to mem0
+                        mem0_service.save_vocabulary_learning(
+                            user_id=user_id,
+                            vocabulary_data={
+                                'english_word': vocab['english_word'],
+                                'context_sentence': vocab['context_sentence'],
+                                'difficulty_level': proficiency_level,
+                                'source': 'chat_conversation'
+                            }
                         )
         except Exception as e:
             current_app.logger.warning(f"Vocabulary extraction failed: {str(e)}")
@@ -1375,3 +1428,144 @@ def _generate_practice_assistant_response(user_message, context_type, chapter, c
             'telugu_message': "నేను సహాయం చేయడానికి ఇక్కడ ఉన్నాను! దయచేసి మీ ప్రశ్నను మళ్లీ చెప్పగలరా?",
             'type': 'fallback'
         }
+
+
+# ============================================
+# Mem0 Integration Endpoints
+# ============================================
+
+@chat_bp.route('/user-memories', methods=['GET'])
+@jwt_required()
+def get_user_memories():
+    """
+    Get user's learning memories from mem0.
+    
+    Query Parameters:
+    - limit: Number of memories to retrieve (default: 10)
+    """
+    try:
+        user_id = int(get_jwt_identity())
+        limit = request.args.get('limit', 10, type=int)
+        
+        memories = mem0_service.get_user_memories(user_id, limit=limit)
+        
+        return jsonify({
+            'message': 'User memories retrieved successfully!',
+            'telugu_message': 'వినియోగదారు జ్ఞాపకాలు విజయవంతంగా తీసుకోబడ్డాయి!',
+            'memories': memories,
+            'count': len(memories)
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error getting user memories: {str(e)}")
+        return jsonify({
+            'error': 'Failed to get user memories',
+            'telugu_message': 'వినియోగదారు జ్ఞాపకాలు పొందడంలో విఫలం'
+        }), 500
+
+
+@chat_bp.route('/search-memories', methods=['POST'])
+@jwt_required()
+def search_user_memories():
+    """
+    Search user memories using semantic search.
+    
+    Expected JSON:
+    {
+        "query": "my mistakes in grammar",
+        "limit": 5
+    }
+    """
+    try:
+        user_id = int(get_jwt_identity())
+        data = request.get_json()
+        
+        query = data.get('query')
+        limit = data.get('limit', 5)
+        
+        if not query:
+            return jsonify({
+                'error': 'Query is required',
+                'telugu_message': 'ప్రశ్న అవసరం'
+            }), 400
+        
+        results = mem0_service.search_user_memories(query, user_id, limit=limit)
+        
+        return jsonify({
+            'message': 'Memory search completed successfully!',
+            'telugu_message': 'జ్ఞాపక శోధన విజయవంతంగా పూర్తయింది!',
+            'query': query,
+            'results': results,
+            'count': len(results)
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error searching memories: {str(e)}")
+        return jsonify({
+            'error': 'Failed to search memories',
+            'telugu_message': 'జ్ఞాపకాలు శోధించడంలో విఫలం'
+        }), 500
+
+
+@chat_bp.route('/personalized-suggestions', methods=['GET'])
+@jwt_required()
+def get_personalized_suggestions():
+    """
+    Get personalized learning suggestions based on user's memory and context.
+    """
+    try:
+        user_id = int(get_jwt_identity())
+        
+        # Get user profile for proficiency level
+        user = User.query.get(user_id)
+        proficiency_level = user.profile.proficiency_level if user.profile else 'beginner'
+        
+        suggestions = mem0_service.get_personalized_suggestions(
+            user_id=user_id,
+            current_proficiency=proficiency_level
+        )
+        
+        return jsonify({
+            'message': 'Personalized suggestions generated successfully!',
+            'telugu_message': 'వ్యక్తిగత సూచనలు విజయవంతంగా రూపొందించబడ్డాయి!',
+            'suggestions': suggestions
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error getting personalized suggestions: {str(e)}")
+        return jsonify({
+            'error': 'Failed to get personalized suggestions',
+            'telugu_message': 'వ్యక్తిగత సూచనలు పొందడంలో విఫలం'
+        }), 500
+
+
+@chat_bp.route('/user-learning-context', methods=['GET'])
+@jwt_required()
+def get_user_learning_context():
+    """
+    Get comprehensive user learning context from mem0.
+    
+    Query Parameters:
+    - conversation_type: Type of conversation (default: 'chat')
+    """
+    try:
+        user_id = int(get_jwt_identity())
+        conversation_type = request.args.get('conversation_type', 'chat')
+        
+        context = mem0_service.get_user_context_for_conversation(
+            user_id=user_id,
+            conversation_type=conversation_type
+        )
+        
+        return jsonify({
+            'message': 'User learning context retrieved successfully!',
+            'telugu_message': 'వినియోగదారు అభ్యాస సందర్భం విజయవంతంగా తీసుకోబడింది!',
+            'context': context
+        }), 200
+        
+    except Exception as e:
+        current_app.logger.error(f"Error getting user context: {str(e)}")
+        return jsonify({
+            'error': 'Failed to get user context',
+            'telugu_message': 'వినియోగదారు సందర్భం పొందడంలో విఫలం'
+        }), 500

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
   Box,
@@ -33,23 +33,34 @@ const steps = [
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [onboardingStatus, setOnboardingStatus] = useState(null);
   const [assessmentResults, setAssessmentResults] = useState(null);
+  const [assessmentData, setAssessmentData] = useState(null); // Assessment from registration
   const [selectedPath, setSelectedPath] = useState(null);
 
   useEffect(() => {
-    fetchOnboardingStatus();
-    // Check for assessment results in navigation state
-    const navState = window.history.state?.usr;
+    // Check for assessment data from registration
+    const navState = location.state;
+    
+    if (navState?.assessment) {
+      // Assessment was passed from registration - store it
+      setAssessmentData(navState.assessment);
+      console.log("Assessment data received from registration:", navState.assessment);
+    }
+    
     if (navState?.assessmentResults) {
       setAssessmentResults(navState.assessmentResults);
       setActiveStep(3); // Go to results step
     }
-  }, []);
+    
+    fetchOnboardingStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.state]);
 
   const fetchOnboardingStatus = async () => {
     try {
@@ -69,7 +80,12 @@ const Onboarding = () => {
           setActiveStep(0);
           break;
         case "assessment_needed":
-          setActiveStep(1);
+          // If we have assessment data from registration, skip to assessment step
+          if (assessmentData) {
+            setActiveStep(2); // Go directly to taking assessment
+          } else {
+            setActiveStep(1); // Show assessment info
+          }
           break;
         case "assessment_in_progress":
           setActiveStep(2);
@@ -103,6 +119,7 @@ const Onboarding = () => {
     navigate("/assessment", {
       state: {
         fromOnboarding: true,
+        assessmentData: assessmentData, // Pass assessment from registration if available
       },
     });
   };

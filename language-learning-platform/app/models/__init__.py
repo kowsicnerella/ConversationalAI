@@ -17,6 +17,9 @@ from .analytics import (
 )
 from .milestone import Milestone, LessonReview
 from .image_learning import ImageLearning, ImageObjectVocabulary
+from .chat import ChatConversation, ChatMessage
+from .notification import NotificationType, Notification, UserNotificationSettings
+from .goal import GoalType, AchievementGoal, Certificate, LevelProgression
 
 __all__ = [
     'db', 'User', 'Profile', 'LearningPath', 'Course', 
@@ -30,5 +33,8 @@ __all__ = [
     'AssessmentQuestionResponse', 'ActivityQuestionResponse', 'UserAnalytics',
     'LearningStreak', 'AIGeneratedContent', 'UserLearningTimeline', 'PerformanceTrend',
     'Milestone', 'LessonReview',
-    'ImageLearning', 'ImageObjectVocabulary'
+    'ImageLearning', 'ImageObjectVocabulary',
+    'ChatConversation', 'ChatMessage',
+    'NotificationType', 'Notification', 'UserNotificationSettings',
+    'GoalType', 'AchievementGoal', 'Certificate', 'LevelProgression'
 ]

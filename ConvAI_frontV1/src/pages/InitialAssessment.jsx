@@ -31,8 +31,19 @@ const InitialAssessment = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchAssessment();
-  }, []);
+    // Check if assessment data was passed from registration/onboarding
+    const passedAssessment = location.state?.assessmentData;
+    
+    if (passedAssessment) {
+      console.log("Using assessment data from registration:", passedAssessment);
+      setAssessment(passedAssessment);
+      setTimeStarted(Date.now());
+      setLoading(false);
+    } else {
+      // Fetch new assessment if not passed
+      fetchAssessment();
+    }
+  }, [location.state]);
 
   const fetchAssessment = async () => {
     try {

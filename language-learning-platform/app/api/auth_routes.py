@@ -81,25 +81,43 @@ def register():
         
         if 'error' in assessment_result:
             # If assessment fails, still return successful registration
+            # Create JWT token for immediate login
+            access_token = create_access_token(identity=str(user.id))
+            refresh_token = create_refresh_token(identity=str(user.id))
+            
             return jsonify({
                 'message': 'User registered successfully',
                 'warning': 'Assessment setup failed - can be completed later',
+                'access_token': access_token,
+                'refresh_token': refresh_token,
                 'user': {
                     'id': user.id,
                     'username': user.username,
                     'email': user.email,
-                    'proficiency_level': profile.proficiency_level
+                    'proficiency_level': profile.proficiency_level,
+                    'onboarding_completed': user.onboarding_completed,
+                    'needs_initial_assessment': user.needs_initial_assessment,
+                    'current_learning_phase': user.current_learning_phase
                 }
             }), 201
+        
+        # Create JWT tokens for successful registration
+        access_token = create_access_token(identity=str(user.id))
+        refresh_token = create_refresh_token(identity=str(user.id))
         
         return jsonify({
             'message': 'User registered successfully! Please complete your assessment to get personalized learning.',
             'telugu_message': 'మీరు విజయవంతంగా నమోదు అయ్యారు! వ్యక్తిగతీకరించిన అభ్యాసం పొందడానికి మీ మూల్యాంకనం పూర్తి చేయండి.',
+            'access_token': access_token,
+            'refresh_token': refresh_token,
             'user': {
                 'id': user.id,
                 'username': user.username,
                 'email': user.email,
-                'proficiency_level': profile.proficiency_level
+                'proficiency_level': profile.proficiency_level,
+                'onboarding_completed': user.onboarding_completed,
+                'needs_initial_assessment': user.needs_initial_assessment,
+                'current_learning_phase': user.current_learning_phase
             },
             'assessment': {
                 'assessment_id': assessment_result['assessment_id'],

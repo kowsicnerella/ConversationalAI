@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import NotificationBell from "../components/NotificationBell";
 import {
   Box,
   Drawer,
@@ -37,6 +38,8 @@ import {
   Brightness4,
   Brightness7,
   Close as CloseIcon,
+  EmojiEvents as GoalsIcon,
+  Psychology as PracticeIcon,
 } from "@mui/icons-material";
 
 const drawerWidth = 260;
@@ -46,6 +49,8 @@ const menuItems = [
   { text: "Learning Paths", icon: <SchoolIcon />, path: "/learning-paths" },
   { text: "Activities", icon: <QuizIcon />, path: "/activities" },
   { text: "Vocabulary", icon: <BookIcon />, path: "/vocabulary" },
+  { text: "Goals", icon: <GoalsIcon />, path: "/goals" },
+  { text: "Practice", icon: <PracticeIcon />, path: "/practice" },
   { text: "AI Chat", icon: <ChatIcon />, path: "/chat" },
   { text: "Analytics", icon: <AnalyticsIcon />, path: "/analytics" },
   { text: "Leaderboard", icon: <LeaderboardIcon />, path: "/leaderboard" },
@@ -243,14 +248,7 @@ const MainLayout = () => {
             </IconButton>
 
             {/* Notifications */}
-            <IconButton
-              color="inherit"
-              onClick={() => navigate("/notifications")}
-            >
-              <Badge badgeContent={3} color="error">
-                <NotificationsIcon />
-              </Badge>
-            </IconButton>
+            <NotificationBell />
 
             {/* User Menu */}
             <IconButton onClick={handleMenu} color="inherit">

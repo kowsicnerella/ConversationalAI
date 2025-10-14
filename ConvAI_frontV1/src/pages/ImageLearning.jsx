@@ -32,8 +32,8 @@ import {
 } from '@mui/icons-material';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
-import { API_BASE_URL } from '../../config/api';
-import { useAuth } from '../../context/AuthContext';
+import { API_BASE_URL } from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 const ImageLearning = () => {
   const { token } = useAuth();

@@ -271,10 +271,30 @@ export const API_ENDPOINTS = {
   
   // Adaptive Learning
   ADAPTIVE: {
-    RECOMMENDATIONS: '/adaptive/recommendations',
-    LEARNING_PROFILE: '/adaptive/learning-profile',
-    ADJUST_DIFFICULTY: '/adaptive/adjust-difficulty',
-    LEARNING_PACE: '/adaptive/learning-pace',
+    RECOMMENDATIONS: '/adaptive/recommendations',              // GET - Personalized activity recommendations
+    PERFORMANCE_ANALYSIS: '/adaptive/performance-analysis',    // GET - Performance analysis (query: days)
+    NEXT_ACTIVITIES: '/adaptive/next-activities',             // GET - Next recommended activities
+    LEARNING_GAPS: '/adaptive/learning-gaps',                 // GET - Identify learning gaps
+    LEARNING_PROFILE: '/adaptive/learning-profile',           // GET - User learning profile
+    ADJUST_DIFFICULTY: '/adaptive/adjust-difficulty',         // POST - Adjust difficulty dynamically
+    LEARNING_PACE: '/adaptive/learning-pace',                 // GET - Learning pace analysis
+  },
+  
+  // Goals & Achievements
+  GOALS: {
+    AVAILABLE: '/goals/available',                              // GET - List all goal templates
+    CREATE: '/goals/create',                                    // POST - Create new goal
+    MY_GOALS: '/goals/my-goals',                               // GET - User's goals (query: status)
+    DETAIL: (id) => `/goals/${id}`,                            // GET - Goal detail with milestones
+    UPDATE_PROGRESS: (id) => `/goals/${id}/update-progress`,   // POST - Update goal progress
+    COMPLETE: (id) => `/goals/${id}/complete`,                 // POST - Complete goal
+    ABANDON: (id) => `/goals/${id}/abandon`,                   // POST - Abandon goal
+    CREATE_MILESTONE: (id) => `/goals/${id}/milestones`,       // POST - Create milestone
+    COMPLETE_MILESTONE: (milestoneId) => `/goals/milestones/${milestoneId}/complete`, // POST
+    PROGRESS_HISTORY: (id) => `/goals/${id}/progress-history`, // GET - Progress timeline
+    CERTIFICATES: '/goals/certificates',                        // GET - List certificates
+    CERTIFICATE_DETAIL: (id) => `/goals/certificates/${id}`,   // GET - Certificate detail
+    CERTIFICATE_DOWNLOAD: (id) => `/goals/certificates/${id}/download`, // GET - Download PDF
   },
   
   // Chapters
@@ -286,14 +306,17 @@ export const API_ENDPOINTS = {
     COMPLETE: (id) => `/chapters/${id}/complete`,
   },
   
-  // Practice
+  // Practice Sessions
   PRACTICE: {
-    GENERATE_QUESTIONS: '/practice/generate-questions',
-    SUBMIT_ANSWER: '/practice/submit-answer',
-    COMPLETE: (id) => `/practice/${id}/complete`,
-    SESSIONS: '/practice/sessions',
-    START: '/practice/start',
-    SUBMIT: '/practice/submit',
+    GENERATE_QUESTIONS: '/practice/generate-questions',       // POST - Generate questions without session
+    SUBMIT_ANSWER: '/practice/submit-answer',                 // POST - Submit answer without session
+    START_SESSION: '/practice/start',                         // POST - Start practice session
+    SESSION_GENERATE_QUESTIONS: (sessionId) => `/practice/practice/${sessionId}/generate-questions`, // POST
+    SESSION_SUBMIT_ANSWER: (sessionId) => `/practice/practice/${sessionId}/submit-answer`,          // POST
+    COMPLETE_SESSION: (sessionId) => `/practice/${sessionId}/complete`,  // POST - Complete session
+    SESSION_RESULTS: (sessionId) => `/practice/${sessionId}/results`,    // GET - Get session results
+    HISTORY: '/practice/history',                             // GET - Practice history
+    SESSIONS: '/practice/sessions',                           // GET - All sessions
   },
   
   // Tests & Assessments

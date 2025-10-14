@@ -43,7 +43,7 @@ class ActivityService:
                 result = self._parse_json_response(response.text)
                 
                 if 'error' not in result:
-                    print(f"✓ {content_type} generated successfully!")Copilot Usage
+                    print(f"✓ {content_type} generated successfully!")
                     
                     return result
                 else:
@@ -393,10 +393,10 @@ Return ONLY valid JSON, no markdown or extra text.
         try:
             user = User.query.get(user_id)
             if user and user.profile:
-                user.profile.total_points = (user.profile.total_points or 0) + points
+                user.profile.points = (user.profile.points or 0) + points
                 
-                # Update level based on points (100 points per level)
-                user.profile.level = (user.profile.total_points // 100) + 1
+                # Level is calculated from points (100 points per level)
+                # No need to store level separately - it's derived from points
                 
                 db.session.commit()
         except Exception as e:
@@ -898,7 +898,7 @@ Return ONLY valid JSON, no markdown or extra text.
             
             # Award points to user
             if user.profile:
-                user.profile.total_points = (user.profile.total_points or 0) + total_points
+                user.profile.points = (user.profile.points or 0) + total_points
                 db.session.commit()
             
             return evaluation

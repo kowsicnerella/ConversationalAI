@@ -65,7 +65,7 @@ export const AuthProvider = ({ children }) => {
         userData
       );
 
-      const { access_token, user: newUser } = response.data;
+      const { access_token, user: newUser, assessment } = response.data;
 
       localStorage.setItem("access_token", access_token);
       localStorage.setItem("user", JSON.stringify(newUser));
@@ -73,7 +73,12 @@ export const AuthProvider = ({ children }) => {
       setUser(newUser);
       setIsAuthenticated(true);
 
-      return { success: true, user: newUser };
+      // Return assessment data if available so it can be passed to onboarding
+      return { 
+        success: true, 
+        user: newUser,
+        assessment: assessment || null // Include assessment questions from registration
+      };
     } catch (error) {
       console.error("Registration error:", error);
       return {

@@ -65,7 +65,8 @@ const Activities = () => {
       setLoading(true);
       // Try to fetch from API
       const response = await axiosInstance.get(API_ENDPOINTS.ACTIVITIES.LIST);
-      setActivities(response.data.activities || []);
+      // Backend returns {success: true, data: {activities: [...], pagination: {...}}}
+      setActivities(response.data.data?.activities || response.data.activities || []);
     } catch (error) {
       console.error("Error fetching activities:", error);
       // Use mock data

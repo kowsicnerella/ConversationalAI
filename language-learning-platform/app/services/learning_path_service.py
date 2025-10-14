@@ -7,7 +7,7 @@ from app.models.user import db
 from app.models.course import LearningPath
 from app.models.chapter import Chapter
 from app.models.enrollment import UserEnrollment, ChapterProgress, ActivityProgress, PathCertificate
-from app.models.learning_session import LearningSession
+from app.models.personalization import LearningSession
 from datetime import datetime, timedelta
 import secrets
 from sqlalchemy import func

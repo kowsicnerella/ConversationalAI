@@ -16,7 +16,7 @@ from app.api.analytics_routes import analytics_bp
 from app.api.chapter_routes import chapter_bp
 from app.api.practice_routes import practice_bp
 from app.api.test_routes import test_bp
-from app.api.learning_path_routes import learning_paths_bp
+from app.api.learning_path_routes import learning_path_bp
 from app.api.adaptive_routes import adaptive_routes
 from app.api.assessment_routes import assessment_routes
 from app.api.enhanced_analytics_routes import analytics_bp as enhanced_analytics_bp
@@ -27,6 +27,9 @@ from app.api.test_auth_routes import test_auth_bp
 from app.api.onboarding_routes import onboarding_bp
 from app.api.lesson_routes import lesson_bp
 from app.api.activities_routes import activities_bp
+from app.api.chat_tutor_routes import chat_tutor_bp
+from app.api.goals_routes import goals_bp
+from app.api.enhanced_chat_routes import enhanced_chat_bp
 from config import config
 
 migrate = Migrate()
@@ -95,7 +98,8 @@ def create_app(config_name='development'):
     app.register_blueprint(chapter_bp, url_prefix='/api/chapters')
     app.register_blueprint(practice_bp, url_prefix='/api/practice')
     app.register_blueprint(test_bp, url_prefix='/api/tests')
-    app.register_blueprint(learning_paths_bp)  # Already has url_prefix in blueprint
+    # Register learning path blueprint with explicit URL prefix
+    app.register_blueprint(learning_path_bp, url_prefix='/api/learning-paths')
     app.register_blueprint(adaptive_routes)
     app.register_blueprint(assessment_routes)
     
@@ -122,6 +126,15 @@ def create_app(config_name='development'):
     
     # Register activities blueprint for quiz and flashcard generation
     app.register_blueprint(activities_bp, url_prefix='/api/activities')
+    
+    # Register chat tutor blueprint for AI tutoring conversations
+    app.register_blueprint(chat_tutor_bp)  # Already has url_prefix in blueprint
+    
+    # Register enhanced chat with Mem0 integration
+    app.register_blueprint(enhanced_chat_bp, url_prefix='/api/enhanced-chat')
+    
+    # Register goals and milestones blueprint for achievement tracking
+    app.register_blueprint(goals_bp)  # Already has url_prefix in blueprint
     
     # Register test auth blueprint (for debugging)
     app.register_blueprint(test_auth_bp, url_prefix='/api')

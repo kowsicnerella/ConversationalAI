@@ -19,10 +19,13 @@ import ActivityDetail from "./pages/ActivityDetail";
 import Vocabulary from "./pages/Vocabulary";
 import ImageLearning from "./pages/ImageLearning";
 import Chat from "./pages/Chat";
+import ChatTutor from "./pages/ChatTutor";
 import Analytics from "./pages/Analytics";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
+import NotificationCenter from "./pages/NotificationCenter";
+import NotificationSettings from "./pages/NotificationSettings";
 import Leaderboard from "./pages/Leaderboard";
 import AuthTest from "./pages/AuthTest";
 import Onboarding from "./pages/Onboarding";
@@ -30,6 +33,8 @@ import MasteryDashboard from "./pages/MasteryDashboard";
 import InitialAssessment from "./pages/InitialAssessment";
 import AssessmentResults from "./pages/AssessmentResults";
 import LessonView from "./pages/LessonView";
+import Goals from "./pages/Goals";
+import Practice from "./pages/Practice";
 
 // Activity Types
 import QuizActivity from "./pages/activities/QuizActivity";
@@ -98,11 +103,15 @@ function App() {
           element={<ReadingActivity />}
         />
         <Route path="/vocabulary" element={<Vocabulary />} />
+        <Route path="/goals" element={<Goals />} />
+        <Route path="/practice" element={<Practice />} />
         <Route path="/image-learning" element={<ImageLearning />} />
         <Route path="/chat" element={<Chat />} />
+        <Route path="/chat-tutor" element={<ChatTutor />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/notifications" element={<NotificationCenter />} />
+        <Route path="/settings/notifications" element={<NotificationSettings />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/auth-test" element={<AuthTest />} />
