@@ -35,4 +35,4 @@ test.py/
 # inferencing files
 hpc_inference/
 
-language-learning-platform/app/services/.ipynb_checkpoints/
+.ipynb_checkpoints/
