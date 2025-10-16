@@ -4,6 +4,8 @@ Handles all AI interactions with support for multiple providers and modalities
 Currently uses Google Gemini, easily swappable to custom inference endpoints
 """
 import os
+from dotenv import load_dotenv
+from pathlib import Path
 import json
 import requests
 from typing import Optional, Dict, List, Any, Union
@@ -12,6 +14,12 @@ from PIL import Image
 import google.generativeai as genai
 from config import Config
 
+
+# Find .env directories up
+env_path = Path(__file__).resolve().parents[3] / '.env'
+
+# Load it
+load_dotenv(dotenv_path=env_path)
 
 class LLMProvider(Enum):
     """Supported LLM providers"""
@@ -52,7 +60,7 @@ class LLMConfig:
             'multimodal': 'gpt-4-vision-preview'
         },
         LLMProvider.CUSTOM: {
-            'text': 'custom-model',
+            'text': 'sarvam-m-hf',
             'vision': 'custom-vision',
             'audio': 'custom-audio',
             'multimodal': 'custom-multimodal'
@@ -61,7 +69,7 @@ class LLMConfig:
     
     # Custom endpoint URLs (for future use)
     CUSTOM_ENDPOINTS = {
-        'text': os.getenv('CUSTOM_TEXT_ENDPOINT', 'http://localhost:8000/v1/chat/completions'),
+        'text': os.getenv('CUSTOM_TEXT_ENDPOINT', f'{os.getenv("VLLM_ENDPOINT")}/v1/chat/completions'),
         'vision': os.getenv('CUSTOM_VISION_ENDPOINT', 'http://localhost:8000/v1/vision/analyze'),
         'audio': os.getenv('CUSTOM_AUDIO_ENDPOINT', 'http://localhost:8000/v1/audio/transcribe'),
         'speech': os.getenv('CUSTOM_SPEECH_ENDPOINT', 'http://localhost:8000/v1/audio/synthesize')
@@ -70,7 +78,7 @@ class LLMConfig:
     # Default generation parameters
     DEFAULT_PARAMS = {
         'temperature': 0.7,
-        'max_tokens': 2048,
+        'max_completion_tokens': 2048,
         'top_p': 0.9,
         'top_k': 40,
         'stop_sequences': None
@@ -119,7 +127,7 @@ class LLMConfig:
         """
         provider = provider or cls.DEFAULT_PROVIDER
         temperature = temperature if temperature is not None else cls.DEFAULT_PARAMS['temperature']
-        max_tokens = max_tokens or cls.DEFAULT_PARAMS['max_tokens']
+        max_tokens = max_tokens or cls.DEFAULT_PARAMS['max_completion_tokens']
         
         try:
             if provider == LLMProvider.GEMINI:
@@ -203,14 +211,17 @@ class LLMConfig:
         # OpenAI-compatible API format
         payload = {
             'model': cls.MODELS[LLMProvider.CUSTOM]['text'],
+            'skip_special_tokens':false,
+            'add_special_tokens': true,
+            'include_reasoning': true,
             'messages': [
                 {'role': 'system', 'content': system_prompt or 'You are a helpful AI assistant.'},
                 {'role': 'user', 'content': prompt}
             ],
             'temperature': temperature,
-            'max_tokens': max_tokens
+            'max_completion_tokens': max_tokens
         }
-        
+
         response = requests.post(
             endpoint,
             json=payload,
@@ -234,6 +245,7 @@ class LLMConfig:
     def chat_completion(
         cls,
         messages: List[Dict[str, str]],
+        stream: bool,
         provider: LLMProvider = None,
         temperature: float = None,
         max_tokens: int = None,
@@ -259,13 +271,13 @@ class LLMConfig:
         """
         provider = provider or cls.DEFAULT_PROVIDER
         temperature = temperature if temperature is not None else cls.DEFAULT_PARAMS['temperature']
-        max_tokens = max_tokens or cls.DEFAULT_PARAMS['max_tokens']
+        max_tokens = max_tokens or cls.DEFAULT_PARAMS['max_completion_tokens']
         
         try:
             if provider == LLMProvider.GEMINI:
                 return cls._gemini_chat_completion(messages, temperature, max_tokens, json_mode)
             elif provider == LLMProvider.CUSTOM:
-                return cls._custom_chat_completion(messages, temperature, max_tokens)
+                return cls._custom_chat_completion(messages, temperature, max_tokens, stream)
             else:
                 return {
                     'success': False,
@@ -337,6 +349,7 @@ class LLMConfig:
     def _custom_chat_completion(
         cls,
         messages: List[Dict[str, str]],
+        stream: bool,
         temperature: float,
         max_tokens: int
     ) -> Dict[str, Any]:
@@ -346,8 +359,9 @@ class LLMConfig:
         payload = {
             'model': cls.MODELS[LLMProvider.CUSTOM]['text'],
             'messages': messages,
+            'stream':stream,
             'temperature': temperature,
-            'max_tokens': max_tokens
+            'max_completion_tokens': max_tokens
         }
         
         response = requests.post(
@@ -400,7 +414,7 @@ class LLMConfig:
         """
         provider = provider or cls.DEFAULT_PROVIDER
         temperature = temperature if temperature is not None else cls.DEFAULT_PARAMS['temperature']
-        max_tokens = max_tokens or cls.DEFAULT_PARAMS['max_tokens']
+        max_tokens = max_tokens or cls.DEFAULT_PARAMS['max_completion_tokens']
         
         try:
             if provider == LLMProvider.GEMINI:
@@ -731,7 +745,7 @@ def analyze_image(image, prompt: str, **kwargs) -> str:
     return result.get('analysis', '') if result.get('success') else ''
 
 
-def chat(messages: List[Dict[str, str]], **kwargs) -> str:
+def chat(messages: List[Dict[str, str]], stream:bool = True, **kwargs) -> str:
     """Quick chat completion - returns message directly"""
-    result = LLMConfig.chat_completion(messages, **kwargs)
+    result = LLMConfig.chat_completion(messages, stream, **kwargs)
     return result.get('message', '') if result.get('success') else ''
