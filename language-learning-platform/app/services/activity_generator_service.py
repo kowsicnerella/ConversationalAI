@@ -11,6 +11,7 @@ load_dotenv()
 # It's recommended to use environment variables for API keys
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 
+
 def _extract_json_from_response(text):
     """
     Extracts a JSON object from a string response, handling markdown code blocks.
@@ -37,8 +38,8 @@ class ActivityGeneratorService:
     """
 
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.5-flash')
-        self.vision_model = genai.GenerativeModel('gemini-2.5-flash')
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
+        self.vision_model = genai.GenerativeModel("gemini-2.5-flash")
 
     def generate_quiz(self, topic, level="beginner"):
         """
@@ -250,15 +251,17 @@ class ActivityGeneratorService:
         response = self.model.generate_content(prompt)
         return _extract_json_from_response(response.text)
 
-    def evaluate_activity_submission(self, activity_content, user_answers, activity_type):
+    def evaluate_activity_submission(
+        self, activity_content, user_answers, activity_type
+    ):
         """
         Evaluate user's submitted answers for an activity and provide feedback.
-        
+
         Args:
             activity_content (dict): The original activity content with questions/tasks
             user_answers (dict): User's responses to the activity
             activity_type (str): Type of activity (quiz, flashcard, etc.)
-        
+
         Returns:
             dict: Evaluation results with score, feedback, and explanations
         """
@@ -306,28 +309,30 @@ class ActivityGeneratorService:
         }}
         ```
         """
-        
+
         try:
             response = self.model.generate_content(prompt)
             evaluation_result = _extract_json_from_response(response.text)
-            
+
             # Ensure required fields exist
-            if 'score' not in evaluation_result:
-                evaluation_result['score'] = 0
-            if 'max_score' not in evaluation_result:
-                evaluation_result['max_score'] = len(user_answers) if user_answers else 1
-            if 'feedback' not in evaluation_result:
-                evaluation_result['feedback'] = {}
-                
+            if "score" not in evaluation_result:
+                evaluation_result["score"] = 0
+            if "max_score" not in evaluation_result:
+                evaluation_result["max_score"] = (
+                    len(user_answers) if user_answers else 1
+                )
+            if "feedback" not in evaluation_result:
+                evaluation_result["feedback"] = {}
+
             return evaluation_result
-            
+
         except Exception as e:
             # Fallback evaluation if AI fails
             return {
-                'score': 0,
-                'max_score': len(user_answers) if user_answers else 1,
-                'feedback': {},
-                'overall_feedback': 'Unable to evaluate at this time. Please try again.',
-                'telugu_feedback': 'ప్రస్తుతం మూల్యాంకనం చేయలేకపోతున్నాము. దయచేసి మళ్లీ ప్రయత్నించండి.',
-                'error': str(e)
+                "score": 0,
+                "max_score": len(user_answers) if user_answers else 1,
+                "feedback": {},
+                "overall_feedback": "Unable to evaluate at this time. Please try again.",
+                "telugu_feedback": "ప్రస్తుతం మూల్యాంకనం చేయలేకపోతున్నాము. దయచేసి మళ్లీ ప్రయత్నించండి.",
+                "error": str(e),
             }

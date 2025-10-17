@@ -1,26 +1,44 @@
-
 from app import create_app
 from app.models import db
-app = create_app('development')
+
+app = create_app("development")
+
 
 @app.shell_context_processor
 def make_shell_context():
     from app.models import (
-        User, Profile, Activity, UserActivityLog, Badge, UserBadge, 
-        LearningPath, Achievement, UserGoal, ProficiencyAssessment,
-        VocabularyWord, MistakePattern, LearningSession, DailyChallenge,
-        UserDailyChallengeCompletion, Chapter, UserChapterProgress, 
-        PracticeSession, UserNotes, TestAssessment, ChapterDependency, 
-        AIConversationContext
+        User,
+        Profile,
+        Activity,
+        UserActivityLog,
+        Badge,
+        UserBadge,
+        LearningPath,
+        Achievement,
+        UserGoal,
+        ProficiencyAssessment,
+        VocabularyWord,
+        MistakePattern,
+        LearningSession,
+        DailyChallenge,
+        UserDailyChallengeCompletion,
+        Chapter,
+        UserChapterProgress,
+        PracticeSession,
+        UserNotes,
+        TestAssessment,
+        ChapterDependency,
+        AIConversationContext,
     )
+
     return dict(
-        db=db, 
-        User=User, 
-        Profile=Profile, 
-        Activity=Activity, 
+        db=db,
+        User=User,
+        Profile=Profile,
+        Activity=Activity,
         UserActivityLog=UserActivityLog,
-        Badge=Badge, 
-        UserBadge=UserBadge, 
+        Badge=Badge,
+        UserBadge=UserBadge,
         LearningPath=LearningPath,
         Achievement=Achievement,
         UserGoal=UserGoal,
@@ -36,8 +54,9 @@ def make_shell_context():
         UserNotes=UserNotes,
         TestAssessment=TestAssessment,
         ChapterDependency=ChapterDependency,
-        AIConversationContext=AIConversationContext
+        AIConversationContext=AIConversationContext,
     )
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0", port=5000)

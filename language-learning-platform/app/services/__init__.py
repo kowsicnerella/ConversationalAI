@@ -4,8 +4,8 @@ from .progress_service import ProgressService
 from .personalization_service import PersonalizationService
 
 __all__ = [
-    'ActivityGeneratorService',
-    'GamificationService', 
-    'ProgressService',
-    'PersonalizationService'
+    "ActivityGeneratorService",
+    "GamificationService",
+    "ProgressService",
+    "PersonalizationService",
 ]

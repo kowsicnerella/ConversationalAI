@@ -7,19 +7,22 @@ from app import create_app
 from app.models import db, Chapter, ChapterDependency
 from datetime import datetime
 
+
 def init_sample_chapters():
     """Initialize the database with sample chapters for Telugu-English learning."""
-    
-    app = create_app('development')
+
+    app = create_app("development")
     with app.app_context():
         # Check if chapters already exist
         existing_chapters = Chapter.query.count()
         if existing_chapters > 0:
-            print(f"Database already has {existing_chapters} chapters. Skipping initialization.")
+            print(
+                f"Database already has {existing_chapters} chapters. Skipping initialization."
+            )
             return
-        
+
         print("Initializing sample chapters...")
-        
+
         # Chapter 1: Basic Greetings
         chapter1 = Chapter(
             title="Basic Greetings and Introductions",
@@ -38,11 +41,11 @@ def init_sample_chapters():
                     {"english": "Hello", "telugu": "హలో / నమస్కారం"},
                     {"english": "Good morning", "telugu": "శుభోదయం"},
                     {"english": "My name is...", "telugu": "నా పేరు..."},
-                    {"english": "Nice to meet you", "telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది"}
-                ]
-            }
+                    {"english": "Nice to meet you", "telugu": "మిమ్మల్ని కలవడం ఆనందంగా ఉంది"},
+                ],
+            },
         )
-        
+
         # Chapter 2: Family and Relationships
         chapter2 = Chapter(
             title="Family and Relationships",
@@ -61,11 +64,11 @@ def init_sample_chapters():
                     {"english": "Father", "telugu": "తండ్రి"},
                     {"english": "Mother", "telugu": "తల్లి"},
                     {"english": "Brother", "telugu": "అన్న / తమ్ముడు"},
-                    {"english": "Sister", "telugu": "అక్క / చెల్లెలు"}
-                ]
-            }
+                    {"english": "Sister", "telugu": "అక్క / చెల్లెలు"},
+                ],
+            },
         )
-        
+
         # Chapter 3: Daily Activities
         chapter3 = Chapter(
             title="Daily Activities and Routines",
@@ -73,7 +76,12 @@ def init_sample_chapters():
             chapter_number=3,
             difficulty_level="beginner",
             topic="daily_activities",
-            subtopics=["morning_routine", "work_activities", "evening_routine", "time_expressions"],
+            subtopics=[
+                "morning_routine",
+                "work_activities",
+                "evening_routine",
+                "time_expressions",
+            ],
             estimated_duration_minutes=30,
             required_score_to_pass=0.7,
             prerequisites=[1],
@@ -84,11 +92,11 @@ def init_sample_chapters():
                     {"english": "I wake up at...", "telugu": "నేను... గంటలకు లేస్తాను"},
                     {"english": "I go to work", "telugu": "నేను పనికి వెళ్తాను"},
                     {"english": "I eat breakfast", "telugu": "నేను అల్పాహారం తింటాను"},
-                    {"english": "I sleep at night", "telugu": "నేను రాత్రికి నిద్రపోతాను"}
-                ]
-            }
+                    {"english": "I sleep at night", "telugu": "నేను రాత్రికి నిద్రపోతాను"},
+                ],
+            },
         )
-        
+
         # Chapter 4: Food and Cooking
         chapter4 = Chapter(
             title="Food and Cooking",
@@ -107,11 +115,11 @@ def init_sample_chapters():
                     {"english": "I'm hungry", "telugu": "నాకు ఆకలిగా ఉంది"},
                     {"english": "I like spicy food", "telugu": "నాకు కారం ఇష్టం"},
                     {"english": "Can I have the menu?", "telugu": "మెనూ ఇవ్వగలరా?"},
-                    {"english": "The food is delicious", "telugu": "ఆహారం రుచిగా ఉంది"}
-                ]
-            }
+                    {"english": "The food is delicious", "telugu": "ఆహారం రుచిగా ఉంది"},
+                ],
+            },
         )
-        
+
         # Chapter 5: Shopping and Money
         chapter5 = Chapter(
             title="Shopping and Money",
@@ -129,37 +137,48 @@ def init_sample_chapters():
                 "key_phrases": [
                     {"english": "How much does this cost?", "telugu": "ఇది ఎంత ఖర్చు?"},
                     {"english": "I want to buy...", "telugu": "నేను... కొనాలనుకుంటున్నాను"},
-                    {"english": "Do you accept credit cards?", "telugu": "మీరు క్రెడిట్ కార్డులను అంగీకరిస్తారా?"},
-                    {"english": "Can you give me a discount?", "telugu": "మీరు నాకు డిస్కౌంట్ ఇవ్వగలరా?"}
-                ]
-            }
+                    {
+                        "english": "Do you accept credit cards?",
+                        "telugu": "మీరు క్రెడిట్ కార్డులను అంగీకరిస్తారా?",
+                    },
+                    {
+                        "english": "Can you give me a discount?",
+                        "telugu": "మీరు నాకు డిస్కౌంట్ ఇవ్వగలరా?",
+                    },
+                ],
+            },
         )
-        
+
         # Add chapters to database
         chapters = [chapter1, chapter2, chapter3, chapter4, chapter5]
         for chapter in chapters:
             db.session.add(chapter)
-        
+
         db.session.commit()
         print(f"Added {len(chapters)} chapters to database.")
-        
+
         # Add chapter dependencies
         dependencies = [
             ChapterDependency(chapter_id=2, prerequisite_chapter_id=1, is_strict=True),
             ChapterDependency(chapter_id=3, prerequisite_chapter_id=1, is_strict=True),
             ChapterDependency(chapter_id=4, prerequisite_chapter_id=2, is_strict=True),
-            ChapterDependency(chapter_id=4, prerequisite_chapter_id=3, is_strict=False),  # Recommended but not strict
+            ChapterDependency(
+                chapter_id=4, prerequisite_chapter_id=3, is_strict=False
+            ),  # Recommended but not strict
             ChapterDependency(chapter_id=5, prerequisite_chapter_id=3, is_strict=True),
-            ChapterDependency(chapter_id=5, prerequisite_chapter_id=4, is_strict=False),  # Recommended but not strict
+            ChapterDependency(
+                chapter_id=5, prerequisite_chapter_id=4, is_strict=False
+            ),  # Recommended but not strict
         ]
-        
+
         for dependency in dependencies:
             db.session.add(dependency)
-        
+
         db.session.commit()
         print(f"Added {len(dependencies)} chapter dependencies.")
-        
+
         print("Sample chapters initialization completed successfully!")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     init_sample_chapters()

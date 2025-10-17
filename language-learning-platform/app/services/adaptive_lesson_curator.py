@@ -1,7 +1,15 @@
 import json
 from typing import Dict, List, Optional
 from datetime import datetime
-from app.models import db, User, Profile, LearningPath, Activity, UserActivityLog, LessonReview
+from app.models import (
+    db,
+    User,
+    Profile,
+    LearningPath,
+    Activity,
+    UserActivityLog,
+    LessonReview,
+)
 from app.services.activity_generator_service import ActivityGeneratorService
 import google.generativeai as genai
 from config import Config
@@ -16,30 +24,30 @@ class AdaptiveLessonCurator:
     based on user performance, learning history, mastery progress, and AI reviews.
     Ensures optimal learning progression toward English mastery.
     """
-    
+
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
         self.activity_service = ActivityGeneratorService()
-        
+
         # Difficulty adjustment thresholds
         self.EXCELLENT_SCORE = 90
         self.GOOD_SCORE = 75
         self.STRUGGLING_SCORE = 50
-        
+
     def curate_next_lesson(
         self,
         user_id: int,
         learning_path_id: Optional[int] = None,
-        completed_activity_id: Optional[int] = None
+        completed_activity_id: Optional[int] = None,
     ) -> Dict:
         """
         Intelligently select and generate the next lesson for the user.
-        
+
         Args:
             user_id: ID of the user
             learning_path_id: Optional ID of current learning path
             completed_activity_id: Optional ID of just-completed activity
-            
+
         Returns:
             Dictionary containing next lesson details and reasoning
         """
@@ -47,35 +55,42 @@ class AdaptiveLessonCurator:
             # Fetch user data
             user = User.query.get(user_id)
             profile = Profile.query.filter_by(user_id=user_id).first()
-            
+
             if not user or not profile:
-                return {'error': 'User or profile not found'}
-            
+                return {"error": "User or profile not found"}
+
             # Get user's learning history
-            recent_activities = UserActivityLog.query.filter_by(
-                user_id=user_id,
-                completed=True
-            ).order_by(UserActivityLog.completed_at.desc()).limit(20).all()
-            
+            recent_activities = (
+                UserActivityLog.query.filter_by(user_id=user_id, completed=True)
+                .order_by(UserActivityLog.completed_at.desc())
+                .limit(20)
+                .all()
+            )
+
             # Get recent lesson reviews
-            recent_reviews = LessonReview.query.filter_by(
-                user_id=user_id
-            ).order_by(LessonReview.created_at.desc()).limit(5).all()
-            
+            recent_reviews = (
+                LessonReview.query.filter_by(user_id=user_id)
+                .order_by(LessonReview.created_at.desc())
+                .limit(5)
+                .all()
+            )
+
             # Analyze performance patterns
-            performance_analysis = self._analyze_performance_patterns(recent_activities, recent_reviews)
-            
+            performance_analysis = self._analyze_performance_patterns(
+                recent_activities, recent_reviews
+            )
+
             # Get learning path context if applicable
             learning_path_context = {}
             if learning_path_id:
                 learning_path = LearningPath.query.get(learning_path_id)
                 if learning_path:
                     learning_path_context = {
-                        'title': learning_path.title,
-                        'difficulty_level': learning_path.difficulty_level,
-                        'path_data': learning_path.path_data or {}
+                        "title": learning_path.title,
+                        "difficulty_level": learning_path.difficulty_level,
+                        "path_data": learning_path.path_data or {},
                     }
-            
+
             # Build AI prompt for lesson curation
             curation_prompt = f"""
             You are an expert adaptive learning system curator for English language learning.
@@ -150,95 +165,104 @@ class AdaptiveLessonCurator:
             }}
             ```
             """
-            
+
             # Generate lesson plan using AI
             response = self.model.generate_content(curation_prompt)
             lesson_plan = self._extract_json_from_response(response.text)
-            
+
             # Generate the actual activity content
-            next_lesson = lesson_plan.get('next_lesson', {})
-            content_requirements = lesson_plan.get('lesson_content_requirements', {})
-            
+            next_lesson = lesson_plan.get("next_lesson", {})
+            content_requirements = lesson_plan.get("lesson_content_requirements", {})
+
             # Create/fetch the activity
             activity = self._generate_activity_content(
-                user_id,
-                next_lesson,
-                content_requirements
+                user_id, next_lesson, content_requirements
             )
-            
+
             return {
-                'success': True,
-                'lesson_plan': lesson_plan,
-                'activity': activity,
-                'performance_context': performance_analysis,
-                'message': 'Next lesson curated successfully',
-                'telugu_message': 'తదుపరి పాఠం విజయవంతంగా తయారు చేయబడింది'
+                "success": True,
+                "lesson_plan": lesson_plan,
+                "activity": activity,
+                "performance_context": performance_analysis,
+                "message": "Next lesson curated successfully",
+                "telugu_message": "తదుపరి పాఠం విజయవంతంగా తయారు చేయబడింది",
             }
-            
+
         except Exception as e:
             print(f"Error curating next lesson: {str(e)}")
             import traceback
+
             traceback.print_exc()
-            return {'error': f'Failed to curate next lesson: {str(e)}'}
-    
+            return {"error": f"Failed to curate next lesson: {str(e)}"}
+
     def _analyze_performance_patterns(
         self,
         recent_activities: List[UserActivityLog],
-        recent_reviews: List[LessonReview]
+        recent_reviews: List[LessonReview],
     ) -> Dict:
         """Analyze user's recent performance to identify patterns"""
         if not recent_activities:
             return {
-                'average_score': 0,
-                'trend': 'no_data',
-                'struggling_areas': [],
-                'strong_areas': [],
-                'consistency': 'unknown'
+                "average_score": 0,
+                "trend": "no_data",
+                "struggling_areas": [],
+                "strong_areas": [],
+                "consistency": "unknown",
             }
-        
+
         scores = [log.score for log in recent_activities if log.score is not None]
         avg_score = sum(scores) / len(scores) if scores else 0
-        
+
         # Identify trend
         if len(scores) >= 3:
             recent_avg = sum(scores[:3]) / 3
-            older_avg = sum(scores[3:6]) / len(scores[3:6]) if len(scores) > 3 else recent_avg
-            trend = 'improving' if recent_avg > older_avg + 5 else 'declining' if recent_avg < older_avg - 5 else 'stable'
+            older_avg = (
+                sum(scores[3:6]) / len(scores[3:6]) if len(scores) > 3 else recent_avg
+            )
+            trend = (
+                "improving"
+                if recent_avg > older_avg + 5
+                else "declining" if recent_avg < older_avg - 5 else "stable"
+            )
         else:
-            trend = 'insufficient_data'
-        
+            trend = "insufficient_data"
+
         # Aggregate struggling and strong areas from reviews
         struggling_areas = []
         strong_areas = []
-        
+
         for review in recent_reviews:
             if review.weaknesses:
                 struggling_areas.extend(review.weaknesses)
             if review.strengths:
                 strong_areas.extend(review.strengths)
-        
+
         # Determine consistency
         if len(scores) >= 5:
             score_variance = sum((s - avg_score) ** 2 for s in scores) / len(scores)
-            consistency = 'high' if score_variance < 100 else 'medium' if score_variance < 400 else 'low'
+            consistency = (
+                "high"
+                if score_variance < 100
+                else "medium" if score_variance < 400 else "low"
+            )
         else:
-            consistency = 'unknown'
-        
+            consistency = "unknown"
+
         return {
-            'average_score': round(avg_score, 2),
-            'recent_scores': scores[:5],
-            'trend': trend,
-            'struggling_areas': struggling_areas[:3],
-            'strong_areas': strong_areas[:3],
-            'consistency': consistency,
-            'total_activities': len(recent_activities)
+            "average_score": round(avg_score, 2),
+            "recent_scores": scores[:5],
+            "trend": trend,
+            "struggling_areas": struggling_areas[:3],
+            "strong_areas": strong_areas[:3],
+            "consistency": consistency,
+            "total_activities": len(recent_activities),
         }
-    
+
     def _summarize_recent_reviews(self, reviews: List[LessonReview]) -> str:
         """Create a summary of recent lesson reviews"""
         if not reviews:
             return "No recent reviews available"
-        
+
         summary_parts = []
         for i, review in enumerate(reviews[:3], 1):
             summary_parts.append(
@@ -246,56 +270,52 @@ class AdaptiveLessonCurator:
                 f"Focus areas: {', '.join(review.focus_areas or [])}, "
                 f"Adjustment: {review.difficulty_adjustment}"
             )
-        
+
         return "\n".join(summary_parts)
-    
+
     def _generate_activity_content(
-        self,
-        user_id: int,
-        lesson_plan: Dict,
-        content_requirements: Dict
+        self, user_id: int, lesson_plan: Dict, content_requirements: Dict
     ) -> Dict:
         """Generate or fetch appropriate activity content"""
         try:
-            activity_type = lesson_plan.get('activity_type', 'quiz')
-            difficulty = lesson_plan.get('difficulty_level', 'intermediate')
-            topic = lesson_plan.get('topic', 'General English')
-            
+            activity_type = lesson_plan.get("activity_type", "quiz")
+            difficulty = lesson_plan.get("difficulty_level", "intermediate")
+            topic = lesson_plan.get("topic", "General English")
+
             # Use activity generator service to create the content
             activity_data = self.activity_service.generate_activity(
                 activity_type=activity_type,
                 difficulty_level=difficulty,
                 topic=topic,
                 options={
-                    'count': content_requirements.get('question_count', 10),
-                    'time_limit': content_requirements.get('time_limit_seconds', 300),
-                    'include_telugu': content_requirements.get('include_telugu_support', True)
-                }
+                    "count": content_requirements.get("question_count", 10),
+                    "time_limit": content_requirements.get("time_limit_seconds", 300),
+                    "include_telugu": content_requirements.get(
+                        "include_telugu_support", True
+                    ),
+                },
             )
-            
+
             return activity_data
-            
+
         except Exception as e:
             print(f"Error generating activity content: {str(e)}")
-            return {
-                'error': 'Failed to generate activity content',
-                'fallback': True
-            }
-    
+            return {"error": "Failed to generate activity content", "fallback": True}
+
     def _extract_json_from_response(self, response_text: str) -> Dict:
         """Extract JSON from AI response text"""
         try:
-            if '```json' in response_text:
-                json_start = response_text.find('```json') + 7
-                json_end = response_text.find('```', json_start)
+            if "```json" in response_text:
+                json_start = response_text.find("```json") + 7
+                json_end = response_text.find("```", json_start)
                 json_str = response_text[json_start:json_end].strip()
-            elif '```' in response_text:
-                json_start = response_text.find('```') + 3
-                json_end = response_text.find('```', json_start)
+            elif "```" in response_text:
+                json_start = response_text.find("```") + 3
+                json_end = response_text.find("```", json_start)
                 json_str = response_text[json_start:json_end].strip()
             else:
                 json_str = response_text.strip()
-            
+
             return json.loads(json_str)
         except json.JSONDecodeError:
             print(f"Failed to parse JSON from response: {response_text[:200]}")

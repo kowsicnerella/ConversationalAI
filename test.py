@@ -3,13 +3,16 @@ from mem0_config import memory_agent
 
 messages = [
     {"role": "user", "content": "I love Italian food with indian spice."},
-    {"role": "assistant", "content": "Got it! I'll remember that you enjoy Italian cuisine."}
+    {
+        "role": "assistant",
+        "content": "Got it! I'll remember that you enjoy Italian cuisine.",
+    },
 ]
 memory_agent.add(messages, user_id="alex")
 
 query = "What kind of food does Alex like?"
 filters = {"AND": [{"user_id": "alex"}]}
-results = memory_agent.search(query, user_id = "alex")
+results = memory_agent.search(query, user_id="alex")
 print(results)
 
 
