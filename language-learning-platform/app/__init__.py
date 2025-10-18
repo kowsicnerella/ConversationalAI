@@ -32,6 +32,7 @@ from app.api.activities_routes import activities_bp
 from app.api.chat_tutor_routes import chat_tutor_bp
 from app.api.goals_routes import goals_bp
 from app.api.enhanced_chat_routes import enhanced_chat_bp
+from app.api.user_status_routes import user_status_bp
 from config import config
 
 migrate = Migrate()
@@ -146,6 +147,9 @@ def create_app(config_name="development"):
 
     # Register notifications blueprint
     app.register_blueprint(notifications_bp, url_prefix="/api/notifications")
+
+    # Register user status and navigation guard blueprint
+    app.register_blueprint(user_status_bp, url_prefix="/api")
 
     # Register onboarding workflow blueprint
     app.register_blueprint(onboarding_bp, url_prefix="/api/onboarding")

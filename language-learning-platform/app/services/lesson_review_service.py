@@ -2,11 +2,8 @@ import json
 from typing import Dict, List, Optional
 from datetime import datetime
 from app.models import db, UserActivityLog, LessonReview, User, Profile
-import google.generativeai as genai
+from app.services.llm_config import LLMConfig
 from config import Config
-
-# Configure Gemini
-genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 class LessonReviewService:
@@ -14,10 +11,12 @@ class LessonReviewService:
     AI-powered service that analyzes user performance on completed lessons/activities
     and provides comprehensive feedback, identifies strengths/weaknesses, and
     suggests next steps for optimal learning progression.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
+        # No need to initialize model - handled by LLMConfig
+        pass
 
         # Performance thresholds
         self.EXCELLENT_THRESHOLD = 90
@@ -147,8 +146,21 @@ class LessonReviewService:
             """
 
             # Generate review using AI
-            response = self.model.generate_content(review_prompt)
-            review_data = self._extract_json_from_response(response.text)
+            result = LLMConfig.generate_text(review_prompt, json_mode=True)
+            if result['success']:
+                review_data = self._extract_json_from_response(result['text'])
+            else:
+                # Fallback review data
+                review_data = {
+                    "performance_score": score,
+                    "strengths": [],
+                    "weaknesses": [],
+                    "feedback_english": "Review generation failed. Please try again.",
+                    "feedback_telugu": "సమీక్ష రూపొందించడం విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి.",
+                    "next_lesson_recommendation": {},
+                    "difficulty_adjustment": "maintain",
+                    "focus_areas": []
+                }
 
             # Create lesson review record
             lesson_review = LessonReview(

@@ -2,20 +2,19 @@ import json
 import random
 from datetime import datetime
 from typing import Dict, List, Tuple, Optional
+from sqlalchemy.orm.attributes import flag_modified
 from app.models import (
     User,
     Activity,
     UserActivityLog,
     LearningPath,
     ProficiencyAssessment,
+    UserAssessmentHistory,
 )
 from app.services.activity_generator_service import ActivityGeneratorService
 from app.models import db
-import google.generativeai as genai
+from app.services.llm_config import LLMConfig
 from config import Config
-
-# Configure Gemini
-genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 class InitialAssessmentService:
@@ -23,11 +22,11 @@ class InitialAssessmentService:
     Comprehensive initial assessment service for new users to determine their English proficiency level,
     learning preferences, and optimal learning path placement.
     Enhanced with comprehensive multi-skill assessment and adaptive learning path generation.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
         self.activity_service = ActivityGeneratorService()
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
         # Assessment configuration
         self.ASSESSMENT_LEVELS = ["beginner", "intermediate", "advanced"]
@@ -75,7 +74,57 @@ class InitialAssessmentService:
         if not user:
             raise ValueError("User not found")
 
+        # Check if user has an incomplete assessment of this type
+        existing_assessment = ProficiencyAssessment.query.filter_by(
+            user_id=user_id,
+            assessment_type=assessment_type,
+            completed_at=None  # Not completed yet
+        ).order_by(ProficiencyAssessment.id.desc()).first()
+
+        if existing_assessment:
+            print(f"Found existing incomplete assessment {existing_assessment.id} for user {user_id}")
+            
+            # Count how many questions have been answered
+            # user_responses might be a dict with various keys, so we need to count actual question responses
+            user_responses = existing_assessment.user_responses or {}
+            questions_asked = existing_assessment.questions_asked or []
+            
+            # Count only responses that match actual question IDs
+            question_ids = {q.get("id") or q.get("question_id") for q in questions_asked}
+            answered_count = len([qid for qid in user_responses.keys() if qid in question_ids])
+            
+            # Ensure answered_count doesn't exceed total questions
+            answered_count = min(answered_count, len(questions_asked))
+            
+            print(f"User has already answered {answered_count} out of {len(questions_asked)} questions")
+            print(f"User responses keys: {list(user_responses.keys())[:5]}")  # Show first 5 keys
+            print(f"Question IDs: {list(question_ids)[:5]}")  # Show first 5 question IDs
+            
+            # Return existing assessment instead of creating a new one
+            return {
+                "assessment_id": existing_assessment.id,
+                "assessment_type": assessment_type,
+                "questions": questions_asked,
+                "current_question_index": answered_count,  # Tell frontend where to resume
+                "metadata": {
+                    "total_questions": len(questions_asked),
+                    "max_score": sum(q.get("points", 2) for q in questions_asked),
+                    "estimated_duration_minutes": 45 if assessment_type == "comprehensive" else 30 if assessment_type == "adaptive" else 15,
+                    "skill_areas_covered": list(set(q.get("skill_area") for q in questions_asked if q.get("skill_area"))),
+                    "answered_questions": answered_count,  # Add this for clarity
+                },
+                "instructions": {
+                    "english": self._get_assessment_instructions(assessment_type),
+                    "telugu": self._get_telugu_instructions(assessment_type),
+                },
+                "assessment_structure": {
+                    "type": assessment_type,
+                    "resuming": True
+                },
+            }
+
         # Generate assessment questions based on type
+        print(f"Generating new {assessment_type} assessment for user {user_id}")
         if assessment_type == "quick":
             assessment_data = self._generate_quick_assessment()
         elif assessment_type == "adaptive":
@@ -92,6 +141,8 @@ class InitialAssessmentService:
 
         db.session.add(assessment)
         db.session.commit()
+        
+        print(f"✅ Created new assessment ID={assessment.id} for user {user_id}, type={assessment_type}")
 
         return {
             "assessment_id": assessment.id,
@@ -149,6 +200,34 @@ class InitialAssessmentService:
         assessment.recommendations = learning_path_recommendations
         assessment.confidence_score = proficiency_analysis.get("confidence", 0.5)
         assessment.completed_at = datetime.utcnow()
+
+        # Save to user assessment history for complete tracking
+        history_entry = UserAssessmentHistory(
+            user_id=assessment.user_id,
+            assessment_id=assessment_id,
+            assessment_type=assessment.assessment_type,
+            questions=questions,
+            user_answers=answers,
+            correct_answers={
+                q["id"]: q.get("correct_answer", q.get("sample_answer"))
+                for q in questions
+            },
+            score=evaluation_result["total_score"],
+            proficiency_level=proficiency_analysis["overall_level"],
+            skill_breakdown=proficiency_analysis.get("skill_breakdown", {}),
+            strengths=proficiency_analysis.get("strengths", []),
+            weaknesses=proficiency_analysis.get("weaknesses", []),
+            ai_feedback=evaluation_result.get("feedback", ""),
+            recommendations=learning_path_recommendations,
+            time_taken_seconds=int(
+                (datetime.utcnow() - assessment.created_at).total_seconds()
+            )
+            if assessment.created_at
+            else None,
+            confidence_score=proficiency_analysis.get("confidence", 0.5),
+            completed_at=datetime.utcnow(),
+        )
+        db.session.add(history_entry)
 
         db.session.commit()
 
@@ -251,6 +330,9 @@ class InitialAssessmentService:
         current_responses = (
             assessment.user_responses if assessment.user_responses else {}
         )
+        
+        print(f"🔍 Loading responses from DB for assessment {assessment_id}")
+        print(f"Current responses in DB: {list(current_responses.keys())}")
 
         # Find the question in the assessment
         questions = assessment.questions_asked if assessment.questions_asked else []
@@ -267,18 +349,37 @@ class InitialAssessmentService:
         evaluation = self._evaluate_single_answer(current_question, answer)
 
         # Store the answer and evaluation
+        print(f"Storing answer for question_id: {question_id}, answer: {answer}")
+        
+        # Add new answer to responses
         current_responses[question_id] = {
             "answer": answer,
             "evaluation": evaluation,
             "timestamp": datetime.utcnow().isoformat(),
         }
+        
+        print(f"In-memory responses now has {len(current_responses)} answers: {list(current_responses.keys())}")
 
-        assessment.user_responses = current_responses
+        # CRITICAL FIX: Create a NEW dict object so SQLAlchemy detects the change
+        # Simply modifying the existing dict doesn't trigger SQLAlchemy's change detection
+        assessment.user_responses = dict(current_responses)  # Create new dict
+        
+        # Also mark it as modified to be extra sure
+        flag_modified(assessment, "user_responses")
+        
         db.session.commit()
+        
+        # Verify what was actually saved
+        db.session.refresh(assessment)
+        saved_keys = list(assessment.user_responses.keys()) if assessment.user_responses else []
+        print(f"✅ Saved to DB. Verifying: {saved_keys} ({len(saved_keys)} answers)")
 
         # Check if this was the last question
         answered_count = len(current_responses)
         total_questions = len(questions)
+        
+        print(f"📊 Progress: {answered_count}/{total_questions} questions answered")
+        print(f"Question asked: {current_question.get('question_text', '')[:80]}...")
 
         response = {
             "evaluation": evaluation,
@@ -296,8 +397,13 @@ class InitialAssessmentService:
         # If there are more questions, return the next one
         if answered_count < total_questions:
             # Find next unanswered question
-            for q in questions:
-                if q.get("question_id") not in current_responses:
+            answered_ids = set(current_responses.keys())
+            print(f"Answered question IDs: {answered_ids}")
+            
+            for idx, q in enumerate(questions):
+                q_id = q.get("question_id")
+                if q_id not in current_responses:
+                    print(f"Next unanswered question: Index {idx}, ID {q_id}, Text: {q.get('question_text', '')[:50]}...")
                     response["next_question"] = q
                     response["is_complete"] = False
                     break
@@ -473,77 +579,28 @@ class InitialAssessmentService:
         self, skill_area: str, level: str, count: int
     ) -> List[Dict]:
         """Generate questions for a specific skill area and level."""
-        prompt = f"""
-        Generate {count} English proficiency assessment questions for Telugu speakers.
+        # For comprehensive assessments, use pre-generated questions to avoid multiple LLM calls
+        # This prevents timeout issues when generating many questions at once
         
-        Requirements:
-        - Skill Area: {skill_area}
-        - Difficulty Level: {level}
-        - Target Language: English (for Telugu speakers)
+        print(f"Generating {count} questions for {skill_area} - {level}")
         
-        For each question, provide:
-        1. Clear question text
-        2. Multiple choice options (4 options)
-        3. Correct answer
-        4. Points value (beginner: 2, intermediate: 3, advanced: 4)
-        5. Telugu hint/translation if helpful
-        6. Explanation for the correct answer
+        # Use fallback questions directly for faster, more reliable generation
+        processed_questions = self._generate_fallback_questions(
+            skill_area, level, count
+        )
         
-        Question types by skill area:
-        - vocabulary: Word meaning, synonyms, usage in context
-        - grammar: Sentence structure, tenses, prepositions
-        - reading: Comprehension, inference, main ideas
-        - listening: Audio comprehension (text-based simulation)
-        - writing: Sentence formation, error correction
-        
-        Return in JSON format:
-        ```json
-        [
-            {{
-                "question_id": "q_{skill_area}_{level}_1",
-                "question_text": "Choose the correct meaning of 'abundant':",
-                "options": [
-                    "Very little",
-                    "More than enough", 
-                    "Exactly right",
-                    "Not available"
-                ],
-                "correct_answer": "B",
-                "points": 2,
-                "skill_area": "{skill_area}",
-                "difficulty_level": "{level}",
-                "telugu_hint": "సమృద్ధిగా అని అర్థం",
-                "explanation": "Abundant means existing in large quantities; more than enough.",
-                "question_type": "multiple_choice"
-            }}
-        ]
-        ```
-        """
-
-        response = self.model.generate_content(prompt)
-        from app.services.activity_generator_service import _extract_json_from_response
-
-        questions = _extract_json_from_response(response.text)
-
-        # Ensure we have the right number of questions and add missing fields
-        if isinstance(questions, list) and len(questions) >= count:
-            processed_questions = questions[:count]
-        elif isinstance(questions, dict):
-            processed_questions = [questions]
-        else:
-            # Fallback questions if AI generation fails
-            processed_questions = self._generate_fallback_questions(
-                skill_area, level, count
-            )
-
         # Ensure all questions have required fields
-        for question in processed_questions:
+        for i, question in enumerate(processed_questions):
+            if "question_id" not in question:
+                question["question_id"] = f"q_{skill_area}_{level}_{i+1}"
             if "points" not in question:
                 question["points"] = self._get_points_for_level(level)
             if "skill_area" not in question:
                 question["skill_area"] = skill_area
             if "difficulty_level" not in question:
                 question["difficulty_level"] = level
+            if "question_type" not in question:
+                question["question_type"] = "multiple_choice"
 
         return processed_questions
 
@@ -555,43 +612,303 @@ class InitialAssessmentService:
     def _generate_fallback_questions(
         self, skill_area: str, level: str, count: int
     ) -> List[Dict]:
-        """Generate fallback questions if AI generation fails."""
-        fallback_questions = {
+        """Generate comprehensive fallback questions for all skill areas and levels."""
+        
+        # Comprehensive question bank for all skill areas and levels
+        question_bank = {
             "vocabulary": {
-                "beginner": {
-                    "question_text": 'What does "hello" mean in Telugu?',
-                    "options": ["నమస్కారం", "వీడ్కోలు", "ధన్యవాదాలు", "క్షమించండి"],
-                    "correct_answer": "A",
-                },
-                "intermediate": {
-                    "question_text": 'Choose the synonym for "happy":',
-                    "options": ["Sad", "Joyful", "Angry", "Tired"],
-                    "correct_answer": "B",
-                },
-                "advanced": {
-                    "question_text": 'What does "ubiquitous" mean?',
-                    "options": ["Rare", "Present everywhere", "Ancient", "Mysterious"],
-                    "correct_answer": "B",
-                },
-            }
+                "beginner": [
+                    {
+                        "question_text": 'What does "hello" mean in Telugu?',
+                        "options": ["నమస్కారం", "వీడ్కోలు", "ధన్యవాదాలు", "క్షమించండి"],
+                        "correct_answer": "A",
+                        "explanation": "'Hello' is a greeting that means నమస్కారం in Telugu.",
+                        "telugu_hint": "శుభాకాంక్షల పదం"
+                    },
+                    {
+                        "question_text": 'Choose the meaning of "book":',
+                        "options": ["పుస్తకం", "కలం", "బల్ల", "కుర్చీ"],
+                        "correct_answer": "A",
+                        "explanation": "A book (పుస్తకం) is something we read.",
+                        "telugu_hint": "మనం చదివే వస్తువు"
+                    },
+                ],
+                "intermediate": [
+                    {
+                        "question_text": 'Choose the synonym for "happy":',
+                        "options": ["Sad", "Joyful", "Angry", "Tired"],
+                        "correct_answer": "B",
+                        "explanation": "Joyful means happy or filled with joy.",
+                        "telugu_hint": "సంతోషంగా అనే అర్థం"
+                    },
+                    {
+                        "question_text": 'What does "purchase" mean?',
+                        "options": ["Sell", "Buy", "Return", "Exchange"],
+                        "correct_answer": "B",
+                        "explanation": "Purchase means to buy something.",
+                        "telugu_hint": "కొనుగోలు చేయడం"
+                    },
+                ],
+                "advanced": [
+                    {
+                        "question_text": 'What does "ubiquitous" mean?',
+                        "options": ["Rare", "Present everywhere", "Ancient", "Mysterious"],
+                        "correct_answer": "B",
+                        "explanation": "Ubiquitous means existing or being everywhere at the same time.",
+                        "telugu_hint": "సర్వవ్యాప్తం"
+                    },
+                    {
+                        "question_text": 'Choose the synonym for "ephemeral":',
+                        "options": ["Permanent", "Temporary", "Eternal", "Lasting"],
+                        "correct_answer": "B",
+                        "explanation": "Ephemeral means lasting for a very short time; temporary.",
+                        "telugu_hint": "తాత్కాలికమైన"
+                    },
+                ],
+            },
+            "grammar": {
+                "beginner": [
+                    {
+                        "question_text": "Choose the correct sentence:",
+                        "options": ["I am student", "I am a student", "I be student", "I student"],
+                        "correct_answer": "B",
+                        "explanation": "We use 'a' before singular countable nouns.",
+                        "telugu_hint": "నేను ఒక విద్యార్థిని"
+                    },
+                    {
+                        "question_text": "Complete: She ___ to school every day.",
+                        "options": ["go", "goes", "going", "gone"],
+                        "correct_answer": "B",
+                        "explanation": "For third person singular (she/he/it), we add 's' to the verb.",
+                        "telugu_hint": "ప్రతిదినం అనే అర్థం - ప్రస్తుత కాలం"
+                    },
+                ],
+                "intermediate": [
+                    {
+                        "question_text": "Choose the correct tense: I ___ this book for two hours.",
+                        "options": ["read", "am reading", "have been reading", "was reading"],
+                        "correct_answer": "C",
+                        "explanation": "Present perfect continuous is used for actions that started in the past and continue to the present.",
+                        "telugu_hint": "గతంలో మొదలై ఇంకా కొనసాగుతోంది"
+                    },
+                    {
+                        "question_text": "Which sentence is correct?",
+                        "options": [
+                            "The teacher told us to studied hard",
+                            "The teacher told us studying hard",
+                            "The teacher told us to study hard",
+                            "The teacher told us study hard"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "After 'tell someone to', we use base form of verb.",
+                        "telugu_hint": "ఉపదేశించడం - తర్వాత base form"
+                    },
+                ],
+                "advanced": [
+                    {
+                        "question_text": "Identify the correct sentence:",
+                        "options": [
+                            "Had I known earlier, I would have attended",
+                            "Had I knew earlier, I would have attended",
+                            "If I had known earlier, I will have attended",
+                            "Have I known earlier, I would attended"
+                        ],
+                        "correct_answer": "A",
+                        "explanation": "Inversion in third conditional: Had + subject + past participle = If + subject + had + past participle.",
+                        "telugu_hint": "మూడవ షరతు - గతంలో జరగని పరిస్థితి"
+                    },
+                    {
+                        "question_text": "Choose the grammatically correct sentence:",
+                        "options": [
+                            "Neither the students nor the teacher were present",
+                            "Neither the students nor the teacher was present",
+                            "Neither the students nor the teacher are present",
+                            "Neither the students nor the teacher is present"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "With 'neither...nor', the verb agrees with the nearest subject (teacher = singular).",
+                        "telugu_hint": "దగ్గరగా ఉన్న subject తో agree అవాలి"
+                    },
+                ],
+            },
+            "reading": {
+                "beginner": [
+                    {
+                        "question_text": 'Read: "The cat is on the mat." Where is the cat?',
+                        "options": ["Under the mat", "On the mat", "Near the mat", "Behind the mat"],
+                        "correct_answer": "B",
+                        "explanation": "The sentence clearly states 'on the mat'.",
+                        "telugu_hint": "పై అనే అర్థం"
+                    },
+                ],
+                "intermediate": [
+                    {
+                        "question_text": 'Read: "She enjoys reading books in her free time." What does she do?',
+                        "options": ["Watches TV", "Reads books", "Plays games", "Cooks food"],
+                        "correct_answer": "B",
+                        "explanation": "The sentence states she enjoys reading books.",
+                        "telugu_hint": "ఖాళీ సమయంలో చేసే పని"
+                    },
+                ],
+                "advanced": [
+                    {
+                        "question_text": "Read: \"Despite the torrential rain, the match continued unabated.\" What happened?",
+                        "options": [
+                            "The match was cancelled",
+                            "The match was postponed",
+                            "The match continued",
+                            "The match was delayed"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "'Despite' indicates contrast; 'unabated' means without stopping.",
+                        "telugu_hint": "ఆగకుండా కొనసాగింది"
+                    },
+                ],
+            },
+            "listening": {
+                "beginner": [
+                    {
+                        "question_text": "Listen: 'How are you?' What is the correct response?",
+                        "options": ["I am fine", "Yes, I am", "No, thank you", "Goodbye"],
+                        "correct_answer": "A",
+                        "explanation": "'How are you?' asks about your well-being.",
+                        "telugu_hint": "మీ పరిస్థితి గురించి అడుగుతున్నారు"
+                    },
+                ],
+                "intermediate": [
+                    {
+                        "question_text": "Listen: 'Could you please pass the salt?' What is being requested?",
+                        "options": ["To buy salt", "To pass the salt", "To taste salt", "To remove salt"],
+                        "correct_answer": "B",
+                        "explanation": "'Pass' means to hand over or give something to someone.",
+                        "telugu_hint": "ఇవ్వమని అడుగుతున్నారు"
+                    },
+                ],
+                "advanced": [
+                    {
+                        "question_text": "Listen: 'I'd appreciate it if you could expedite the process.' What is the speaker asking?",
+                        "options": [
+                            "To delay the process",
+                            "To cancel the process",
+                            "To speed up the process",
+                            "To document the process"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "'Expedite' means to make something happen more quickly.",
+                        "telugu_hint": "త్వరగా చేయమని అడుగుతున్నారు"
+                    },
+                ],
+            },
+            "writing": {
+                "beginner": [
+                    {
+                        "question_text": "Which sentence is correctly written?",
+                        "options": [
+                            "i like apples",
+                            "I like apples",
+                            "i Like Apples",
+                            "I Like apples"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Sentences start with capital letter. 'I' is always capitalized.",
+                        "telugu_hint": "వాక్యం మొదలు పెద్ద అక్షరం"
+                    },
+                ],
+                "intermediate": [
+                    {
+                        "question_text": "Choose the correctly punctuated sentence:",
+                        "options": [
+                            "She said I am tired",
+                            "She said, I am tired",
+                            'She said, "I am tired"',
+                            'She said: I am tired'
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Direct quotes need quotation marks and comma before the quote.",
+                        "telugu_hint": "ప్రత్యక్ష మాటలు కొటేషన్ లో"
+                    },
+                ],
+                "advanced": [
+                    {
+                        "question_text": "Identify the sentence with correct parallel structure:",
+                        "options": [
+                            "She likes swimming, to dance, and reading",
+                            "She likes to swim, dancing, and to read",
+                            "She likes swimming, dancing, and reading",
+                            "She likes to swim, to dance, and reading"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Parallel structure means using the same grammatical form (all -ing forms).",
+                        "telugu_hint": "ఒకే రూపంలో రాయాలి"
+                    },
+                ],
+            },
+            "speaking": {
+                "beginner": [
+                    {
+                        "question_text": "What is the best response to 'What's your name?'",
+                        "options": [
+                            "I am fine",
+                            "My name is...",
+                            "Yes, please",
+                            "Nice to meet you"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "When asked about your name, you respond with 'My name is...'",
+                        "telugu_hint": "పేరు చెప్పాలి"
+                    },
+                ],
+                "intermediate": [
+                    {
+                        "question_text": "How would you politely disagree in a conversation?",
+                        "options": [
+                            "You are wrong",
+                            "I don't agree",
+                            "I see your point, but I have a different view",
+                            "That's not true"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Polite disagreement acknowledges the other person's view first.",
+                        "telugu_hint": "మర్యాదగా భిన్నాభిప్రాయం"
+                    },
+                ],
+                "advanced": [
+                    {
+                        "question_text": "In a formal presentation, how should you transition between topics?",
+                        "options": [
+                            "Now I'll talk about something else",
+                            "Let's move on to the next thing",
+                            "Having examined X, let us now turn our attention to Y",
+                            "Okay, next topic"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Formal presentations require sophisticated transitional phrases.",
+                        "telugu_hint": "అధికారిక ప్రసంగం - సంక్లిష్ట భాష"
+                    },
+                ],
+            },
         }
 
         points_map = {"beginner": 2, "intermediate": 3, "advanced": 4}
 
+        # Get questions from the bank
         questions = []
+        question_list = question_bank.get(skill_area, {}).get(level, [])
+        
+        # If we don't have enough questions, repeat them with different IDs
         for i in range(count):
-            template = fallback_questions.get(skill_area, {}).get(level)
-            if template:
+            if question_list:
+                template = question_list[i % len(question_list)]  # Cycle through available questions
                 question = {
-                    "question_id": f"fallback_{skill_area}_{level}_{i+1}",
+                    "question_id": f"q_{skill_area}_{level}_{i+1}",
                     "question_text": template["question_text"],
                     "options": template["options"],
                     "correct_answer": template["correct_answer"],
                     "points": points_map[level],
                     "skill_area": skill_area,
                     "difficulty_level": level,
-                    "telugu_hint": "సూచన అందుబాటులో లేదు",
-                    "explanation": "Standard assessment question",
+                    "telugu_hint": template.get("telugu_hint", "సూచన అందుబాటులో లేదు"),
+                    "explanation": template.get("explanation", "Standard assessment question"),
                     "question_type": "multiple_choice",
                 }
                 questions.append(question)

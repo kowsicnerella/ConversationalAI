@@ -9,6 +9,7 @@ from app.models import (
     PracticeSession,
     UserNotes,
     AIConversationContext,
+    UserConversationHistory,
 )
 from app.services.activity_generator_service import ActivityGeneratorService
 from app.services.personalization_service import PersonalizationService
@@ -1879,6 +1880,223 @@ def get_user_learning_context():
                 {
                     "error": "Failed to get user context",
                     "telugu_message": "వినియోగదారు సందర్భం పొందడంలో విఫలం",
+                }
+            ),
+            500,
+        )
+
+
+# ============================================================================
+# CONVERSATION HISTORY - Complete tracking endpoints
+# ============================================================================
+
+
+@chat_bp.route("/history", methods=["GET"])
+@jwt_required()
+def get_conversation_history():
+    """
+    Get complete conversation history from UserConversationHistory table.
+    Query params:
+    - page: Page number (default: 1)
+    - per_page: Items per page (default: 10)
+    - topic: Filter by topic (optional)
+    """
+    try:
+        user_id = get_jwt_identity()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+        topic = request.args.get("topic")
+
+        # Build query
+        query = UserConversationHistory.query.filter_by(user_id=user_id)
+
+        if topic:
+            query = query.filter_by(topic=topic)
+
+        # Paginate results
+        pagination = query.order_by(
+            UserConversationHistory.completed_at.desc()
+        ).paginate(page=page, per_page=per_page, error_out=False)
+
+        history_items = [item.to_dict() for item in pagination.items]
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "history": history_items,
+                    "pagination": {
+                        "total": pagination.total,
+                        "page": page,
+                        "per_page": per_page,
+                        "pages": pagination.pages,
+                        "has_next": pagination.has_next,
+                        "has_prev": pagination.has_prev,
+                    },
+                    "message": f"Retrieved {len(history_items)} conversation records",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Error retrieving conversation history: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve conversation history",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@chat_bp.route("/history/<int:history_id>", methods=["GET"])
+@jwt_required()
+def get_conversation_history_detail(history_id: int):
+    """
+    Get detailed view of a specific conversation from history.
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # Get history entry - ensure it belongs to the user
+        history_entry = UserConversationHistory.query.filter_by(
+            id=history_id, user_id=user_id
+        ).first()
+
+        if not history_entry:
+            return (
+                jsonify(
+                    {
+                        "error": "Conversation history not found",
+                        "telugu_error": "సంభాషణ చరిత్ర కనుగొనబడలేదు",
+                    }
+                ),
+                404,
+            )
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "conversation": history_entry.to_dict(),
+                    "message": "Conversation details retrieved successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Error retrieving conversation details: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve conversation details",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@chat_bp.route("/history/stats", methods=["GET"])
+@jwt_required()
+def get_conversation_statistics():
+    """
+    Get conversation statistics for the user.
+    Returns: total conversations, topics breakdown, engagement metrics, etc.
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # Get all conversations
+        conversations = UserConversationHistory.query.filter_by(user_id=user_id).order_by(
+            UserConversationHistory.completed_at.asc()
+        ).all()
+
+        if not conversations:
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "stats": {
+                            "total_conversations": 0,
+                            "message": "No conversations completed yet",
+                        },
+                    }
+                ),
+                200,
+            )
+
+        # Calculate statistics
+        total_conversations = len(conversations)
+        total_messages = sum(c.total_messages for c in conversations)
+        
+        # Topics breakdown
+        from collections import Counter
+        topics = Counter(c.topic for c in conversations if c.topic)
+        
+        # Grammar corrections count
+        total_corrections = sum(
+            len(c.grammar_corrections) if c.grammar_corrections else 0
+            for c in conversations
+        )
+        
+        # Vocabulary count
+        total_vocabulary = sum(
+            len(c.vocabulary_used) if c.vocabulary_used else 0
+            for c in conversations
+        )
+
+        # Calculate average scores
+        fluency_scores = [c.fluency_score for c in conversations if c.fluency_score]
+        coherence_scores = [c.coherence_score for c in conversations if c.coherence_score]
+        
+        avg_fluency = sum(fluency_scores) / len(fluency_scores) if fluency_scores else None
+        avg_coherence = sum(coherence_scores) / len(coherence_scores) if coherence_scores else None
+
+        stats = {
+            "total_conversations": total_conversations,
+            "total_messages": total_messages,
+            "average_messages_per_conversation": round(total_messages / total_conversations, 1),
+            "total_grammar_corrections": total_corrections,
+            "total_vocabulary_learned": total_vocabulary,
+            "average_fluency_score": round(avg_fluency, 2) if avg_fluency else None,
+            "average_coherence_score": round(avg_coherence, 2) if avg_coherence else None,
+            "topics_breakdown": [
+                {"topic": topic, "count": count}
+                for topic, count in topics.most_common()
+            ],
+            "recent_conversations": [
+                {
+                    "topic": c.topic,
+                    "messages": c.total_messages,
+                    "date": c.completed_at.isoformat() if c.completed_at else None,
+                }
+                for c in conversations[-5:]  # Last 5 conversations
+            ],
+        }
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "stats": stats,
+                    "message": "Conversation statistics calculated successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Error calculating conversation statistics: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "error": "Failed to calculate conversation statistics",
+                    "details": str(e),
                 }
             ),
             500,

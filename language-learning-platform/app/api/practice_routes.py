@@ -9,6 +9,7 @@ from app.models import (
     UserNotes,
     TestAssessment,
     AIConversationContext,
+    UserPracticeSession,
 )
 from app.services.activity_generator_service import ActivityGeneratorService
 from app.services.personalization_service import PersonalizationService
@@ -736,6 +737,43 @@ def complete_practice_session(session_id):
                 elif session.score_percentage >= 90:  # Mastered if 90%+
                     progress.status = "mastered"
 
+        # Save to UserPracticeSession for complete history tracking
+        # Extract questions and answers from session
+        questions_list = session.questions_data or []
+        answers_list = session.user_responses or []
+        
+        # Identify strengths and weaknesses
+        strengths = []
+        weaknesses = []
+        for response in answers_list:
+            if response.get("is_correct"):
+                question_type = next((q.get("type") for q in questions_list if q.get("id") == response.get("question_id")), None)
+                if question_type and question_type not in strengths:
+                    strengths.append(question_type)
+            else:
+                question_type = next((q.get("type") for q in questions_list if q.get("id") == response.get("question_id")), None)
+                if question_type and question_type not in weaknesses:
+                    weaknesses.append(question_type)
+        
+        practice_entry = UserPracticeSession(
+            user_id=user_id,
+            session_id=session.id,
+            chapter_id=session.chapter_id,
+            practice_type=session.session_type or "practice",
+            questions=questions_list,
+            user_answers=answers_list,
+            score=session.score_percentage,
+            total_questions=session.total_questions,
+            correct_answers=session.correct_answers,
+            ai_feedback=session_summary.get("feedback", "") if session_summary else "",
+            strengths=strengths if strengths else None,
+            weaknesses=weaknesses if weaknesses else None,
+            time_spent_seconds=int(session.duration_minutes * 60),
+            recommendations=session_summary.get("recommendations") if session_summary else None,
+            completed_at=datetime.utcnow(),
+        )
+        db.session.add(practice_entry)
+
         db.session.commit()
 
         return (
@@ -1001,3 +1039,257 @@ def _get_performance_recommendations(score_percentage):
             "Take additional practice sessions",
             "Consider reviewing prerequisite chapters",
         ]
+
+
+# ============================================================================
+# PRACTICE HISTORY - Complete tracking endpoints
+# ============================================================================
+
+
+@practice_bp.route("/history", methods=["GET"])
+@jwt_required()
+def get_practice_history():
+    """
+    Get complete practice history from UserPracticeSession table.
+    Query params:
+    - page: Page number (default: 1)
+    - per_page: Items per page (default: 10)
+    - practice_type: Filter by type (optional)
+    - chapter_id: Filter by chapter (optional)
+    """
+    try:
+        user_id = get_jwt_identity()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+        practice_type = request.args.get("practice_type")
+        chapter_id = request.args.get("chapter_id", type=int)
+
+        # Build query
+        query = UserPracticeSession.query.filter_by(user_id=user_id)
+
+        if practice_type:
+            query = query.filter_by(practice_type=practice_type)
+        
+        if chapter_id:
+            query = query.filter_by(chapter_id=chapter_id)
+
+        # Paginate results
+        pagination = query.order_by(
+            UserPracticeSession.completed_at.desc()
+        ).paginate(page=page, per_page=per_page, error_out=False)
+
+        history_items = [item.to_dict() for item in pagination.items]
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "history": history_items,
+                    "pagination": {
+                        "total": pagination.total,
+                        "page": page,
+                        "per_page": per_page,
+                        "pages": pagination.pages,
+                        "has_next": pagination.has_next,
+                        "has_prev": pagination.has_prev,
+                    },
+                    "message": f"Retrieved {len(history_items)} practice session records",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Error retrieving practice history: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve practice history",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@practice_bp.route("/history/<int:history_id>", methods=["GET"])
+@jwt_required()
+def get_practice_history_detail(history_id: int):
+    """
+    Get detailed view of a specific practice session from history.
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # Get history entry - ensure it belongs to the user
+        history_entry = UserPracticeSession.query.filter_by(
+            id=history_id, user_id=user_id
+        ).first()
+
+        if not history_entry:
+            return (
+                jsonify(
+                    {
+                        "error": "Practice session history not found",
+                        "telugu_error": "అభ్యాస సెషన్ చరిత్ర కనుగొనబడలేదు",
+                    }
+                ),
+                404,
+            )
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "session": history_entry.to_dict(),
+                    "message": "Practice session details retrieved successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Error retrieving practice session details: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve practice session details",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@practice_bp.route("/history/stats", methods=["GET"])
+@jwt_required()
+def get_practice_statistics():
+    """
+    Get practice statistics for the user.
+    Returns: total sessions, average scores, practice types breakdown, progress over time.
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # Get all practice sessions
+        sessions = UserPracticeSession.query.filter_by(user_id=user_id).order_by(
+            UserPracticeSession.completed_at.asc()
+        ).all()
+
+        if not sessions:
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "stats": {
+                            "total_sessions": 0,
+                            "message": "No practice sessions completed yet",
+                        },
+                    }
+                ),
+                200,
+            )
+
+        # Calculate statistics
+        total_sessions = len(sessions)
+        total_questions = sum(s.total_questions for s in sessions)
+        total_correct = sum(s.correct_answers for s in sessions)
+        avg_score = sum(s.score for s in sessions) / total_sessions
+        
+        # Practice types breakdown
+        from collections import Counter
+        practice_types = Counter(s.practice_type for s in sessions if s.practice_type)
+        
+        # Chapter breakdown
+        chapters = Counter(s.chapter_id for s in sessions if s.chapter_id)
+        
+        # Total time spent
+        total_time_seconds = sum(s.time_spent_seconds or 0 for s in sessions)
+        total_time_minutes = total_time_seconds // 60
+        
+        # Aggregate strengths and weaknesses
+        all_strengths = []
+        all_weaknesses = []
+        for session in sessions:
+            if session.strengths:
+                all_strengths.extend(session.strengths)
+            if session.weaknesses:
+                all_weaknesses.extend(session.weaknesses)
+        
+        strength_counts = Counter(all_strengths)
+        weakness_counts = Counter(all_weaknesses)
+        
+        # Calculate improvement (compare first and last 3 sessions)
+        if total_sessions >= 6:
+            first_three_avg = sum(s.score for s in sessions[:3]) / 3
+            last_three_avg = sum(s.score for s in sessions[-3:]) / 3
+            improvement = last_three_avg - first_three_avg
+        else:
+            improvement = 0
+
+        stats = {
+            "total_sessions": total_sessions,
+            "total_questions_answered": total_questions,
+            "total_correct_answers": total_correct,
+            "overall_accuracy": round((total_correct / total_questions * 100), 2) if total_questions > 0 else 0,
+            "average_score": round(avg_score, 2),
+            "improvement": round(improvement, 2) if improvement else 0,
+            "total_time_minutes": total_time_minutes,
+            "practice_types_breakdown": [
+                {"type": practice_type, "count": count}
+                for practice_type, count in practice_types.most_common()
+            ],
+            "chapters_practiced": [
+                {"chapter_id": chapter_id, "sessions": count}
+                for chapter_id, count in chapters.most_common()
+            ],
+            "top_strengths": [
+                {"skill": skill, "count": count}
+                for skill, count in strength_counts.most_common(5)
+            ],
+            "top_weaknesses": [
+                {"skill": skill, "count": count}
+                for skill, count in weakness_counts.most_common(5)
+            ],
+            "practice_timeline": [
+                {
+                    "date": s.completed_at.isoformat() if s.completed_at else None,
+                    "score": s.score,
+                    "questions": s.total_questions,
+                    "practice_type": s.practice_type,
+                }
+                for s in sessions
+            ],
+            "recent_sessions": [
+                {
+                    "practice_type": s.practice_type,
+                    "score": s.score,
+                    "questions": s.total_questions,
+                    "date": s.completed_at.isoformat() if s.completed_at else None,
+                }
+                for s in sessions[-5:]  # Last 5 sessions
+            ],
+        }
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "stats": stats,
+                    "message": "Practice statistics calculated successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Error calculating practice statistics: {str(e)}")
+        return (
+            jsonify(
+                {
+                    "error": "Failed to calculate practice statistics",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )

@@ -11,11 +11,8 @@ from app.models import (
     LessonReview,
 )
 from app.services.activity_generator_service import ActivityGeneratorService
-import google.generativeai as genai
+from app.services.llm_config import LLMConfig
 from config import Config
-
-# Configure Gemini
-genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 class AdaptiveLessonCurator:
@@ -23,10 +20,10 @@ class AdaptiveLessonCurator:
     AI-powered service that intelligently selects and curates the next lesson
     based on user performance, learning history, mastery progress, and AI reviews.
     Ensures optimal learning progression toward English mastery.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
         self.activity_service = ActivityGeneratorService()
 
         # Difficulty adjustment thresholds
@@ -167,8 +164,20 @@ class AdaptiveLessonCurator:
             """
 
             # Generate lesson plan using AI
-            response = self.model.generate_content(curation_prompt)
-            lesson_plan = self._extract_json_from_response(response.text)
+            result = LLMConfig.generate_text(curation_prompt, json_mode=True)
+            if result['success']:
+                lesson_plan = self._extract_json_from_response(result['text'])
+            else:
+                # Fallback lesson plan
+                lesson_plan = {
+                    "next_lesson": {
+                        "activity_type": "quiz",
+                        "difficulty_level": profile.proficiency_level or "beginner",
+                        "topic": "general",
+                        "focus_skills": ["vocabulary", "grammar"]
+                    },
+                    "lesson_content_requirements": {}
+                }
 
             # Generate the actual activity content
             next_lesson = lesson_plan.get("next_lesson", {})

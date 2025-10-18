@@ -15,6 +15,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userStatus, setUserStatus] = useState(null);
 
   useEffect(() => {
     // Check if user is logged in on mount
@@ -25,6 +26,8 @@ export const AuthProvider = ({ children }) => {
       try {
         setUser(JSON.parse(savedUser));
         setIsAuthenticated(true);
+        // Fetch fresh status after setting authenticated
+        fetchUserStatus();
       } catch (error) {
         console.error("Error parsing saved user:", error);
         logout();
@@ -32,6 +35,32 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   }, []);
+
+  const fetchUserStatus = async () => {
+    try {
+      const response = await axiosInstance.get(API_ENDPOINTS.USER.STATUS);
+      const status = response.data.user_status;
+      setUserStatus(status);
+      
+      // Update user object with latest onboarding fields
+      if (user) {
+        const updatedUser = {
+          ...user,
+          onboarding_completed: status.onboarding_completed,
+          needs_initial_assessment: status.needs_initial_assessment,
+          current_learning_phase: status.current_learning_phase,
+          initial_assessment_id: status.initial_assessment_id,
+        };
+        setUser(updatedUser);
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+      }
+      
+      return status;
+    } catch (error) {
+      console.error("Error fetching user status:", error);
+      return null;
+    }
+  };
 
   const login = async (username, password) => {
     try {
@@ -47,6 +76,9 @@ export const AuthProvider = ({ children }) => {
 
       setUser(userData);
       setIsAuthenticated(true);
+
+      // Fetch fresh status after login
+      await fetchUserStatus();
 
       return { success: true, user: userData };
     } catch (error) {
@@ -72,6 +104,9 @@ export const AuthProvider = ({ children }) => {
 
       setUser(newUser);
       setIsAuthenticated(true);
+
+      // Fetch fresh status after registration
+      await fetchUserStatus();
 
       // Return assessment data if available so it can be passed to onboarding
       return { 
@@ -133,10 +168,12 @@ export const AuthProvider = ({ children }) => {
     user,
     loading,
     isAuthenticated,
+    userStatus,
     login,
     register,
     logout,
     updateUser,
+    fetchUserStatus,
     getOnboardingRedirectPath,
   };
 

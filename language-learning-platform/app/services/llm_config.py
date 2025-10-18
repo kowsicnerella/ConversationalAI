@@ -47,7 +47,7 @@ class LLMConfig:
     """
 
     # Default provider (easily changeable)
-    DEFAULT_PROVIDER = LLMProvider.GEMINI
+    DEFAULT_PROVIDER = LLMProvider.CUSTOM  # Custom model with Gemini as fallback
 
     # Model configurations
     MODELS = {
@@ -64,7 +64,7 @@ class LLMConfig:
             "multimodal": "gpt-4-vision-preview",
         },
         LLMProvider.CUSTOM: {
-            "text": "sarvam-m-hf",
+            "text": "sarvamai/sarvam-m",
             "vision": "custom-vision",
             "audio": "custom-audio",
             "multimodal": "custom-multimodal",
@@ -117,11 +117,11 @@ class LLMConfig:
         json_mode: bool = False,
     ) -> Dict[str, Any]:
         """
-        Generate text completion from prompt
+        Generate text completion from prompt with automatic fallback
 
         Args:
             prompt: Input text prompt
-            provider: LLM provider to use (default: GEMINI)
+            provider: LLM provider to use (default: CUSTOM with Gemini fallback)
             temperature: Sampling temperature (0.0-1.0)
             max_tokens: Maximum tokens to generate
             system_prompt: System instruction/context
@@ -150,9 +150,16 @@ class LLMConfig:
                     prompt, temperature, max_tokens, system_prompt, json_mode
                 )
             elif provider == LLMProvider.CUSTOM:
-                return cls._custom_generate_text(
-                    prompt, temperature, max_tokens, system_prompt
-                )
+                # Try custom first, fallback to Gemini on error
+                try:
+                    return cls._custom_generate_text(
+                        prompt, temperature, max_tokens, system_prompt
+                    )
+                except Exception as custom_error:
+                    print(f"Custom LLM failed: {custom_error}. Falling back to Gemini...")
+                    return cls._gemini_generate_text(
+                        prompt, temperature, max_tokens, system_prompt, json_mode
+                    )
             else:
                 return {
                     "success": False,
@@ -221,13 +228,17 @@ class LLMConfig:
     ) -> Dict[str, Any]:
         """Generate text using custom inference endpoint"""
         endpoint = cls.CUSTOM_ENDPOINTS["text"]
+        
+        # Check if endpoint is configured
+        if not endpoint or endpoint == "None/v1/chat/completions" or "None" in endpoint:
+            raise ValueError("Custom LLM endpoint not configured. Set VLLM_ENDPOINT in .env file.")
 
         # OpenAI-compatible API format
         payload = {
             "model": cls.MODELS[LLMProvider.CUSTOM]["text"],
-            "skip_special_tokens": false,
-            "add_special_tokens": true,
-            "include_reasoning": true,
+            "skip_special_tokens": False,
+            "add_special_tokens": True,
+            "include_reasoning": True,
             "messages": [
                 {
                     "role": "system",
@@ -268,11 +279,12 @@ class LLMConfig:
         json_mode: bool = False,
     ) -> Dict[str, Any]:
         """
-        Chat-style completion with conversation history
+        Chat-style completion with conversation history and automatic fallback
 
         Args:
             messages: List of {'role': 'user/assistant/system', 'content': 'text'}
-            provider: LLM provider to use
+            stream: Whether to stream the response
+            provider: LLM provider to use (default: CUSTOM with Gemini fallback)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             json_mode: Force JSON output
@@ -299,9 +311,16 @@ class LLMConfig:
                     messages, temperature, max_tokens, json_mode
                 )
             elif provider == LLMProvider.CUSTOM:
-                return cls._custom_chat_completion(
-                    messages, temperature, max_tokens, stream
-                )
+                # Try custom first, fallback to Gemini on error
+                try:
+                    return cls._custom_chat_completion(
+                        messages, temperature, max_tokens, stream
+                    )
+                except Exception as custom_error:
+                    print(f"Custom LLM chat failed: {custom_error}. Falling back to Gemini...")
+                    return cls._gemini_chat_completion(
+                        messages, temperature, max_tokens, json_mode
+                    )
             else:
                 return {
                     "success": False,
@@ -413,12 +432,12 @@ class LLMConfig:
         json_mode: bool = False,
     ) -> Dict[str, Any]:
         """
-        Analyze image with AI vision model
+        Analyze image with AI vision model and automatic fallback
 
         Args:
             image: PIL Image object or path to image file
             prompt: Text prompt describing what to analyze
-            provider: LLM provider to use
+            provider: LLM provider to use (default: CUSTOM with Gemini fallback)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             json_mode: Force JSON output
@@ -445,7 +464,14 @@ class LLMConfig:
                     image, prompt, temperature, max_tokens, json_mode
                 )
             elif provider == LLMProvider.CUSTOM:
-                return cls._custom_analyze_image(image, prompt, temperature, max_tokens)
+                # Try custom first, fallback to Gemini on error
+                try:
+                    return cls._custom_analyze_image(image, prompt, temperature, max_tokens)
+                except Exception as custom_error:
+                    print(f"Custom vision failed: {custom_error}. Falling back to Gemini...")
+                    return cls._gemini_analyze_image(
+                        image, prompt, temperature, max_tokens, json_mode
+                    )
             else:
                 return {
                     "success": False,

@@ -1,45 +1,31 @@
-import google.generativeai as genai
-import os
 import json
 import re
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
-
-# Configure the Gemini API key
-# It's recommended to use environment variables for API keys
-genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
+from app.services.llm_config import LLMConfig
 
 
 def _extract_json_from_response(text):
     """
     Extracts a JSON object from a string response, handling markdown code blocks.
     """
-    # Match the JSON content inside a markdown code block
-    match = re.search(r"```json\n({.*?})\n```", text, re.DOTALL)
-    if match:
-        json_str = match.group(1)
-    else:
-        # If no markdown block, assume the whole string is a JSON object
-        json_str = text
-
+    # Use the centralized JSON cleaning method
+    text = LLMConfig._clean_json_response(text)
+    
     try:
-        return json.loads(json_str)
+        return json.loads(text)
     except json.JSONDecodeError:
         # Handle cases where the JSON is malformed or the response is not JSON
-        # You might want to add more robust error handling or logging here
         return {"error": "Failed to parse JSON from response.", "raw_response": text}
 
 
 class ActivityGeneratorService:
     """
-    A service class to generate various learning activities using the Gemini API.
+    A service class to generate various learning activities using centralized LLM config.
+    Uses custom model with Gemini as fallback.
     """
 
     def __init__(self):
-        self.model = genai.GenerativeModel("gemini-2.5-flash")
-        self.vision_model = genai.GenerativeModel("gemini-2.5-flash")
+        # No need to initialize models - handled by LLMConfig
+        pass
 
     def generate_quiz(self, topic, level="beginner"):
         """
@@ -73,8 +59,11 @@ class ActivityGeneratorService:
         }}
         ```
         """
-        response = self.model.generate_content(prompt)
-        return _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(prompt, json_mode=True)
+        if result['success']:
+            return _extract_json_from_response(result['text'])
+        else:
+            return {"error": result.get('error', 'Failed to generate quiz')}
 
     def generate_flashcards(self, topic, level="beginner"):
         """
@@ -102,18 +91,28 @@ class ActivityGeneratorService:
         }}
         ```
         """
-        response = self.model.generate_content(prompt)
-        return _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(prompt, json_mode=True)
+        if result['success']:
+            return _extract_json_from_response(result['text'])
+        else:
+            return {"error": result.get('error', 'Failed to generate flashcards')}
 
     def generate_general_chat_response(self, message_history, user_message):
         """
         Generates a response for English learning chat for Telugu speakers.
         """
         system_prompt = "You are a friendly English tutor helping Telugu speakers learn English. Respond in English but provide Telugu translations when helpful. Keep responses simple and encouraging."
-        # The message history should be formatted correctly for the API
-        conversation = [system_prompt] + message_history + [user_message]
-        response = self.model.generate_content(conversation)
-        return response.text
+        
+        # Format messages for chat completion
+        messages = [{"role": "system", "content": system_prompt}]
+        messages.extend(message_history)
+        messages.append({"role": "user", "content": user_message})
+        
+        result = LLMConfig.chat_completion(messages, stream=False)
+        if result['success']:
+            return result['message']
+        else:
+            return f"Error: {result.get('error', 'Failed to generate response')}"
 
     def generate_text_reading(self, topic, level="beginner"):
         """
@@ -140,8 +139,11 @@ class ActivityGeneratorService:
         }}
         ```
         """
-        response = self.model.generate_content(prompt)
-        return _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(prompt, json_mode=True)
+        if result['success']:
+            return _extract_json_from_response(result['text'])
+        else:
+            return {"error": result.get('error', 'Failed to generate reading text')}
 
     def generate_writing_practice_prompt(self, topic, level="beginner"):
         """
@@ -163,8 +165,11 @@ class ActivityGeneratorService:
         }}
         ```
         """
-        response = self.model.generate_content(prompt)
-        return _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(prompt, json_mode=True)
+        if result['success']:
+            return _extract_json_from_response(result['text'])
+        else:
+            return {"error": result.get('error', 'Failed to generate writing prompt')}
 
     def generate_role_playing_scenario(self, topic, level="beginner"):
         """
@@ -191,8 +196,11 @@ class ActivityGeneratorService:
         }}
         ```
         """
-        response = self.model.generate_content(prompt)
-        return _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(prompt, json_mode=True)
+        if result['success']:
+            return _extract_json_from_response(result['text'])
+        else:
+            return {"error": result.get('error', 'Failed to generate role-playing scenario')}
 
     def analyze_image_for_learning(self, image):
         """
@@ -217,8 +225,11 @@ class ActivityGeneratorService:
         }}
         ```
         """
-        response = self.vision_model.generate_content([prompt, image])
-        return _extract_json_from_response(response.text)
+        result = LLMConfig.analyze_image(image, prompt, json_mode=True)
+        if result['success']:
+            return _extract_json_from_response(result['analysis'])
+        else:
+            return {"error": result.get('error', 'Failed to analyze image')}
 
     def get_feedback_on_writing(self, user_writing):
         """
@@ -248,8 +259,11 @@ class ActivityGeneratorService:
         }}
         ```
         """
-        response = self.model.generate_content(prompt)
-        return _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(prompt, json_mode=True)
+        if result['success']:
+            return _extract_json_from_response(result['text'])
+        else:
+            return {"error": result.get('error', 'Failed to generate feedback')}
 
     def evaluate_activity_submission(
         self, activity_content, user_answers, activity_type
@@ -311,8 +325,11 @@ class ActivityGeneratorService:
         """
 
         try:
-            response = self.model.generate_content(prompt)
-            evaluation_result = _extract_json_from_response(response.text)
+            result = LLMConfig.generate_text(prompt, json_mode=True)
+            if not result['success']:
+                raise Exception(result.get('error', 'Failed to generate evaluation'))
+            
+            evaluation_result = _extract_json_from_response(result['text'])
 
             # Ensure required fields exist
             if "score" not in evaluation_result:

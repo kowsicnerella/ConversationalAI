@@ -12,23 +12,20 @@ from app.models import (
 )
 from app.services.activity_generator_service import ActivityGeneratorService
 from app.services.comprehensive_assessment_service import ComprehensiveAssessmentService
-import google.generativeai as genai
+from app.services.llm_config import LLMConfig
 from config import Config
-
-# Configure Gemini
-genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 class AdaptiveLearningPathGenerator:
     """
     AI-driven service that generates personalized learning paths based on comprehensive assessment results
     and continuously adapts based on user performance and mastery validation.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
         self.activity_service = ActivityGeneratorService()
         self.assessment_service = ComprehensiveAssessmentService()
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
         # Learning path configuration
         self.MASTERY_THRESHOLD = 0.85

@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.services.activity_generator_service import ActivityGeneratorService
-from app.models import db, Activity, LearningPath, UserActivityLog
+from app.models import db, Activity, LearningPath, UserActivityLog, UserActivityCompletion
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import base64
 import io
@@ -749,6 +749,31 @@ def submit_activity_answer(activity_id):
                     completed_at=datetime.utcnow(),
                 )
                 db.session.add(activity_log)
+
+            # Save to UserActivityCompletion for complete history tracking
+            completion_entry = UserActivityCompletion(
+                user_id=user_id,
+                activity_id=activity_id,
+                activity_type=activity.activity_type,
+                activity_content=activity.content,
+                user_responses=user_answers,
+                score=score,
+                max_score=max_score,
+                performance_metrics={
+                    "percentage": round((score / max_score * 100), 1) if max_score > 0 else 0,
+                    "points_earned": (
+                        activity.points_reward
+                        if score >= (max_score * 0.7)
+                        else int(activity.points_reward * 0.5)
+                    ),
+                },
+                ai_feedback=evaluation_result.get("overall_feedback", ""),
+                detailed_feedback=feedback,
+                time_spent_seconds=int(time_spent * 60),  # Convert minutes to seconds
+                attempt_number=existing_log.attempt_number if existing_log else 1,
+                completed_at=datetime.utcnow(),
+            )
+            db.session.add(completion_entry)
 
             db.session.commit()
 
@@ -2205,6 +2230,217 @@ def search_activities():
                 {
                     "error": "Failed to search activities",
                     "telugu_message": "కార్యకలాపాలు శోధించడంలో విఫలం",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+# ============================================================================
+# ACTIVITY HISTORY - Complete tracking endpoints
+# ============================================================================
+
+
+@activity_bp.route("/history", methods=["GET"])
+@jwt_required()
+def get_activity_history():
+    """
+    Get complete activity history from UserActivityCompletion table.
+    Query params:
+    - page: Page number (default: 1)
+    - per_page: Items per page (default: 10)
+    - activity_type: Filter by type (optional)
+    """
+    try:
+        user_id = get_jwt_identity()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+        activity_type = request.args.get("activity_type")
+
+        # Build query
+        query = UserActivityCompletion.query.filter_by(user_id=user_id)
+
+        if activity_type:
+            query = query.filter_by(activity_type=activity_type)
+
+        # Paginate results
+        pagination = query.order_by(
+            UserActivityCompletion.completed_at.desc()
+        ).paginate(page=page, per_page=per_page, error_out=False)
+
+        history_items = [item.to_dict() for item in pagination.items]
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "history": history_items,
+                    "pagination": {
+                        "total": pagination.total,
+                        "page": page,
+                        "per_page": per_page,
+                        "pages": pagination.pages,
+                        "has_next": pagination.has_next,
+                        "has_prev": pagination.has_prev,
+                    },
+                    "message": f"Retrieved {len(history_items)} activity records",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve activity history",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@activity_bp.route("/history/<int:history_id>", methods=["GET"])
+@jwt_required()
+def get_activity_history_detail(history_id: int):
+    """
+    Get detailed view of a specific activity completion from history.
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # Get history entry - ensure it belongs to the user
+        history_entry = UserActivityCompletion.query.filter_by(
+            id=history_id, user_id=user_id
+        ).first()
+
+        if not history_entry:
+            return (
+                jsonify(
+                    {
+                        "error": "Activity history not found",
+                        "telugu_error": "కార్యకలాప చరిత్ర కనుగొనబడలేదు",
+                    }
+                ),
+                404,
+            )
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "activity": history_entry.to_dict(),
+                    "message": "Activity details retrieved successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve activity details",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@activity_bp.route("/history/stats", methods=["GET"])
+@jwt_required()
+def get_activity_statistics():
+    """
+    Get activity statistics for the user.
+    Returns: total completions, average scores, activity types breakdown, etc.
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # Get all activity completions
+        completions = UserActivityCompletion.query.filter_by(user_id=user_id).order_by(
+            UserActivityCompletion.completed_at.asc()
+        ).all()
+
+        if not completions:
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "stats": {
+                            "total_activities": 0,
+                            "message": "No activities completed yet",
+                        },
+                    }
+                ),
+                200,
+            )
+
+        # Calculate statistics
+        total_activities = len(completions)
+        total_score = sum(c.score for c in completions)
+        total_max_score = sum(c.max_score for c in completions)
+        avg_percentage = (total_score / total_max_score * 100) if total_max_score > 0 else 0
+
+        # Activity types breakdown
+        from collections import Counter
+        activity_types = Counter(c.activity_type for c in completions)
+        
+        # Total time spent
+        total_time_seconds = sum(c.time_spent_seconds or 0 for c in completions)
+        total_time_minutes = total_time_seconds // 60
+
+        # Activity timeline
+        timeline = [
+            {
+                "date": c.completed_at.isoformat() if c.completed_at else None,
+                "activity_type": c.activity_type,
+                "score": c.score,
+                "max_score": c.max_score,
+                "percentage": round((c.score / c.max_score * 100), 1) if c.max_score > 0 else 0,
+            }
+            for c in completions
+        ]
+
+        stats = {
+            "total_activities": total_activities,
+            "average_percentage": round(avg_percentage, 2),
+            "total_time_minutes": total_time_minutes,
+            "activity_types_breakdown": [
+                {"type": activity_type, "count": count}
+                for activity_type, count in activity_types.most_common()
+            ],
+            "activity_timeline": timeline,
+            "recent_activities": [
+                {
+                    "type": c.activity_type,
+                    "score": c.score,
+                    "max_score": c.max_score,
+                    "date": c.completed_at.isoformat() if c.completed_at else None,
+                }
+                for c in completions[-5:]  # Last 5 activities
+            ],
+        }
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "stats": stats,
+                    "message": "Activity statistics calculated successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": "Failed to calculate activity statistics",
                     "details": str(e),
                 }
             ),

@@ -8,6 +8,14 @@ from .activity import (
     AdaptiveLearningSession,
 )
 from .gamification import Badge, UserBadge, Achievement
+from .ai_content_cache import AIContentCache
+from .user_tracking import (
+    UserAssessmentHistory,
+    UserActivityCompletion,
+    UserPracticeSession,
+    UserLessonProgress,
+    UserConversationHistory,
+)
 from .enrollment import (
     UserEnrollment,
     ChapterProgress,
@@ -99,4 +107,10 @@ __all__ = [
     "AchievementGoal",
     "Certificate",
     "LevelProgression",
+    "AIContentCache",
+    "UserAssessmentHistory",
+    "UserActivityCompletion",
+    "UserPracticeSession",
+    "UserLessonProgress",
+    "UserConversationHistory",
 ]

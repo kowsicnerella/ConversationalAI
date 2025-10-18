@@ -10,22 +10,19 @@ from app.models import (
     ProficiencyAssessment,
 )
 from app.services.adaptive_learning_service import AdaptiveLearningAlgorithm
-import google.generativeai as genai
+from app.services.llm_config import LLMConfig
 from config import Config
-
-# Configure Gemini
-genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 class RealTimePerformanceMonitor:
     """
     Real-time performance monitoring system that tracks user behavior patterns,
     identifies struggling points, and triggers adaptive interventions.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
         self.adaptive_algorithm = AdaptiveLearningAlgorithm()
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
         # Performance thresholds
         self.STRUGGLE_THRESHOLD = 0.5

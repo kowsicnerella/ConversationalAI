@@ -11,22 +11,19 @@ from app.models import (
 )
 from app.services.activity_generator_service import ActivityGeneratorService
 from app.models import db
-import google.generativeai as genai
+from app.services.llm_config import LLMConfig
 from config import Config
-
-# Configure Gemini
-genai.configure(api_key=Config.GEMINI_API_KEY)
 
 
 class ComprehensiveAssessmentService:
     """
     Enhanced comprehensive initial assessment service that evaluates users across multiple language skills
     and generates personalized learning paths based on results.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
         self.activity_service = ActivityGeneratorService()
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
 
         # Assessment configuration
         self.SKILL_AREAS = [

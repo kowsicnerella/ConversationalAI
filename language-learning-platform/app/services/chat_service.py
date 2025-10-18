@@ -6,7 +6,7 @@ grammar explanations, and example generation
 
 import time
 from datetime import datetime
-from app.models import db, User, ChatConversation, ChatMessage
+from app.models import db, User, ChatConversation, ChatMessage, UserConversationHistory
 from app.services.llm_config import LLMConfig
 from config import Config
 
@@ -228,6 +228,56 @@ Remember: Your goal is to build confidence and make learning English enjoyable!"
             # Update conversation
             conversation.message_count += 2
             conversation.updated_at = datetime.utcnow()
+
+            # Save to UserConversationHistory for complete tracking
+            # Build full message history for this conversation
+            all_messages = (
+                ChatMessage.query.filter_by(conversation_id=conversation_id)
+                .order_by(ChatMessage.created_at.asc())
+                .all()
+            )
+            messages_json = [
+                {
+                    "role": msg.role,
+                    "content": msg.content,
+                    "timestamp": msg.created_at.isoformat() if msg.created_at else None,
+                }
+                for msg in all_messages
+            ]
+
+            # Extract grammar corrections and vocabulary from parsed response
+            grammar_corrections = []
+            if parsed_response.get("correction"):
+                grammar_corrections.append(parsed_response["correction"])
+            
+            vocabulary_used = []
+            if parsed_response.get("telugu_translation"):
+                # Extract vocabulary from Telugu translations
+                vocab_text = parsed_response["telugu_translation"]
+                # Simple extraction - could be enhanced
+                vocabulary_used.append(vocab_text[:100])  # First 100 chars
+
+            conversation_entry = UserConversationHistory(
+                user_id=conversation.user_id,
+                conversation_id=conversation_id,
+                topic=conversation.topic or "General English",
+                messages=messages_json,
+                total_messages=conversation.message_count,
+                grammar_corrections=grammar_corrections if grammar_corrections else None,
+                vocabulary_used=vocabulary_used if vocabulary_used else None,
+                fluency_score=None,  # Could be calculated based on conversation quality
+                coherence_score=None,  # Could be calculated based on conversation flow
+                engagement_metrics={
+                    "message_count": conversation.message_count,
+                    "response_time_avg": ai_msg.response_time,
+                },
+                learning_insights={
+                    "grammar_explanations": parsed_response.get("grammar_explanation"),
+                    "examples_provided": parsed_response.get("examples"),
+                },
+                completed_at=datetime.utcnow(),
+            )
+            db.session.add(conversation_entry)
 
             db.session.commit()
 

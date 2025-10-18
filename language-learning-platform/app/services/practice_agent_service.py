@@ -8,6 +8,7 @@ from app.models import (
     MistakePattern,
 )
 from app.services.activity_generator_service import ActivityGeneratorService
+from app.services.llm_config import LLMConfig
 from datetime import datetime, timedelta
 from sqlalchemy import func
 import json
@@ -18,6 +19,7 @@ class PracticeAgentService:
     """
     AI-powered service that generates adaptive practice questions based on user scores,
     learning patterns, and chapter content.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
@@ -287,10 +289,12 @@ class PracticeAgentService:
             }}
             """
 
-            response = self.activity_service.model.generate_content(prompt)
-            questions_data = self.activity_service._extract_json_from_response(
-                response.text
-            )
+            result = LLMConfig.generate_text(prompt, json_mode=True)
+            if result['success']:
+                from app.services.activity_generator_service import _extract_json_from_response
+                questions_data = _extract_json_from_response(result['text'])
+            else:
+                questions_data = {"questions": []}
 
             questions = questions_data.get("questions", [])
 

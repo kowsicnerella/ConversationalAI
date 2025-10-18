@@ -93,6 +93,8 @@ export const API_ENDPOINTS = {
     CREATE_LEARNING_PATH: '/user/learning-paths',
     ACTIVITY_COMPLETION: '/user/activity-completion',
     DASHBOARD: (userId) => `/user/dashboard/${userId}`,
+    STATUS: '/user/status', // User onboarding and navigation status
+    CAN_ACCESS: (routePath) => `/user/can-access/${routePath}`, // Route access check
   },
   
   // Activities

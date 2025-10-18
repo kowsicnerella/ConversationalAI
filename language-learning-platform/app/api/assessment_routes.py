@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services.initial_assessment_service import InitialAssessmentService
-from app.models import User, ProficiencyAssessment
+from app.models import User, ProficiencyAssessment, UserAssessmentHistory
 from app.models import db
 from typing import Dict, List
 from datetime import datetime
@@ -71,7 +71,8 @@ def generate_assessment():
                 user_id, skill_area
             )
         else:
-            assessment_data = assessment_service.generate_placement_assessment(
+            # Use the correct method name: conduct_comprehensive_initial_assessment
+            assessment_data = assessment_service.conduct_comprehensive_initial_assessment(
                 user_id, assessment_type
             )
 
@@ -205,7 +206,7 @@ def submit_single_answer(assessment_id):
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # Convert to int for comparison
         data = request.get_json()
 
         if not data or "question_id" not in data or "answer" not in data:
@@ -224,15 +225,28 @@ def submit_single_answer(assessment_id):
 
         # Verify assessment belongs to current user
         assessment = ProficiencyAssessment.query.get(assessment_id)
-        if not assessment or assessment.user_id != user_id:
+        if not assessment:
+            print(f"Assessment {assessment_id} not found in database")
             return (
                 jsonify(
                     {
-                        "error": "Assessment not found or unauthorized",
-                        "telugu_error": "మూల్యాంకనం కనుగొనబడలేదు లేదా అనధికృతం",
+                        "error": "Assessment not found",
+                        "telugu_error": "మూల్యాంకనం కనుగొనబడలేదు",
                     }
                 ),
                 404,
+            )
+        
+        if assessment.user_id != user_id:
+            print(f"Assessment {assessment_id} belongs to user {assessment.user_id}, but request is from user {user_id}")
+            return (
+                jsonify(
+                    {
+                        "error": "Unauthorized - Assessment belongs to different user",
+                        "telugu_error": "అనధికృతం - వేరే వినియోగదారుకు చెందిన మూల్యాంకనం",
+                    }
+                ),
+                403,
             )
 
         # Submit single answer and get next question
@@ -283,7 +297,7 @@ def complete_assessment(assessment_id):
     }
     """
     try:
-        user_id = get_jwt_identity()
+        user_id = int(get_jwt_identity())  # Convert to int for comparison
         data = request.get_json() or {}
 
         # Verify assessment belongs to current user
@@ -1105,4 +1119,246 @@ def assessment_health_check():
                 }
             ),
             200,
+        )
+
+
+# ============================================================================
+# USER ASSESSMENT HISTORY - Complete tracking endpoints
+# ============================================================================
+
+
+@assessment_routes.route("/api/assessment/history/detailed", methods=["GET"])
+@jwt_required()
+def get_detailed_assessment_history():
+    """
+    Get detailed assessment history from UserAssessmentHistory table.
+    Query params:
+    - page: Page number (default: 1)
+    - per_page: Items per page (default: 10)
+    - assessment_type: Filter by type (optional)
+    """
+    try:
+        user_id = get_jwt_identity()
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+        assessment_type = request.args.get("assessment_type")
+
+        # Build query
+        query = UserAssessmentHistory.query.filter_by(user_id=user_id)
+
+        if assessment_type:
+            query = query.filter_by(assessment_type=assessment_type)
+
+        # Paginate results
+        pagination = query.order_by(
+            UserAssessmentHistory.completed_at.desc()
+        ).paginate(page=page, per_page=per_page, error_out=False)
+
+        history_items = [item.to_dict() for item in pagination.items]
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "history": history_items,
+                    "pagination": {
+                        "total": pagination.total,
+                        "page": page,
+                        "per_page": per_page,
+                        "pages": pagination.pages,
+                        "has_next": pagination.has_next,
+                        "has_prev": pagination.has_prev,
+                    },
+                    "message": f"Retrieved {len(history_items)} assessment records",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        print(f"Error in detailed assessment history: {str(e)}")
+        traceback.print_exc()
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve detailed assessment history",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@assessment_routes.route("/api/assessment/history/detailed/<int:history_id>", methods=["GET"])
+@jwt_required()
+def get_assessment_history_detail(history_id: int):
+    """
+    Get detailed view of a specific assessment from history.
+    Includes full questions, answers, AI feedback, and recommendations.
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # Get history entry - ensure it belongs to the user
+        history_entry = UserAssessmentHistory.query.filter_by(
+            id=history_id, user_id=user_id
+        ).first()
+
+        if not history_entry:
+            return (
+                jsonify(
+                    {
+                        "error": "Assessment history not found",
+                        "telugu_error": "మూల్యాంకన చరిత్ర కనుగొనబడలేదు",
+                    }
+                ),
+                404,
+            )
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "assessment": history_entry.to_dict(),
+                    "message": "Assessment details retrieved successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        print(f"Error in assessment detail: {str(e)}")
+        traceback.print_exc()
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve assessment details",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@assessment_routes.route("/api/assessment/history/stats", methods=["GET"])
+@jwt_required()
+def get_assessment_statistics():
+    """
+    Get assessment statistics for the user.
+    Returns: average scores, progress over time, skill improvements, etc.
+    """
+    try:
+        user_id = get_jwt_identity()
+
+        # Get all assessments
+        assessments = UserAssessmentHistory.query.filter_by(user_id=user_id).order_by(
+            UserAssessmentHistory.completed_at.asc()
+        ).all()
+
+        if not assessments:
+            return (
+                jsonify(
+                    {
+                        "success": True,
+                        "stats": {
+                            "total_assessments": 0,
+                            "message": "No assessments completed yet",
+                        },
+                    }
+                ),
+                200,
+            )
+
+        # Calculate statistics
+        total_assessments = len(assessments)
+        avg_score = sum(a.score for a in assessments) / total_assessments
+        
+        # Get latest proficiency level
+        latest_level = assessments[-1].proficiency_level
+
+        # Calculate improvement (compare first and last assessment scores)
+        if total_assessments > 1:
+            first_score = assessments[0].score
+            last_score = assessments[-1].score
+            improvement = last_score - first_score
+        else:
+            improvement = 0
+
+        # Aggregate skill breakdown from all assessments
+        all_skills = {}
+        for assessment in assessments:
+            if assessment.skill_breakdown:
+                for skill, score in assessment.skill_breakdown.items():
+                    if skill not in all_skills:
+                        all_skills[skill] = []
+                    all_skills[skill].append(score)
+
+        # Calculate average for each skill
+        skill_averages = {
+            skill: sum(scores) / len(scores) for skill, scores in all_skills.items()
+        }
+
+        # Compile common strengths and weaknesses
+        all_strengths = []
+        all_weaknesses = []
+        for assessment in assessments:
+            if assessment.strengths:
+                all_strengths.extend(assessment.strengths)
+            if assessment.weaknesses:
+                all_weaknesses.extend(assessment.weaknesses)
+
+        # Get most common items
+        from collections import Counter
+        strength_counts = Counter(all_strengths)
+        weakness_counts = Counter(all_weaknesses)
+
+        stats = {
+            "total_assessments": total_assessments,
+            "average_score": round(avg_score, 2),
+            "latest_proficiency_level": latest_level,
+            "improvement": round(improvement, 2),
+            "skill_averages": {
+                skill: round(avg, 2) for skill, avg in skill_averages.items()
+            },
+            "top_strengths": [
+                {"skill": skill, "count": count}
+                for skill, count in strength_counts.most_common(5)
+            ],
+            "top_weaknesses": [
+                {"skill": skill, "count": count}
+                for skill, count in weakness_counts.most_common(5)
+            ],
+            "assessment_timeline": [
+                {
+                    "date": a.completed_at.isoformat() if a.completed_at else None,
+                    "score": a.score,
+                    "level": a.proficiency_level,
+                    "type": a.assessment_type,
+                }
+                for a in assessments
+            ],
+        }
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "stats": stats,
+                    "message": "Assessment statistics calculated successfully",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        print(f"Error in assessment statistics: {str(e)}")
+        traceback.print_exc()
+        return (
+            jsonify(
+                {
+                    "error": "Failed to calculate assessment statistics",
+                    "details": str(e),
+                }
+            ),
+            500,
         )

@@ -3,8 +3,11 @@ import { useAuth } from "./context/AuthContext";
 import { Box, CircularProgress } from "@mui/material";
 
 // Layouts
-import MainLayout from "./layouts/MainLayout";
+import MainLayout from "./layouts/MainLayoutEnhanced";
 import AuthLayout from "./layouts/AuthLayout";
+
+// Guards
+import OnboardingGuard from "./components/guards/OnboardingGuard";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
@@ -80,41 +83,227 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Route>
 
-      {/* Protected Routes */}
+      {/* Protected Routes with Onboarding Guard */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/mastery" element={<MasteryDashboard />} />
-        <Route path="/assessment" element={<InitialAssessment />} />
-        <Route path="/assessment-results" element={<AssessmentResults />} />
-        <Route path="/lesson/:lessonId" element={<LessonView />} />
-        <Route path="/lesson" element={<LessonView />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/learning-paths" element={<LearningPaths />} />
-        <Route path="/learning-paths/:id" element={<LearningPathDetail />} />
-        <Route path="/activities" element={<Activities />} />
-        <Route path="/activities/:id" element={<ActivityDetail />} />
-        <Route path="/activities/quiz/:activityId" element={<QuizActivity />} />
+        {/* Onboarding Flow Routes - Always accessible once authenticated */}
+        <Route
+          path="/assessment"
+          element={
+            <OnboardingGuard allowedPhases={["assessment", "onboarding"]}>
+              <InitialAssessment />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/assessment-results"
+          element={
+            <OnboardingGuard allowedPhases={["assessment", "onboarding"]}>
+              <AssessmentResults />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            <OnboardingGuard allowedPhases={["onboarding"]}>
+              <Onboarding />
+            </OnboardingGuard>
+          }
+        />
+
+        {/* Protected Routes - Require completed onboarding */}
+        <Route
+          path="/dashboard"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Dashboard />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/learning-paths"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <LearningPaths />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/learning-paths/:id"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <LearningPathDetail />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/activities"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Activities />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/activities/:id"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <ActivityDetail />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/activities/quiz/:activityId"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <QuizActivity />
+            </OnboardingGuard>
+          }
+        />
         <Route
           path="/activities/flashcards/:activityId"
-          element={<FlashcardsActivity />}
+          element={
+            <OnboardingGuard requireOnboarding>
+              <FlashcardsActivity />
+            </OnboardingGuard>
+          }
         />
         <Route
           path="/activities/reading/:activityId"
-          element={<ReadingActivity />}
+          element={
+            <OnboardingGuard requireOnboarding>
+              <ReadingActivity />
+            </OnboardingGuard>
+          }
         />
-        <Route path="/vocabulary" element={<Vocabulary />} />
-        <Route path="/goals" element={<Goals />} />
-        <Route path="/practice" element={<Practice />} />
-        <Route path="/image-learning" element={<ImageLearning />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/chat-tutor" element={<ChatTutor />} />
-        <Route path="/analytics" element={<Analytics />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/notifications" element={<NotificationCenter />} />
-        <Route path="/settings/notifications" element={<NotificationSettings />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/auth-test" element={<AuthTest />} />
+        <Route
+          path="/vocabulary"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Vocabulary />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/goals"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Goals />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/practice"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Practice />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/image-learning"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <ImageLearning />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/chat"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Chat />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/chat-tutor"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <ChatTutor />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Analytics />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/leaderboard"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Leaderboard />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <NotificationCenter />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/settings/notifications"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <NotificationSettings />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Profile />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Settings />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/lesson/:lessonId"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <LessonView />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/lesson"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <LessonView />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/mastery"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <MasteryDashboard />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/auth-test"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <AuthTest />
+            </OnboardingGuard>
+          }
+        />
       </Route>
 
       {/* Catch all */}

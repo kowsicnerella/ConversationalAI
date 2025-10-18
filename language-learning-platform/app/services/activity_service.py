@@ -1,7 +1,6 @@
 from app.models import db, User, VocabularyWord, LearningSession
 from datetime import datetime
-import google.generativeai as genai
-import os
+from app.services.llm_config import LLMConfig
 import json
 import re
 import time
@@ -12,12 +11,11 @@ class ActivityService:
     Service for generating and evaluating learning activities.
     Supports: Quiz, Flashcards, Conversation Practice, etc.
     ALL content is AI-generated - NO mock data fallbacks.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
-        # Configure Gemini AI
-        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-        self.model = genai.GenerativeModel("gemini-2.0-flash-exp")
+        # No need to configure - handled by LLMConfig
         self.max_retries = 3
         self.retry_delay = 1  # seconds
 
@@ -42,16 +40,19 @@ class ActivityService:
                 print(
                     f"Generating {content_type} with AI (attempt {attempt + 1}/{self.max_retries})..."
                 )
-                response = self.model.generate_content(prompt)
-                result = self._parse_json_response(response.text)
-
-                if "error" not in result:
-                    print(f"✓ {content_type} generated successfully!")
-
-                    return result
-                else:
-                    last_error = result.get("error", "Unknown error")
+                result = LLMConfig.generate_text(prompt, json_mode=True)
+                
+                if not result['success']:
+                    last_error = result.get('error', 'Unknown error')
                     print(f"✗ AI returned error: {last_error}")
+                else:
+                    parsed_result = self._parse_json_response(result['text'])
+                    if "error" not in parsed_result:
+                        print(f"✓ {content_type} generated successfully!")
+                        return parsed_result
+                    else:
+                        last_error = parsed_result.get("error", "Unknown error")
+                        print(f"✗ AI returned error: {last_error}")
 
             except Exception as e:
                 last_error = str(e)
@@ -608,8 +609,11 @@ Requirements:
 Return ONLY valid JSON, no markdown or extra text.
 """
 
-            response = self.model.generate_content(prompt)
-            feedback_data = self._parse_json_response(response.text)
+            result = LLMConfig.generate_text(prompt, json_mode=True)
+            if result['success']:
+                feedback_data = self._parse_json_response(result['text'])
+            else:
+                feedback_data = {"error": "Failed to analyze writing. Please try again."}
 
             if "error" in feedback_data:
                 return {"error": "Failed to analyze writing. Please try again."}

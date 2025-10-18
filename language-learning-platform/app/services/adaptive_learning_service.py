@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Optional
 from app.models import User, Activity, UserActivityLog, LearningPath
 from app.services.activity_generator_service import ActivityGeneratorService
+from app.services.llm_config import LLMConfig
 from app.models import db
 
 
@@ -11,6 +12,7 @@ class AdaptiveLearningAlgorithm:
     """
     Intelligent adaptive learning algorithm that personalizes the learning experience
     based on user performance, learning patterns, and preferences.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
@@ -720,10 +722,13 @@ class AdaptiveLearningAlgorithm:
         ```
         """
 
-        response = self.activity_service.model.generate_content(adaptive_prompt)
+        result = LLMConfig.generate_text(adaptive_prompt, json_mode=True)
         from app.services.activity_generator_service import _extract_json_from_response
 
-        adaptive_exercise = _extract_json_from_response(response.text)
+        if result['success']:
+            adaptive_exercise = _extract_json_from_response(result['text'])
+        else:
+            adaptive_exercise = {"error": "Failed to generate adaptive exercise"}
 
         return {
             "adaptive_exercise": adaptive_exercise,

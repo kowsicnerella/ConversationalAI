@@ -11,6 +11,7 @@ from app.models import (
     UserDailyChallengeCompletion,
 )
 from app.services.activity_generator_service import ActivityGeneratorService
+from app.services.llm_config import LLMConfig
 from app.services.mem0_service import mem0_service
 from datetime import datetime, date, timedelta
 from sqlalchemy import func
@@ -21,6 +22,7 @@ import re
 class PersonalizationService:
     """
     Service for handling personalized learning experiences, assessments, and adaptive content.
+    Uses centralized LLM config with custom model and Gemini fallback.
     """
 
     def __init__(self):
@@ -139,10 +141,11 @@ class PersonalizationService:
             }}
             """
 
-            ai_response = self.activity_service.model.generate_content(
-                evaluation_prompt
-            )
-            evaluation = self._extract_json_from_response(ai_response.text)
+            result = LLMConfig.generate_text(evaluation_prompt, json_mode=True)
+            if result['success']:
+                evaluation = self._extract_json_from_response(result['text'])
+            else:
+                evaluation = {"error": "Failed to evaluate response"}
 
             # Store the response and evaluation
             current_responses = assessment.user_responses or []
@@ -508,10 +511,11 @@ class PersonalizationService:
                 Context: "{context_sentence}"
                 """
 
-                ai_response = self.activity_service.model.generate_content(
-                    translation_prompt
-                )
-                telugu_translation = ai_response.text.strip()
+                result = LLMConfig.generate_text(translation_prompt)
+                if result['success']:
+                    telugu_translation = result['text'].strip()
+                else:
+                    telugu_translation = "అనువాదం అందుబాటులో లేదు"  # "Translation not available"
 
                 # Create new vocabulary entry
                 vocab_word = VocabularyWord(
@@ -946,8 +950,11 @@ class PersonalizationService:
         """
 
         try:
-            ai_response = self.activity_service.model.generate_content(summary_prompt)
-            return self._extract_json_from_response(ai_response.text)
+            result = LLMConfig.generate_text(summary_prompt, json_mode=True)
+            if result['success']:
+                return self._extract_json_from_response(result['text'])
+            else:
+                raise Exception("Failed to generate summary")
         except:
             return {
                 "achievement": f"Completed {session.duration_minutes} minutes of English practice!",
