@@ -14,6 +14,7 @@ from enum import Enum
 from PIL import Image
 import google.generativeai as genai
 from config import Config
+import sseclient
 
 
 # Find .env directories up
@@ -255,6 +256,7 @@ class LLMConfig:
             json=payload,
             headers={"Content-Type": "application/json"},
             timeout=60,
+            verify=False
         )
         response.raise_for_status()
 
@@ -391,33 +393,51 @@ class LLMConfig:
         stream: bool,
         temperature: float,
         max_tokens: int,
-    ) -> Dict[str, Any]:
+        ) -> Dict[str, Any]:
         """Chat completion using custom endpoint"""
         endpoint = cls.CUSTOM_ENDPOINTS["text"]
 
         payload = {
             "model": cls.MODELS[LLMProvider.CUSTOM]["text"],
             "messages": messages,
-            "stream": stream,
             "temperature": temperature,
             "max_completion_tokens": max_tokens,
         }
 
-        response = requests.post(
-            endpoint,
-            json=payload,
-            headers={"Content-Type": "application/json"},
-            timeout=60,
-        )
-        response.raise_for_status()
+        if stream:
+            payload["stream"] = True
+            response = requests.post(
+                endpoint,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=60,
+                verify=False,
+               stream=True)
+            client = sseclient.SSEClient(response)
+            for event in client.events():
+                if event.data == "[DONE]":
+                    break
+                chunk = json.loads(event.data)
+                print(chunk["choices"][0]["delta"].get("content",""), end="", flush=True)
+                # update to pass the chunks to route
 
-        data = response.json()
-        return {
-            "success": True,
-            "message": data["choices"][0]["message"]["content"],
-            "model": data.get("model", "custom"),
-            "usage": data.get("usage", {}),
-        }
+        else:
+            response = requests.post(
+                endpoint,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=60,
+                verify=False
+            )
+            response.raise_for_status()
+        
+            data = response.json()
+            return {
+                "success": True,
+                "message": data["choices"][0]["message"]["content"],
+                "model": data.get("model", "custom"),
+                "usage": data.get("usage", {}),
+            }
 
     # ==================== IMAGE ANALYSIS (VISION) ====================
 
