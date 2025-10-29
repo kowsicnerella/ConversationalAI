@@ -8,6 +8,16 @@ from .activity import (
     AdaptiveLearningSession,
 )
 from .gamification import Badge, UserBadge, Achievement
+from .gamification_enhanced import (
+    GamificationChallenge,
+    GamificationAchievement,
+    UserAchievement,
+    LeaderboardEntry,
+    GamificationStreak,
+    ProgressMilestone,
+    SocialConnection,
+    SharedAchievement,
+)
 from .ai_content_cache import AIContentCache
 from .user_tracking import (
     UserAssessmentHistory,
@@ -54,6 +64,34 @@ from .image_learning import ImageLearning, ImageObjectVocabulary
 from .chat import ChatConversation, ChatMessage
 from .notification import NotificationType, Notification, UserNotificationSettings
 from .goal import GoalType, AchievementGoal, Certificate, LevelProgression
+from .curriculum import (
+    CurriculumLevel,
+    LearningNode,
+    UserLearningPathProgress,
+    NodeCompletion,
+)
+from .learning_node import (
+    CurriculumLevel as Phase3CurriculumLevel,
+    SkillDomain,
+    LearningNode as Phase3LearningNode,
+    UserLearningNodeProgress,
+    UserSkillProfile,
+)
+from .performance_tracking import (
+    ListeningPerformance,
+    SpeakingPerformance,
+    ReadingPerformance,
+    WritingPerformance,
+    RealWorldPerformance,
+    SkillTrajectory,
+)
+from .vocabulary_mastery import (
+    VocabularyItem,
+    UserVocabulary,
+    VocabularyReview,
+    WordRelationship,
+    VocabularyPracticeSession,
+)
 
 __all__ = [
     "db",
@@ -69,6 +107,14 @@ __all__ = [
     "Badge",
     "UserBadge",
     "Achievement",
+    "GamificationChallenge",
+    "GamificationAchievement",
+    "UserAchievement",
+    "LeaderboardEntry",
+    "GamificationStreak",
+    "ProgressMilestone",
+    "SocialConnection",
+    "SharedAchievement",
     "UserEnrollment",
     "ChapterProgress",
     "ActivityProgress",
@@ -113,4 +159,19 @@ __all__ = [
     "UserPracticeSession",
     "UserLessonProgress",
     "UserConversationHistory",
+    "CurriculumLevel",
+    "LearningNode",
+    "UserLearningPathProgress",
+    "NodeCompletion",
+    "ListeningPerformance",
+    "SpeakingPerformance",
+    "ReadingPerformance",
+    "WritingPerformance",
+    "RealWorldPerformance",
+    "SkillTrajectory",
+    "VocabularyItem",
+    "UserVocabulary",
+    "VocabularyReview",
+    "WordRelationship",
+    "VocabularyPracticeSession",
 ]

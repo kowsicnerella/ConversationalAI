@@ -137,6 +137,143 @@ export const activityService = {
   },
 
   /**
+   * Complete activity with full tracking (NEW - Data Persistence)
+   * @param {Object} params - Completion parameters
+   * @param {number} params.activityId - Database ID of the activity
+   * @param {string} params.learningNodeId - Learning node identifier
+   * @param {number} params.performanceScore - Score (0-1)
+   * @param {number} params.timeSpentSeconds - Time spent in seconds
+   * @param {Object} params.userResponses - User's answers/responses
+   */
+  async completeActivityTracked({
+    activityId,
+    learningNodeId,
+    performanceScore,
+    timeSpentSeconds,
+    userResponses = {}
+  }) {
+    try {
+      const response = await axiosInstance.post('/api/learning-path/complete-activity', {
+        activity_id: activityId,
+        learning_node_id: learningNodeId,
+        performance_score: performanceScore,
+        time_spent_seconds: timeSpentSeconds,
+        user_responses: userResponses
+      });
+      console.log('✅ Activity completed with tracking:', response.data);
+      return response.data;
+    } catch (error) {
+      console.error('❌ Error completing activity with tracking:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get incomplete activities for resume functionality
+   */
+  async getIncompleteActivities() {
+    try {
+      const response = await axiosInstance.get('/api/learning-path/activities/incomplete');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching incomplete activities:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Resume an incomplete activity
+   */
+  async resumeActivity(activityId) {
+    try {
+      const response = await axiosInstance.put(`/api/learning-path/activities/${activityId}/resume`);
+      return response.data;
+    } catch (error) {
+      console.error('Error resuming activity:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get activities due for spaced repetition review
+   */
+  async getDueReviews() {
+    try {
+      const response = await axiosInstance.get('/api/learning-path/spaced-repetition/due');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching due reviews:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get activity logs with filters
+   */
+  async getActivityLogs(filters = {}) {
+    try {
+      const params = new URLSearchParams();
+      if (filters.masteryLevel) params.append('mastery_level', filters.masteryLevel);
+      if (filters.needsReview !== undefined) params.append('needs_review', filters.needsReview);
+      if (filters.limit) params.append('limit', filters.limit);
+      if (filters.offset) params.append('offset', filters.offset);
+
+      const response = await axiosInstance.get(`/api/learning-path/activity-logs?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching activity logs:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get user's activities with filters
+   */
+  async getUserActivitiesFiltered(filters = {}) {
+    try {
+      const params = new URLSearchParams();
+      if (filters.status) params.append('status', filters.status);
+      if (filters.activityType) params.append('activity_type', filters.activityType);
+      if (filters.limit) params.append('limit', filters.limit);
+      if (filters.offset) params.append('offset', filters.offset);
+      if (filters.fromDate) params.append('from_date', filters.fromDate);
+      if (filters.toDate) params.append('to_date', filters.toDate);
+
+      const response = await axiosInstance.get(`/api/learning-path/activities?${params.toString()}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching user activities:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get detailed activity information with completion logs
+   */
+  async getActivityDetailWithLogs(activityId) {
+    try {
+      const response = await axiosInstance.get(`/api/learning-path/activities/${activityId}`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching activity detail:', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Get comprehensive activity history with statistics
+   */
+  async getActivityHistoryStats() {
+    try {
+      const response = await axiosInstance.get('/api/learning-path/activity-history');
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching activity history:', error);
+      throw error;
+    }
+  },
+
+  /**
    * Get user's activity progress summary
    */
   async getProgressSummary() {

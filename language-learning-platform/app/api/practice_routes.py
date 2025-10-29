@@ -120,10 +120,14 @@ def generate_general_questions():
             """
 
             try:
-                ai_response = activity_service.model.generate_content(prompt)
-                question_data = activity_service._extract_json_from_response(
-                    ai_response.text
-                )
+                from app.services.llm_config import LLMConfig
+                from app.services.activity_generator_service import _extract_json_from_response
+                
+                result = LLMConfig.generate_text(prompt, json_mode=True)
+                if not result['success']:
+                    question_data = {}
+                else:
+                    question_data = _extract_json_from_response(result['text'])
 
                 # Ensure question has proper structure
                 if "question" in question_data and "correct_answer" in question_data:

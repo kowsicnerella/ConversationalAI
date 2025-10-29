@@ -950,9 +950,14 @@ def complete_activity(activity_id):
             )
 
         score = data.get("score", 0)
-        time_spent = data.get("time_spent_minutes", 0)
+        time_spent = data.get("time_spent_minutes", data.get("timeSpent", 0) // 60)  # Convert to minutes
         answers = data.get("answers", {})
         feedback = data.get("feedback", "")
+        max_score = data.get("max_score", 100)
+        cards_known = data.get("cardsKnown", 0)
+        cards_studied = data.get("cardsStudied", 0)
+        correct_answers = data.get("correctAnswers", 0)
+        total_questions = data.get("totalQuestions", 0)
 
         # Validate score
         if score < 0 or score > 100:
@@ -982,19 +987,26 @@ def complete_activity(activity_id):
                 400,
             )
 
-        # Create completion log
+        # Create completion log with proper field mapping
         activity_log = UserActivityLog(
             user_id=user_id,
             activity_id=activity_id,
             learning_path_id=activity.learning_path_id,
             score=score,
-            time_spent_minutes=time_spent,
+            max_score=max_score,
+            time_spent_minutes=int(time_spent),
             completed_at=datetime.utcnow(),
-            activity_data={
+            user_response={
                 "answers": answers,
                 "feedback": feedback,
                 "activity_type": activity.activity_type,
+                "cardsKnown": cards_known,
+                "cardsStudied": cards_studied,
+                "correctAnswers": correct_answers,
+                "totalQuestions": total_questions,
             },
+            accuracy_score=score / 100.0,  # Normalize to 0-1
+            is_completed=True,
         )
 
         db.session.add(activity_log)
@@ -1002,9 +1014,22 @@ def complete_activity(activity_id):
         # Update user progress and streaks
         user = User.query.get(user_id)
         if user.profile:
-            user.profile.total_activities_completed += 1
+            # Update points based on performance
             if score >= 70:  # Consider 70+ as good performance
-                user.profile.total_points += score
+                user.profile.points += score
+            # Update last activity date
+            user.profile.last_activity_date = datetime.utcnow().date()
+            # Update streak
+            today = datetime.utcnow().date()
+            if user.profile.last_activity_date and (today - user.profile.last_activity_date).days == 1:
+                user.profile.current_streak += 1
+                if user.profile.current_streak > user.profile.longest_streak:
+                    user.profile.longest_streak = user.profile.current_streak
+            elif not user.profile.last_activity_date or (today - user.profile.last_activity_date).days == 0:
+                # First activity or same day activity
+                if not user.profile.last_activity_date:
+                    user.profile.current_streak = 1
+
 
         db.session.commit()
 

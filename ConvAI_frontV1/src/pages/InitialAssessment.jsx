@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Container,
@@ -38,6 +38,8 @@ const InitialAssessment = () => {
   const [progress, setProgress] = useState({ answered: 0, total: 0, percentage: 0 });
   const [isAnswered, setIsAnswered] = useState(false);
   const [fetchedComplete, setFetchedComplete] = useState(false);
+  const completingRef = useRef(false);
+  const nextSubmittingRef = useRef(false);
 
   useEffect(() => {
     // Check if assessment data was passed from registration/onboarding
@@ -147,12 +149,19 @@ const InitialAssessment = () => {
   const handleNext = async () => {
     console.log("📤 Submitting answer:", currentAnswer, "for question:", currentQuestion?.question_id);
 
+    // Prevent duplicate submissions
+    if (nextSubmittingRef.current) {
+      console.log("handleNext already in progress - ignoring duplicate call");
+      return;
+    }
+
     if (!currentAnswer || currentAnswer.trim() === "") {
       setError("Please provide an answer before proceeding.");
       return;
     }
 
     try {
+      nextSubmittingRef.current = true;
       setSubmitting(true);
       setError("");
 
@@ -198,6 +207,10 @@ const InitialAssessment = () => {
       );
       setSubmitting(false);
     }
+    finally {
+      nextSubmittingRef.current = false;
+      setSubmitting(false);
+    }
   };
 
   const handleContinue = () => {
@@ -239,22 +252,50 @@ const InitialAssessment = () => {
   };
 
   const handleComplete = async () => {
+    // Prevent duplicate completion requests (guard with ref)
+    if (completingRef.current) {
+      console.log("handleComplete already in progress - ignoring duplicate call");
+      return;
+    }
+
     try {
+      completingRef.current = true;
       setSubmitting(true);
       const timeSpent = Math.floor((Date.now() - timeStarted) / 1000);
 
-      const response = await axiosInstance.post(
-        API_ENDPOINTS.ASSESSMENT.COMPLETE(assessmentId),
-        {
-          time_spent_seconds: timeSpent,
+      let resultsData = null;
+      
+      try {
+        // Try to complete the assessment (fresh assessments)
+        const response = await axiosInstance.post(
+          API_ENDPOINTS.ASSESSMENT.COMPLETE(assessmentId),
+          {
+            time_spent_seconds: timeSpent,
+          }
+        );
+        resultsData = response.data.results;
+        console.log("✅ Assessment completed successfully");
+      } catch (completeErr) {
+        // If assessment is already completed, fetch results from the results endpoint
+        if (completeErr.response?.status === 400 && 
+            completeErr.response?.data?.error === "Assessment is already completed") {
+          console.warn("⚠️ Assessment already completed, fetching results...");
+          const resultsResponse = await axiosInstance.get(
+            API_ENDPOINTS.ASSESSMENT.RESULTS(assessmentId)
+          );
+          resultsData = resultsResponse.data.results;
+          console.log("✅ Results fetched for already-completed assessment");
+        } else {
+          // Re-throw if it's a different error
+          throw completeErr;
         }
-      );
+      }
 
       const fromOnboarding = location.state?.fromOnboarding || false;
 
       navigate("/assessment-results", {
         state: {
-          results: response.data.results,
+          results: resultsData,
           assessmentId: assessmentId,
           fromOnboarding: fromOnboarding,
         },
@@ -264,6 +305,12 @@ const InitialAssessment = () => {
       setError(
         err.response?.data?.error || "Failed to complete assessment."
       );
+      setSubmitting(false);
+      completingRef.current = false;
+    }
+    finally {
+      // Ensure we clear the guard when done
+      completingRef.current = false;
       setSubmitting(false);
     }
   };
@@ -590,6 +637,7 @@ const InitialAssessment = () => {
                     handleContinue();
                   }
                 }}
+                disabled={submitting}
                 sx={{
                   animation: "pulse 1.5s infinite",
                   "@keyframes pulse": {

@@ -1,0 +1,296 @@
+{
+  "timestamp": "2025-10-22T08:46:43.502295",
+  "phase": "Phase 2: Complete Partial Endpoints",
+  "objective": "Complete 70 partial endpoints across 5 modules",
+  "status": "ANALYSIS_COMPLETE",
+  "total_incomplete": 36,
+  "modules": {
+    "assessment_routes": {
+      "file": "app/routes/assessment_routes.py",
+      "priority": 1,
+      "estimated_time": "2 hours",
+      "endpoints": [
+        {
+          "path": "/assessments/<id>/update",
+          "method": "PUT",
+          "description": "Update assessment details",
+          "status": "INCOMPLETE",
+          "implementation_note": "Add PUT handler with validation"
+        },
+        {
+          "path": "/assessments/<id>/delete",
+          "method": "DELETE",
+          "description": "Delete assessment",
+          "status": "INCOMPLETE",
+          "implementation_note": "Add DELETE handler with permission check"
+        },
+        {
+          "path": "/start/<id>",
+          "method": "POST",
+          "description": "Start assessment attempt",
+          "status": "INCOMPLETE",
+          "implementation_note": "Initialize AdaptiveTestSession"
+        },
+        {
+          "path": "/submit-answer",
+          "method": "POST",
+          "description": "Submit answer during assessment",
+          "status": "INCOMPLETE",
+          "implementation_note": "Process answer with IRT calculations"
+        },
+        {
+          "path": "/skip-question",
+          "method": "POST",
+          "description": "Skip current question",
+          "status": "INCOMPLETE",
+          "implementation_note": "Mark question as skipped, continue"
+        },
+        {
+          "path": "/end-attempt",
+          "method": "POST",
+          "description": "Finish assessment attempt",
+          "status": "INCOMPLETE",
+          "implementation_note": "Calculate final scores and create result"
+        },
+        {
+          "path": "/results/<attempt_id>",
+          "method": "GET",
+          "description": "Get assessment results",
+          "status": "INCOMPLETE",
+          "implementation_note": "Return scores, diagnostics, recommendations"
+        },
+        {
+          "path": "/skill-diagnostics/<attempt_id>",
+          "method": "GET",
+          "description": "Get skill diagnostics",
+          "status": "INCOMPLETE",
+          "implementation_note": "Analyze weak/strong areas"
+        },
+        {
+          "path": "/recommendations",
+          "method": "GET",
+          "description": "Get learning recommendations",
+          "status": "INCOMPLETE",
+          "implementation_note": "Based on assessment results"
+        },
+        {
+          "path": "/progress",
+          "method": "GET",
+          "description": "Get assessment progress",
+          "status": "INCOMPLETE",
+          "implementation_note": "Track attempts over time"
+        }
+      ]
+    },
+    "gamification_routes": {
+      "file": "app/routes/gamification_routes.py",
+      "priority": 2,
+      "estimated_time": "1 hour",
+      "endpoints": [
+        {
+          "path": "/streaks/<id>/extend",
+          "method": "POST",
+          "description": "Extend streak",
+          "status": "NEEDS_FIX",
+          "implementation_note": "Fix streak calculation logic"
+        },
+        {
+          "path": "/social/connections",
+          "method": "GET",
+          "description": "Get user connections",
+          "status": "NEEDS_FIX",
+          "implementation_note": "Fix friendship lookup"
+        },
+        {
+          "path": "/challenges/create",
+          "method": "POST",
+          "description": "Create custom challenge",
+          "status": "INCOMPLETE",
+          "implementation_note": "Add admin challenge creation"
+        }
+      ]
+    },
+    "performance_routes": {
+      "file": "app/routes/performance_routes.py",
+      "priority": 3,
+      "estimated_time": "3 hours",
+      "endpoints": [
+        {
+          "path": "/summary",
+          "method": "GET",
+          "description": "Performance summary",
+          "status": "INCOMPLETE",
+          "implementation_note": "Aggregate performance data"
+        },
+        {
+          "path": "/by-skill/<domain>",
+          "method": "GET",
+          "description": "Performance by skill domain",
+          "status": "INCOMPLETE",
+          "implementation_note": "Filter and return domain-specific data"
+        },
+        {
+          "path": "/trends",
+          "method": "GET",
+          "description": "Performance trends",
+          "status": "INCOMPLETE",
+          "implementation_note": "Calculate trend analysis"
+        },
+        {
+          "path": "/weak-areas",
+          "method": "GET",
+          "description": "Identify weak areas",
+          "status": "INCOMPLETE",
+          "implementation_note": "Find low-performance domains"
+        },
+        {
+          "path": "/strong-areas",
+          "method": "GET",
+          "description": "Identify strong areas",
+          "status": "INCOMPLETE",
+          "implementation_note": "Find high-performance domains"
+        }
+      ]
+    },
+    "learning_analytics_routes": {
+      "file": "app/routes/learning_analytics_routes.py",
+      "priority": 4,
+      "estimated_time": "4 hours",
+      "endpoints": [
+        {
+          "path": "/performance-predictions",
+          "method": "GET",
+          "description": "ML-based performance predictions",
+          "status": "INCOMPLETE",
+          "implementation_note": "Implement ML prediction model"
+        },
+        {
+          "path": "/peer-comparisons",
+          "method": "GET",
+          "description": "Compare with peers",
+          "status": "INCOMPLETE",
+          "implementation_note": "Statistical peer comparison"
+        },
+        {
+          "path": "/velocity-tracking",
+          "method": "GET",
+          "description": "Learning velocity analysis",
+          "status": "INCOMPLETE",
+          "implementation_note": "Calculate learning speed"
+        },
+        {
+          "path": "/milestone-timeline",
+          "method": "GET",
+          "description": "Milestone timeline visualization",
+          "status": "INCOMPLETE",
+          "implementation_note": "Return milestone history"
+        },
+        {
+          "path": "/retention-analysis",
+          "method": "GET",
+          "description": "Retention analysis",
+          "status": "INCOMPLETE",
+          "implementation_note": "Analyze long-term retention"
+        },
+        {
+          "path": "/learning-efficiency",
+          "method": "GET",
+          "description": "Learning efficiency metrics",
+          "status": "INCOMPLETE",
+          "implementation_note": "Calculate efficiency ratios"
+        },
+        {
+          "path": "/engagement-trends",
+          "method": "GET",
+          "description": "Engagement trends",
+          "status": "INCOMPLETE",
+          "implementation_note": "Track engagement patterns"
+        },
+        {
+          "path": "/adaptive-difficulty-suggestions",
+          "method": "GET",
+          "description": "Difficulty level suggestions",
+          "status": "INCOMPLETE",
+          "implementation_note": "Recommend difficulty adjustments"
+        }
+      ]
+    },
+    "content_generation_routes": {
+      "file": "app/routes/content_generation_routes.py",
+      "priority": 5,
+      "estimated_time": "4 hours",
+      "endpoints": [
+        {
+          "path": "/reading-comprehension",
+          "method": "POST",
+          "description": "Generate reading comprehension",
+          "status": "INCOMPLETE",
+          "implementation_note": "Create comprehension exercise"
+        },
+        {
+          "path": "/writing-prompt",
+          "method": "POST",
+          "description": "Generate writing prompt",
+          "status": "INCOMPLETE",
+          "implementation_note": "Create writing exercise"
+        },
+        {
+          "path": "/listening-comprehension",
+          "method": "POST",
+          "description": "Generate listening exercise",
+          "status": "INCOMPLETE",
+          "implementation_note": "Create listening activity"
+        },
+        {
+          "path": "/speaking-exercise",
+          "method": "POST",
+          "description": "Generate speaking exercise",
+          "status": "INCOMPLETE",
+          "implementation_note": "Create speaking activity"
+        },
+        {
+          "path": "/regenerate/<id>",
+          "method": "POST",
+          "description": "Regenerate existing activity",
+          "status": "INCOMPLETE",
+          "implementation_note": "Create new version of activity"
+        },
+        {
+          "path": "/similar-activities",
+          "method": "GET",
+          "description": "Get similar activities",
+          "status": "INCOMPLETE",
+          "implementation_note": "Find related activities"
+        },
+        {
+          "path": "/difficulty-adjust",
+          "method": "POST",
+          "description": "Adjust activity difficulty",
+          "status": "INCOMPLETE",
+          "implementation_note": "Regenerate with different difficulty"
+        },
+        {
+          "path": "/batch-generate",
+          "method": "POST",
+          "description": "Batch generate activities",
+          "status": "INCOMPLETE",
+          "implementation_note": "Generate multiple activities"
+        },
+        {
+          "path": "/personalize",
+          "method": "POST",
+          "description": "Personalize content",
+          "status": "INCOMPLETE",
+          "implementation_note": "Tailor to user preferences"
+        },
+        {
+          "path": "/history",
+          "method": "GET",
+          "description": "Get generation history",
+          "status": "INCOMPLETE",
+          "implementation_note": "List past generations"
+        }
+      ]
+    }
+  }
+}

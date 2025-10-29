@@ -1,0 +1,2474 @@
+{
+  "unit_tests": [
+    {
+      "path": "/api/activities/generate-quiz",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2486.544370651245,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/generate-flashcards",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.4432849884033,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/generate-writing-prompt",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2500.8721351623535,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/submit",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2516.3638591766357,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/topics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2483.245849609375,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2534.184694290161,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/generate-role-play",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2499.4797706604004,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/conversation",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.581018447876,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/complete-roleplay",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2466.2132263183594,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities/complete-reading",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2469.2282676696777,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/generate/quiz",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2532.550573348999,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/generate/flashcards",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2448.3630657196045,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/generate/reading",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2567.8722858428955,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/generate/writing-prompt",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2482.9185009002686,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/generate/role-play",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2465.386390686035,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/analyze-image",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2516.6780948638916,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/chat",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2566.5690898895264,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/feedback",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2766.6609287261963,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/save",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2826.1208534240723,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/path/<int:path_id>",
+      "method": "GET",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2735.738515853882,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/user-activities",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2521.514415740967,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/learning-path/<int:learning_path_id>/activities",
+      "method": "GET",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2484.095811843872,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/next-activity",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2632.8423023223877,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/user-progress/summary",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2501.3656616210938,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/all",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2864.0761375427246,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/my-generated",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2635.0371837615967,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/bookmarks",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2563.750982284546,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/search",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2865.3054237365723,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2753.7341117858887,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity/history/stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2569.135904312134,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity-history/user/recent",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2588.454008102417,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activity-history/stats/summary",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2875.535011291504,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/performance-analysis",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2516.8025493621826,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/next-activities",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2565.541982650757,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/adjust-difficulty",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2502.97474861145,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/learning-gaps",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2621.154546737671,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/learning-pace",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2545.039415359497,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/generate-exercise",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2466.782808303833,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/learning-profile",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2482.6202392578125,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/assessment/comprehensive/start",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.653331756592,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/learning-path/<int:path_id>/next-activity",
+      "method": "GET",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2483.684778213501,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/session/track-interaction",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.7162742614746,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/session/end",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2500.65279006958,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/learning-difficulties/detect",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2516.0253047943115,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/learning-path/<int:path_id>/validate-mastery",
+      "method": "POST",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2484.0168952941895,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/performance/adaptive-content",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.8494777679443,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/user/progress-analytics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2482.8085899353027,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/adaptive/activity-recommendations",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.020496368408,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/next-activity",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 3100.17466545105,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/complete-activity",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.2212448120117,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/nodes",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2496.6421127319336,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/levels",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2667.201280593872,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.482385635376,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/activities",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2548.8784313201904,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/activities/incomplete",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2495.777130126953,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/activity-logs",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2524.503231048584,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/activity-history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2483.7403297424316,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/spaced-repetition/due",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.824754714966,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/phase3/curriculum-levels",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2550.4300594329834,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/phase3/skill-domains",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2800.1725673675537,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/phase3/skill-levels",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.1764945983887,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/phase3/next-activity",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2450.573682785034,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/phase3/plan-session",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2583.3473205566406,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/phase3/adjust-difficulty",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2467.3779010772705,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/phase3/difficulty-recommendation",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.4162635803223,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-path/phase3/learning-nodes",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2516.3917541503906,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/dashboard-summary",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2483.128786087036,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/learning-trends",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.129930496216,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/performance-analysis",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2983.2489490509033,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/vocabulary-analytics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2484.1079711914062,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/export/progress-report",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2449.777126312256,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/activity-performance-analysis",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.7744483947754,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/learning-pattern-recognition",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2465.754508972168,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/engagement-analytics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2584.986925125122,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics/predictive-analytics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.647298812866,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics-v2/performance-trends",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2682.868242263794,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics-v2/skill-breakdown",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2584.016799926758,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics-v2/activity-summary",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2831.916570663452,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics-v2/time-analytics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2484.896421432495,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics-v2/learning-velocity",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2564.347743988037,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/analytics-v2/weak-areas",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2515.9738063812256,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/assessment/generate",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2583.2200050354004,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/assessment/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2618.4706687927246,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/assessment/placement-recommendations",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2667.3898696899414,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/assessment/quick-check",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2559.7877502441406,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/assessment/validate-answers",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2556.09393119812,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/assessment/health",
+      "method": "GET",
+      "status": "PASS",
+      "response_time_ms": 2503.2877922058105,
+      "status_code": 200,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/assessment/history/detailed",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2519.441843032837,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/assessment/history/stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2503.0035972595215,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/auth/register",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2541.661262512207,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/auth/login",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2533.651351928711,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/auth/refresh",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2549.5333671569824,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/auth/logout",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.542148590088,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/auth/forgot-password",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 3066.800832748413,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/auth/reset-password",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2500.2312660217285,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chapters/chapters",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.611131668091,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chapters/all",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2585.0377082824707,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chapters/progress-graph",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2515.066146850586,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chapters/chapters/progress-graph",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2500.762462615967,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chapters/chapters/create-custom",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2519.6335315704346,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chapters/chapters/learning-path/<int:learning_path_id>",
+      "method": "GET",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2663.172483444214,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chapters/chapters/unlock-next",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2500.835180282593,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/conversations",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2521.0392475128174,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/quick-chat",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2495.7988262176514,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/send-message",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.1673545837402,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/chat-suggestions",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2516.0973072052,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/suggestions",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2466.8381214141846,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/feedback",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2482.4745655059814,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/practice-assistant",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2734.4579696655273,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/notes",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2483.7825298309326,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/notes",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2535.764455795288,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/user-memories",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2446.871519088745,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/search-memories",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2501.30558013916,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/personalized-suggestions",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2515.298843383789,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/user-learning-context",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.4944648742676,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2550.5197048187256,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat/history/stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.293954849243,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat-tutor/conversations",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.432476043701,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat-tutor/conversations",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2484.05385017395,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/chat-tutor/quick-chat",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.75465965271,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/generate",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2550.1487255096436,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/quiz",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.527843475342,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/flashcards",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2492.607593536377,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/reading",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2523.986339569092,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/writing",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2467.38862991333,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/listening",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2483.0312728881836,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/speaking",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2633.052110671997,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/real-world",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2450.7553577423096,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/pronunciation",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2452.791452407837,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/sentence-construction",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2463.097095489502,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/dialogue-completion",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.5955543518066,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/error-correction",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2550.3811836242676,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/story-sequencing",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2599.698305130005,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/synonym-antonym",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.4506034851074,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/dictation",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2449.6731758117676,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/translation",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2451.141119003296,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/batch",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2499.884605407715,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/activity-types",
+      "method": "GET",
+      "status": "PASS",
+      "response_time_ms": 2634.3724727630615,
+      "status_code": 200,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/activities",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2482.3498725891113,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/content-generation/activities/stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2449.580669403076,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/courses/learning-paths",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.7439308166504,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/courses/learning-paths/<int:path_id>",
+      "method": "GET",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2466.6976928710938,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/courses/enroll",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2484.0312004089355,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/courses/learning-paths/<int:path_id>/enroll",
+      "method": "POST",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2532.7374935150146,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/courses/enrollment/<int:path_id>/progress",
+      "method": "GET",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2601.9177436828613,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/courses/my-learning-paths",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2614.8459911346436,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/courses/start-activity",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2556.58221244812,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-activity/performance-history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2605.778694152832,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities-v2/generate",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2755.270004272461,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities-v2/suggest",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.811164855957,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities-v2/performance",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2484.0285778045654,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/activities-v2/difficulty-test",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.01961517334,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-analytics/performance-trends",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2484.380006790161,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-analytics/learning-streaks",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.459186553955,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-analytics/skill-breakdown",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2483.424425125122,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-analytics/time-spent",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.453695297241,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-analytics/difficulty-progression",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2515.5375003814697,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-analytics/learning-timeline",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2500.4544258117676,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-analytics/comprehensive-report",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2759.8538398742676,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-assessment/skill-progression",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2523.7460136413574,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-chat/conversations",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2482.8951358795166,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-chat/conversations",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2517.361640930176,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-chat/test-mem0",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2501.817226409912,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-chat/quick-chat",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2521.7418670654297,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/enhanced-chat/message",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2464.482307434082,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification/points",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2549.122095108032,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification/badges",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2462.3916149139404,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification/leaderboard",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2501.3175010681152,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification/daily-challenge",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2515.4526233673096,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification/daily-challenge",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2484.3640327453613,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification/stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2466.6965007781982,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification/achievements",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2399.413824081421,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/challenges/today",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2517.5139904022217,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/challenges/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2515.669584274292,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/achievements",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2601.933240890503,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/leaderboard",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.6260719299316,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/leaderboard/categories",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2450.392961502075,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/streak",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2544.445276260376,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/streak/freeze",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2961.02237701416,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/streak/update",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2538.4597778320312,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/milestones",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2502.7029514312744,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/social/connections",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2645.174264907837,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/social/share-achievement",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2540.141820907593,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/social/feed",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2578.9124965667725,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/summary",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2541.5685176849365,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/gamification-v2/health",
+      "method": "GET",
+      "status": "PASS",
+      "response_time_ms": 2675.8928298950195,
+      "status_code": 200,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/goals/available",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2667.8690910339355,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/goals/create",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2549.720525741577,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/goals/my-goals",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2578.7689685821533,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/goals/certificates",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2625.7052421569824,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/goals/level-progression",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2490.727663040161,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/goals/statistics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2723.768949508667,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/image-learning/analyze",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2693.8278675079346,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/image-learning/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2763.4615898132324,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments/create",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2409.5239639282227,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2591.4480686187744,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments/questions/bulk-import",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2552.2022247314453,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments/my-history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2562.4840259552,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments/recommendations",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2460.4029655456543,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments/certification-ready",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2512.897253036499,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments/learning-paths/<int:path_id>/suggested-assessments",
+      "method": "GET",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2490.496873855591,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments/learning-paths/<int:path_id>/update-from-assessment/<int:attempt_id>",
+      "method": "POST",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2490.9369945526123,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/intelligent-assessment/assessments/health",
+      "method": "GET",
+      "status": "PASS",
+      "response_time_ms": 2703.545093536377,
+      "status_code": 200,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/weekly-report",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2499.0947246551514,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/weekly-reports",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2553.8671016693115,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/progress-visualization",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2560.492753982544,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/skill-radar",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2486.132860183716,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/predictions/level-completion",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2534.7485542297363,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/comparisons",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2766.629695892334,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/velocity",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2560.9946250915527,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/study-schedule",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2487.6489639282227,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/insights",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2518.527030944824,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/patterns",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2497.260808944702,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/study-sessions",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2535.944938659668,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/study-sessions",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2481.7376136779785,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/snapshots",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2515.3770446777344,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/snapshots/create",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2498.403787612915,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-analytics/health",
+      "method": "GET",
+      "status": "PASS",
+      "response_time_ms": 2771.038293838501,
+      "status_code": 200,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-paths/personalized-recommendation",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2516.8519020080566,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-paths/create-custom-path",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2482.2990894317627,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-paths/adaptive-difficulty",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.9114665985107,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/learning-paths/progress-analysis/<int:learning_path_id>",
+      "method": "GET",
+      "status": "NOT_FOUND",
+      "response_time_ms": 2817.172050476074,
+      "status_code": 404,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/lesson/complete",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2516.350507736206,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/lesson/reviews",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2483.4372997283936,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/lesson/next",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.2069396972656,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/media/upload/image",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2492.0129776000977,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/media/upload/audio",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2819.926977157593,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/media/record/voice",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2588.0513191223145,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/media/generate/pronunciation-exercise",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2466.2704467773438,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/media/my-uploads",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2465.8777713775635,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/notifications/",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2513.906717300415,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/notifications/mark-all-read",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2464.1361236572266,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/notifications/preferences",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2556.715488433838,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/notifications/preferences",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2460.557460784912,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/notifications/clear",
+      "method": "DELETE",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2491.1949634552,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/notifications/test/daily-reminder",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2531.2626361846924,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/notifications/test/streak-alert",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2552.826166152954,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/notifications/test/personalized-tip",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2369.544744491577,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/onboarding/status",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2493.0717945098877,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/onboarding/status",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2517.5163745880127,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/onboarding/complete",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2477.900743484497,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/onboarding/progress/snapshot",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2435.8954429626465,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/listening",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2785.649299621582,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/speaking",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2531.172037124634,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/reading",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2469.730854034424,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/writing",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2697.7124214172363,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/real-world",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2549.867868423462,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/patterns",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2535.5029106140137,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/all-trajectories",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2483.928442001343,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/history/listening",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2531.6970348358154,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/history/speaking",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2449.620008468628,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/history/reading",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2451.711654663086,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/history/writing",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2461.866617202759,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/history/real-world",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 3087.712287902832,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/performance/dashboard",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.863306045532,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/personalization/goals",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2783.3240032196045,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/personalization/preferences",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2551.2149333953857,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/personalization/preferences",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2412.8098487854004,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/personalization/assessment/start",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2491.0731315612793,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/personalization/dashboard",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2625.267744064331,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/personalization/session/start",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2516.4740085601807,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/personalization/vocabulary/track",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2482.7492237091064,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/personalization/vocabulary",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2740.856409072876,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/practice/generate-questions",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2491.1975860595703,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/practice/submit-answer",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2539.1812324523926,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/practice/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2553.600311279297,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/practice/history/stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2545.7921028137207,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/test-auth",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2497.739553451538,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/test-no-auth",
+      "method": "GET",
+      "status": "PASS",
+      "response_time_ms": 2349.1265773773193,
+      "status_code": 200,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/test/tests/create",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2356.2021255493164,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/test/create",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2360.8920574188232,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/test/tests/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2751.415491104126,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/tests/tests/create",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2634.9432468414307,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/tests/create",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2394.974946975708,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/tests/tests/history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2381.8793296813965,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/health",
+      "method": "GET",
+      "status": "PASS",
+      "response_time_ms": 2487.172842025757,
+      "status_code": 200,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/profile",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2381.049633026123,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/profile",
+      "method": "PUT",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2362.2961044311523,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/settings",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2540.621519088745,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/settings",
+      "method": "PUT",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2453.4921646118164,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/change-password",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2500.533103942871,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/statistics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2381.2596797943115,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/delete-account",
+      "method": "DELETE",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2736.722946166992,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/learning-paths",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2546.825408935547,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/activity-completion",
+      "method": "POST",
+      "status": "CLIENT_ERROR",
+      "response_time_ms": 2449.681282043457,
+      "status_code": 400,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/user/status",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2367.6605224609375,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/introduce",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2369.267225265503,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/introduce-from-text",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2512.9568576812744,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/add-to-my-vocabulary",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2383.8906288146973,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/words-due",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2416.245698928833,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/review",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2500.9193420410156,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/practice-session/start",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2532.6027870178223,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/practice-activity",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2866.110324859619,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/mastery",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2465.949296951294,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/related-words",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2468.2469367980957,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/my-vocabulary",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2566.7080879211426,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/search",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2450.8614540100098,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/statistics",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 3031.913995742798,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/review-history",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2451.465845108032,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/batch-review",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2533.2765579223633,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary/reinforcement-stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2417.5219535827637,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary-old/words",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2448.1751918792725,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary-old/words",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2456.684350967407,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary-old/stats",
+      "method": "GET",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2459.536075592041,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    },
+    {
+      "path": "/api/vocabulary-old/practice-flashcards",
+      "method": "POST",
+      "status": "UNAUTHORIZED",
+      "response_time_ms": 2355.9651374816895,
+      "status_code": 401,
+      "performance": "TIMEOUT"
+    }
+  ],
+  "performance_tests": [],
+  "security_tests": [],
+  "integration_tests": [],
+  "summary": {
+    "generated_at": "2025-10-22T09:53:18.593781",
+    "backend_url": "http://localhost:5000",
+    "backend_running": true,
+    "total_tests": 314,
+    "total_passed": 288,
+    "success_rate": "91.7%",
+    "unit_tests": {
+      "total": 305,
+      "passed": 280
+    },
+    "security_tests": {
+      "total": 3,
+      "passed": 2
+    },
+    "integration_tests": {
+      "total": 6,
+      "passed": 6
+    },
+    "performance": {
+      "fast": 0,
+      "slow": 0,
+      "timeout": 5,
+      "error": 0,
+      "avg_response_time": 2579.103946685791
+    }
+  }
+}

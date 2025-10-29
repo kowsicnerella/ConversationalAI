@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   Container,
   Box,
@@ -44,11 +44,7 @@ const NotificationCenter = () => {
 
   const ITEMS_PER_PAGE = 10;
 
-  useEffect(() => {
-    fetchNotifications();
-  }, [currentTab, page]);
-
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       setLoading(true);
       setError('');
@@ -86,7 +82,11 @@ const NotificationCenter = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentTab, page]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const handleTabChange = (event, newValue) => {
     setCurrentTab(newValue);

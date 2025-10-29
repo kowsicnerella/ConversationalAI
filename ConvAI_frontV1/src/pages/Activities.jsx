@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 import {
   Box,
   Typography,
@@ -7,14 +8,8 @@ import {
   Card,
   CardContent,
   CardActions,
-  TextField,
-  InputAdornment,
-  ToggleButtonGroup,
-  ToggleButton,
   Chip,
   Stack,
-  IconButton,
-  Tooltip,
   CircularProgress,
   Container,
   useTheme,
@@ -22,19 +17,12 @@ import {
   alpha,
 } from "@mui/material";
 import {
-  Search,
-  FilterList,
-  ViewModule,
-  ViewList,
-  Style,
-  Quiz,
-  MenuBook,
   Psychology,
   Timer,
-  TrendingUp,
   PlayArrow,
   CheckCircle,
   Star,
+  Refresh,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import PageTransition from "../components/common/PageTransition";
@@ -46,186 +34,123 @@ const Activities = () => {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const isTablet = useMediaQuery(theme.breakpoints.down("md"));
 
   // State
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all");
-  const [filterDifficulty, setFilterDifficulty] = useState("all");
-  const [viewMode, setViewMode] = useState("grid");
+  const [orchestratorMessage, setOrchestratorMessage] = useState("");
+  const [currentNode, setCurrentNode] = useState(null);
 
-  useEffect(() => {
-    fetchActivities();
-  }, []);
-
-  const fetchActivities = async () => {
+  const fetchNextActivity = useCallback(async () => {
     try {
       setLoading(true);
-      // Try to fetch from API
-      const response = await axiosInstance.get(API_ENDPOINTS.ACTIVITIES.LIST);
-      // Backend returns {success: true, data: {activities: [...], pagination: {...}}}
-      setActivities(response.data.data?.activities || response.data.activities || []);
+      // Call AI-personalized learning path orchestrator
+      const response = await axiosInstance.post(API_ENDPOINTS.LEARNING_PATH.NEXT_ACTIVITY);
+      
+      if (response.data.success) {
+        const { activity, reasoning, node_info, message } = response.data.data;
+        
+        // Debug: Log full orchestrator response
+        console.log("🔍 Orchestrator Response Debug:", {
+          activity,
+          node_info,
+          message,
+          reasoning
+        });
+        console.log("📊 Available fields in node_info:", Object.keys(node_info || {}));
+        console.log("📊 Available fields in activity:", Object.keys(activity || {}));
+        
+        // Set the personalized activity
+        if (activity) {
+          // Try to find node_id from various possible sources
+          const nodeId = node_info?.node_id 
+            || node_info?.id 
+            || node_info?.nodeId
+            || activity?.node_id
+            || activity?.nodeId
+            || activity?.learning_node_id;
+          
+          // Transform backend activity format to frontend format
+          const transformedActivity = {
+            id: activity.id || `activity_${Date.now()}`,
+            type: activity.activity_type || activity.type,
+            title: activity.title,
+            description: activity.instructions || activity.description,
+            difficulty: node_info?.level_name?.toLowerCase() || 'beginner',
+            estimatedTime: activity.estimated_time || 15,
+            completed: false,
+            progress: 0,
+            // Add activity-specific data
+            content: activity.content,
+            questions: activity.questions,
+            flashcards: activity.flashcards,
+            prompt: activity.prompt,
+            // Add metadata
+            nodeId: nodeId,
+            nodeName: node_info?.node_name,
+            levelName: node_info?.level_name,
+            tags: node_info?.focus_areas || [],
+            // Store full node_info for debugging
+            _node_info: node_info,
+          };
+          
+          console.log("✅ Transformed Activity with nodeId:", { nodeId, transformedActivity });
+          
+          setActivities([transformedActivity]);
+          setOrchestratorMessage(message || reasoning);
+          setCurrentNode(node_info);
+        } else {
+          // No activity available
+          setActivities([]);
+          setOrchestratorMessage(message || "No activities available at this time.");
+        }
+      }
     } catch (error) {
-      console.error("Error fetching activities:", error);
-      // Use mock data
-      setActivities(getMockActivities());
+      console.error("Error fetching next activity:", error);
+      setOrchestratorMessage("Unable to load personalized activity. Please try again.");
+      setActivities([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const getMockActivities = () => [
-    {
-      id: 1,
-      type: "flashcard",
-      title: "Daily Vocabulary Practice",
-      description:
-        "Practice common English words with Telugu translations using interactive flashcards",
-      difficulty: "beginner",
-      estimatedTime: 15,
-      wordsCount: 20,
-      completed: false,
-      progress: 0,
-      icon: Style,
-      color: theme.palette.primary.main,
-      tags: ["vocabulary", "daily"],
-    },
-    {
-      id: 2,
-      type: "quiz",
-      title: "Grammar Quiz: Present Tense",
-      description:
-        "Test your understanding of present tense verbs and sentence structure",
-      difficulty: "intermediate",
-      estimatedTime: 10,
-      questionsCount: 15,
-      completed: false,
-      progress: 60,
-      icon: Quiz,
-      color: theme.palette.secondary.main,
-      tags: ["grammar", "quiz"],
-    },
-    {
-      id: 3,
-      type: "reading",
-      title: "Reading Comprehension: Technology",
-      description:
-        "Read an article about modern technology and answer comprehension questions",
-      difficulty: "intermediate",
-      estimatedTime: 20,
-      questionsCount: 8,
-      completed: true,
-      progress: 100,
-      score: 87,
-      icon: MenuBook,
-      color: theme.palette.success.main,
-      tags: ["reading", "technology"],
-    },
-    {
-      id: 4,
-      type: "flashcard",
-      title: "Business English Phrases",
-      description:
-        "Learn professional vocabulary and common business expressions",
-      difficulty: "advanced",
-      estimatedTime: 25,
-      wordsCount: 30,
-      completed: false,
-      progress: 40,
-      icon: Style,
-      color: theme.palette.primary.main,
-      tags: ["business", "professional"],
-    },
-    {
-      id: 5,
-      type: "quiz",
-      title: "Vocabulary Quiz: Common Idioms",
-      description: "Test your knowledge of popular English idioms and phrases",
-      difficulty: "advanced",
-      estimatedTime: 12,
-      questionsCount: 20,
-      completed: false,
-      progress: 0,
-      icon: Quiz,
-      color: theme.palette.secondary.main,
-      tags: ["idioms", "vocabulary"],
-    },
-    {
-      id: 6,
-      type: "reading",
-      title: "Short Story: The Journey",
-      description:
-        "Read a short story and answer questions about plot and characters",
-      difficulty: "beginner",
-      estimatedTime: 15,
-      questionsCount: 10,
-      completed: false,
-      progress: 0,
-      icon: MenuBook,
-      color: theme.palette.success.main,
-      tags: ["story", "beginner"],
-    },
-    {
-      id: 7,
-      type: "flashcard",
-      title: "Travel & Tourism Vocabulary",
-      description:
-        "Essential words and phrases for traveling and exploring new places",
-      difficulty: "intermediate",
-      estimatedTime: 18,
-      wordsCount: 25,
-      completed: false,
-      progress: 0,
-      icon: Style,
-      color: theme.palette.primary.main,
-      tags: ["travel", "vocabulary"],
-    },
-    {
-      id: 8,
-      type: "quiz",
-      title: "Pronunciation Practice Quiz",
-      description:
-        "Identify correct pronunciation and stress patterns in English words",
-      difficulty: "beginner",
-      estimatedTime: 8,
-      questionsCount: 12,
-      completed: true,
-      progress: 100,
-      score: 92,
-      icon: Quiz,
-      color: theme.palette.secondary.main,
-      tags: ["pronunciation", "speaking"],
-    },
-  ];
+  useEffect(() => {
+    fetchNextActivity();
+  }, [fetchNextActivity]);
 
-  // Filter activities
-  const filteredActivities = activities.filter((activity) => {
-    const matchesSearch =
-      activity.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      activity.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      activity.tags?.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-    const matchesType = filterType === "all" || activity.type === filterType;
-    const matchesDifficulty =
-      filterDifficulty === "all" || activity.difficulty === filterDifficulty;
-
-    return matchesSearch && matchesType && matchesDifficulty;
-  });
+  // Display all activities (typically just one personalized activity)
+  const filteredActivities = activities;
 
   const handleActivityClick = (activity) => {
-    // Navigate to specific activity type
-    if (activity.type === "flashcard") {
-      navigate(`/activities/flashcards/${activity.id}`);
-    } else if (activity.type === "quiz") {
-      navigate(`/activities/quiz/${activity.id}`);
-    } else if (activity.type === "reading") {
-      navigate(`/activities/reading/${activity.id}`);
-    } else {
-      navigate(`/activities/${activity.id}`);
+    // Navigate to specific activity type with activity data
+    const activityPath = `/activities/${activity.type}/${activity.id}`;
+    
+    // Store activity data in sessionStorage for the activity page to use
+    sessionStorage.setItem('currentActivity', JSON.stringify(activity));
+    
+    // Navigate based on activity type
+    switch (activity.type) {
+      case "flashcard":
+      case "flashcards":
+        navigate(`/activities/flashcards/${activity.id}`, { state: { activity } });
+        break;
+      case "quiz":
+        navigate(`/activities/quiz/${activity.id}`, { state: { activity } });
+        break;
+      case "reading":
+        navigate(`/activities/reading/${activity.id}`, { state: { activity } });
+        break;
+      case "writing":
+        navigate(`/activities/writing/${activity.id}`, { state: { activity } });
+        break;
+      case "listening":
+        navigate(`/activities/listening/${activity.id}`, { state: { activity } });
+        break;
+      case "speaking":
+        navigate(`/activities/speaking/${activity.id}`, { state: { activity } });
+        break;
+      default:
+        navigate(activityPath, { state: { activity } });
     }
   };
 
@@ -255,8 +180,26 @@ const Activities = () => {
     }
   };
 
+  // Get color for activity - use activity.color if available, otherwise generate from theme
+  const getActivityColor = (activity) => {
+    if (activity?.color) return activity.color;
+    
+    // Generate color based on activity type
+    switch (activity?.type) {
+      case "flashcard":
+        return theme.palette.info.main;
+      case "quiz":
+        return theme.palette.success.main;
+      case "reading":
+        return theme.palette.warning.main;
+      default:
+        return theme.palette.primary.main;
+    }
+  };
+
   const ActivityCard = ({ activity }) => {
     const IconComponent = activity.icon || Psychology;
+    const activityColor = getActivityColor(activity);
 
     return (
       <motion.div
@@ -277,15 +220,15 @@ const Activities = () => {
             background:
               theme.palette.mode === "dark"
                 ? `linear-gradient(135deg, ${alpha(
-                    activity.color,
+                    activityColor,
                     0.1
                   )} 0%, ${alpha(theme.palette.background.paper, 0.9)} 100%)`
                 : theme.palette.background.paper,
             backdropFilter: "blur(10px)",
-            border: `1px solid ${alpha(activity.color, 0.2)}`,
+            border: `1px solid ${alpha(activityColor, 0.2)}`,
             "&:hover": {
-              boxShadow: `0 12px 40px ${alpha(activity.color, 0.3)}`,
-              border: `1px solid ${alpha(activity.color, 0.5)}`,
+              boxShadow: `0 12px 40px ${alpha(activityColor, 0.3)}`,
+              border: `1px solid ${alpha(activityColor, 0.5)}`,
             },
           }}
           onClick={() => handleActivityClick(activity)}
@@ -300,8 +243,8 @@ const Activities = () => {
                 right: 0,
                 height: 4,
                 background: `linear-gradient(90deg, ${
-                  activity.color
-                } 0%, ${alpha(activity.color, 0.5)} 100%)`,
+                  activityColor
+                } 0%, ${alpha(activityColor, 0.5)} 100%)`,
                 width: `${activity.progress}%`,
                 transition: "width 0.3s ease",
               }}
@@ -333,23 +276,23 @@ const Activities = () => {
                   p: 1.5,
                   borderRadius: 2,
                   background: `linear-gradient(135deg, ${alpha(
-                    activity.color,
+                    activityColor,
                     0.2
-                  )}, ${alpha(activity.color, 0.1)})`,
+                  )}, ${alpha(activityColor, 0.1)})`,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                <IconComponent sx={{ color: activity.color, fontSize: 28 }} />
+                <IconComponent sx={{ color: activityColor, fontSize: 28 }} />
               </Box>
               <Chip
                 label={getActivityTypeLabel(activity.type)}
                 size="small"
                 sx={{
                   fontWeight: 600,
-                  background: alpha(activity.color, 0.1),
-                  color: activity.color,
+                  background: alpha(activityColor, 0.1),
+                  color: activityColor,
                 }}
               />
             </Stack>
@@ -434,8 +377,8 @@ const Activities = () => {
               startIcon={activity.completed ? <Star /> : <PlayArrow />}
               sx={{
                 background: !activity.completed
-                  ? `linear-gradient(135deg, ${activity.color}, ${alpha(
-                      activity.color,
+                  ? `linear-gradient(135deg, ${activityColor}, ${alpha(
+                      activityColor,
                       0.7
                     )})`
                   : "transparent",
@@ -454,6 +397,26 @@ const Activities = () => {
         </Card>
       </motion.div>
     );
+  };
+
+  // PropTypes validation for ActivityCard
+  ActivityCard.propTypes = {
+    activity: PropTypes.shape({
+      id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+      type: PropTypes.string,
+      title: PropTypes.string,
+      description: PropTypes.string,
+      difficulty: PropTypes.string,
+      estimatedTime: PropTypes.number,
+      completed: PropTypes.bool,
+      progress: PropTypes.number,
+      score: PropTypes.number,
+      wordsCount: PropTypes.number,
+      questionsCount: PropTypes.number,
+      tags: PropTypes.arrayOf(PropTypes.string),
+      icon: PropTypes.elementType,
+      color: PropTypes.string,
+    }).isRequired,
   };
 
   if (loading) {
@@ -480,142 +443,109 @@ const Activities = () => {
             variant={isMobile ? "h4" : "h3"}
             sx={{ mb: 2, fontWeight: 700 }}
           >
-            Learning Activities
+            AI-Personalized Learning
           </GradientText>
           <Typography variant="body1" color="text.secondary">
-            Choose from various activities to enhance your English learning
-            journey
+            Your next activity is intelligently selected based on your progress and goals
           </Typography>
         </Box>
 
-        {/* Filters & Search */}
-        <Box
-          mb={4}
-          sx={{
-            p: 3,
-            borderRadius: 3,
-            background:
-              theme.palette.mode === "dark"
-                ? alpha(theme.palette.background.paper, 0.6)
-                : theme.palette.background.paper,
-            backdropFilter: "blur(10px)",
-            border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-          }}
-        >
-          <Stack spacing={3}>
-            {/* Search */}
-            <TextField
-              fullWidth
-              placeholder="Search activities..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Search />
-                  </InputAdornment>
-                ),
-              }}
+        {/* Orchestrator Message Banner */}
+        {orchestratorMessage && (
+          <Box
+            mb={3}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              background: `linear-gradient(135deg, ${alpha(
+                theme.palette.primary.main,
+                0.1
+              )}, ${alpha(theme.palette.secondary.main, 0.1)})`,
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+              display: "flex",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <Psychology
               sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 2,
-                },
+                fontSize: 40,
+                color: theme.palette.primary.main,
               }}
             />
+            <Box>
+              <Typography variant="subtitle2" color="primary" sx={{ fontWeight: 700, mb: 0.5 }}>
+                AI Learning Assistant
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                {orchestratorMessage}
+              </Typography>
+            </Box>
+          </Box>
+        )}
 
-            {/* Filters */}
-            <Stack
-              direction={isMobile ? "column" : "row"}
-              spacing={2}
-              alignItems={isMobile ? "stretch" : "center"}
-              justifyContent="space-between"
-            >
-              {/* Type filter */}
-              <Box>
-                <Typography variant="caption" color="text.secondary" mb={1}>
-                  Activity Type
-                </Typography>
-                <ToggleButtonGroup
-                  value={filterType}
-                  exclusive
-                  onChange={(e, value) => value && setFilterType(value)}
-                  size="small"
-                  sx={{ flexWrap: "wrap" }}
-                >
-                  <ToggleButton value="all">All</ToggleButton>
-                  <ToggleButton value="flashcard">
-                    <Style sx={{ mr: 0.5, fontSize: 18 }} /> Flashcards
-                  </ToggleButton>
-                  <ToggleButton value="quiz">
-                    <Quiz sx={{ mr: 0.5, fontSize: 18 }} /> Quiz
-                  </ToggleButton>
-                  <ToggleButton value="reading">
-                    <MenuBook sx={{ mr: 0.5, fontSize: 18 }} /> Reading
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-
-              {/* Difficulty filter */}
-              <Box>
-                <Typography variant="caption" color="text.secondary" mb={1}>
-                  Difficulty
-                </Typography>
-                <ToggleButtonGroup
-                  value={filterDifficulty}
-                  exclusive
-                  onChange={(e, value) => value && setFilterDifficulty(value)}
-                  size="small"
-                >
-                  <ToggleButton value="all">All</ToggleButton>
-                  <ToggleButton value="beginner">Beginner</ToggleButton>
-                  <ToggleButton value="intermediate">Intermediate</ToggleButton>
-                  <ToggleButton value="advanced">Advanced</ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-
-              {/* View mode toggle */}
-              {!isMobile && (
-                <ToggleButtonGroup
-                  value={viewMode}
-                  exclusive
-                  onChange={(e, value) => value && setViewMode(value)}
-                  size="small"
-                >
-                  <ToggleButton value="grid">
-                    <ViewModule />
-                  </ToggleButton>
-                  <ToggleButton value="list">
-                    <ViewList />
-                  </ToggleButton>
-                </ToggleButtonGroup>
+        {/* Learning Path Info */}
+        {currentNode && (
+          <Box
+            mb={4}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              background:
+                theme.palette.mode === "dark"
+                  ? alpha(theme.palette.background.paper, 0.6)
+                  : theme.palette.background.paper,
+              backdropFilter: "blur(10px)",
+              border: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+            }}
+          >
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Chip
+                label={currentNode.level_name || "Learning"}
+                color="primary"
+                sx={{ fontWeight: 600 }}
+              />
+              <Typography variant="body2" color="text.secondary">
+                {currentNode.node_name || "Current Focus"}
+              </Typography>
+              {currentNode.focus_areas && currentNode.focus_areas.length > 0 && (
+                <>
+                  <Typography variant="body2" color="text.secondary">•</Typography>
+                  <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                    {currentNode.focus_areas.map((area, index) => (
+                      <Chip
+                        key={index}
+                        label={area}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontSize: "0.75rem" }}
+                      />
+                    ))}
+                  </Stack>
+                </>
               )}
             </Stack>
-          </Stack>
-        </Box>
+          </Box>
+        )}
 
-        {/* Results count */}
-        <Typography variant="body2" color="text.secondary" mb={2}>
-          Showing {filteredActivities.length} of {activities.length} activities
-        </Typography>
-
-        {/* Activities Grid */}
-        <Grid container spacing={3}>
-          {filteredActivities.map((activity) => (
-            <Grid
-              item
-              xs={12}
-              sm={viewMode === "list" ? 12 : 6}
-              md={viewMode === "list" ? 12 : 4}
-              lg={viewMode === "list" ? 12 : 3}
-              key={activity.id}
-            >
-              <ActivityCard activity={activity} />
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Empty state */}
-        {filteredActivities.length === 0 && (
+        {/* Personalized Activity Display */}
+        {filteredActivities.length > 0 ? (
+          <Grid container spacing={3} justifyContent="center">
+            {filteredActivities.map((activity) => (
+              <Grid
+                item
+                xs={12}
+                sm={10}
+                md={8}
+                lg={6}
+                key={activity.id}
+              >
+                <ActivityCard activity={activity} />
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          /* Empty state */
           <Box
             textAlign="center"
             py={8}
@@ -625,13 +555,34 @@ const Activities = () => {
               border: `1px dashed ${theme.palette.divider}`,
             }}
           >
-            <Psychology sx={{ fontSize: 80, color: theme.palette.divider }} />
-            <Typography variant="h6" color="text.secondary" mt={2}>
-              No activities found
+            <Psychology sx={{ fontSize: 80, color: theme.palette.divider, mb: 2 }} />
+            <Typography variant="h6" color="text.secondary" mb={1}>
+              No activity available
             </Typography>
-            <Typography variant="body2" color="text.secondary">
-              Try adjusting your filters or search terms
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              The AI couldn&apos;t generate an activity at this time. Please try again.
             </Typography>
+            <AnimatedButton
+              variant="contained"
+              startIcon={<Refresh />}
+              onClick={fetchNextActivity}
+            >
+              Get Next Activity
+            </AnimatedButton>
+          </Box>
+        )}
+        
+        {/* Refresh Activity Button */}
+        {filteredActivities.length > 0 && (
+          <Box textAlign="center" mt={4}>
+            <AnimatedButton
+              variant="outlined"
+              startIcon={<Refresh />}
+              onClick={fetchNextActivity}
+              disabled={loading}
+            >
+              Get Different Activity
+            </AnimatedButton>
           </Box>
         )}
       </Container>

@@ -149,16 +149,24 @@ const LearningPathSelector = ({ assessmentResults, onPathSelected }) => {
       )}
 
       {/* Learning Paths Grid */}
-      <Grid container spacing={3}>
+      <Grid container spacing={3} sx={{ display: "flex", flexWrap: "wrap" }}>
         {recommendedPaths.map((path, index) => {
           const isRecommended = index === 0; // First path is most recommended
           const isEnrolling = enrolling === path.id;
           const matchScore = path.match_score || 0;
 
           return (
-            <Grid item xs={12} md={6} key={path.id}>
+            <Grid 
+              item 
+              xs={12} 
+              sm={recommendedPaths.length === 1 ? 12 : 6}
+              lg={recommendedPaths.length > 2 ? 4 : 6}
+              key={path.id}
+              sx={{ display: "flex" }}
+            >
               <Card
                 sx={{
+                  width: "100%",
                   height: "100%",
                   position: "relative",
                   border: isRecommended ? 3 : 1,
@@ -167,6 +175,8 @@ const LearningPathSelector = ({ assessmentResults, onPathSelected }) => {
                     ? "linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%)"
                     : "transparent",
                   transition: "all 0.3s ease",
+                  display: "flex",
+                  flexDirection: "column",
                   "&:hover": {
                     transform: "translateY(-4px)",
                     boxShadow: 6,
@@ -188,7 +198,7 @@ const LearningPathSelector = ({ assessmentResults, onPathSelected }) => {
                   />
                 )}
 
-                <CardContent sx={{ p: 3 }}>
+                <CardContent sx={{ p: 3, display: "flex", flexDirection: "column", height: "100%", flex: 1 }}>
                   {/* Path Title */}
                   <Typography
                     variant="h5"
@@ -351,6 +361,7 @@ const LearningPathSelector = ({ assessmentResults, onPathSelected }) => {
 
                   {/* Enroll Button */}
                   <Button
+                    key={`enroll-${path.id}`}
                     variant={isRecommended ? "contained" : "outlined"}
                     color="primary"
                     fullWidth
@@ -358,12 +369,18 @@ const LearningPathSelector = ({ assessmentResults, onPathSelected }) => {
                     disabled={isEnrolling}
                     onClick={() => handleEnroll(path)}
                     sx={{
-                      mt: 2,
+                      mt: "auto",
                       fontWeight: 700,
-                      ...(isRecommended && {
-                        background:
-                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                      }),
+                      backgroundColor: isRecommended ? "#667eea" : "transparent",
+                      borderColor: isRecommended ? "#667eea" : "primary.main",
+                      color: isRecommended ? "white" : "primary.main",
+                      "&:hover": {
+                        backgroundColor: isRecommended ? "#764ba2" : "rgba(102, 126, 234, 0.08)",
+                        borderColor: isRecommended ? "#764ba2" : "primary.main",
+                      },
+                      "&:disabled": {
+                        opacity: 0.7,
+                      },
                     }}
                   >
                     {isEnrolling ? (

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
 import {
   Box,
@@ -9,16 +9,13 @@ import {
   Chip,
   Tabs,
   Tab,
-  LinearProgress,
   Grid,
   CircularProgress,
 } from "@mui/material";
 import {
   EmojiEvents,
-  TrendingUp,
   LocalFireDepartment,
   Star,
-  Person,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import PageTransition from "../components/common/PageTransition";
@@ -32,11 +29,7 @@ const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [activeTab]);
-
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = useCallback(async () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(
@@ -52,7 +45,10 @@ const Leaderboard = () => {
           },
         }
       );
-      setLeaderboard(response.data.leaderboard || response.data || []);
+      // Ensure we always set an array
+      const leaderboardData = response.data.leaderboard || response.data.data || [];
+      const arrayData = Array.isArray(leaderboardData) ? leaderboardData : [];
+      setLeaderboard(arrayData);
     } catch (error) {
       console.error("Error fetching leaderboard:", error);
       // Mock data for demo
@@ -107,7 +103,11 @@ const Leaderboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, user?.username]);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [fetchLeaderboard]);
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
@@ -148,9 +148,11 @@ const Leaderboard = () => {
     );
   }
 
-  const currentUser = leaderboard.find((u) => u.isCurrentUser);
-  const topThree = leaderboard.slice(0, 3);
-  const restOfLeaderboard = leaderboard.slice(3);
+  // Ensure leaderboard is an array
+  const leaderboardArray = Array.isArray(leaderboard) ? leaderboard : [];
+  const currentUser = leaderboardArray.find((u) => u.isCurrentUser);
+  const topThree = leaderboardArray.slice(0, 3);
+  const restOfLeaderboard = leaderboardArray.slice(3);
 
   return (
     <PageTransition>

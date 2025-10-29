@@ -1,6 +1,9 @@
 import json
 import re
+from datetime import datetime
 from app.services.llm_config import LLMConfig
+from app.models.user import User, Profile
+from app.models.curriculum import LearningNode, UserLearningPathProgress, NodeCompletion
 
 
 def _extract_json_from_response(text):
@@ -26,6 +29,382 @@ class ActivityGeneratorService:
     def __init__(self):
         # No need to initialize models - handled by LLMConfig
         pass
+
+    def generate_personalized_activity(self, user_id, learning_node_id, activity_type=None):
+        """
+        Generate a fully personalized activity based on user's profile, progress, and target learning node.
+        
+        Args:
+            user_id (int): The user's ID
+            learning_node_id (str): The learning node ID (e.g., 'A1_VOCAB_GREETINGS')
+            activity_type (str, optional): Specific activity type to generate (flashcard, quiz, etc.)
+                                          If None, automatically chooses based on user's weak areas
+        
+        Returns:
+            dict: Generated activity with personalized content
+        """
+        # Fetch user data
+        user = User.query.get(user_id)
+        if not user:
+            return {"error": "User not found"}
+        
+        profile = Profile.query.filter_by(user_id=user_id).first()
+        if not profile:
+            return {"error": "User profile not found"}
+        
+        # Fetch learning node
+        node = LearningNode.query.filter_by(node_id=learning_node_id).first()
+        if not node:
+            return {"error": f"Learning node {learning_node_id} not found"}
+        
+        # Fetch user's learning path progress
+        progress = UserLearningPathProgress.query.filter_by(user_id=user_id).first()
+        
+        # Determine activity type based on user's weak areas if not specified
+        if not activity_type:
+            activity_type = self._choose_activity_type(profile, node, progress)
+        
+        # Build personalization context
+        context = self._build_personalization_context(user, profile, node, progress)
+        
+        # Generate the activity with full personalization
+        return self._generate_activity_with_context(
+            activity_type=activity_type,
+            node=node,
+            context=context,
+            profile=profile
+        )
+    
+    def _choose_activity_type(self, profile, node, progress):
+        """
+        Intelligently choose activity type based on user's weak areas and node type.
+        """
+        # Get weak areas from profile mastery metrics
+        mastery = profile.mastery_metrics or {}
+        weak_skills = [
+            skill for skill, score in mastery.items() 
+            if score < 50 and skill != 'overall'
+        ]
+        
+        # Map skills to activity types
+        skill_to_activity = {
+            'vocabulary': 'flashcard',
+            'grammar': 'sentence_construction',
+            'reading': 'reading_comprehension',
+            'writing': 'writing_practice',
+            'listening': 'audio_exercise',
+            'speaking': 'role_play'
+        }
+        
+        # Prioritize weak skills
+        if weak_skills and weak_skills[0] in skill_to_activity:
+            return skill_to_activity[weak_skills[0]]
+        
+        # Fall back to node's activity templates
+        if node.activity_templates:
+            return node.activity_templates[0]
+        
+        # Default to quiz
+        return 'quiz'
+    
+    def _build_personalization_context(self, user, profile, node, progress):
+        """
+        Build a comprehensive context dictionary for personalization.
+        """
+        context = {
+            'user_name': user.username,
+            'proficiency_level': profile.proficiency_level or 'beginner',
+            'native_language': profile.native_language or 'Telugu',
+            'target_language': profile.target_language or 'English',
+            'current_streak': profile.current_streak or 0,
+            'mastery_metrics': profile.mastery_metrics or {},
+            'node_concept': node.concept_name,
+            'node_domain': node.skill_domain,
+            'learning_objectives': node.learning_objectives,
+            'difficulty_range': f"{node.difficulty_range_min}-{node.difficulty_range_max}",
+            'cefr_level': self._get_cefr_level_for_node(node)
+        }
+        
+        # Add progress-specific context if available
+        if progress:
+            context['learned_vocabulary'] = []  # TODO: Track in future update
+            context['weak_areas'] = progress.weak_areas or []
+            context['strong_areas'] = progress.strong_areas or []
+            context['learning_preferences'] = {
+                'learning_style': getattr(progress, 'learning_style', 'mixed'),
+                'preferred_pace': getattr(progress, 'preferred_pace', 'medium')
+            }
+            context['vocab_due_for_review'] = []  # TODO: Track in future update
+        else:
+            context['learned_vocabulary'] = []
+            context['weak_areas'] = []
+            context['strong_areas'] = []
+            context['learning_preferences'] = {}
+            context['vocab_due_for_review'] = []
+        
+        return context
+    
+    def _get_cefr_level_for_node(self, node):
+        """
+        Get CEFR level for a learning node by querying the CurriculumLevel relationship.
+        Handles the case where the relationship might not be loaded.
+        """
+        try:
+            from app.models.curriculum import CurriculumLevel
+            
+            if node.curriculum_level_id:
+                level = CurriculumLevel.query.get(node.curriculum_level_id)
+                if level:
+                    return level.cefr_level
+            
+            return 'A1'  # Default fallback
+        except Exception as e:
+            print(f"Error getting CEFR level for node: {str(e)}")
+            return 'A1'
+    
+    def _generate_activity_with_context(self, activity_type, node, context, profile):
+        """
+        Generate activity content using AI with full personalization context.
+        """
+        # Build a comprehensive prompt with personalization
+        prompt = f"""
+        Generate a personalized English learning activity for a {context['native_language']} speaker.
+        
+        USER PROFILE:
+        - Name: {context['user_name']}
+        - Proficiency Level: {context['proficiency_level']}
+        - CEFR Level: {context['cefr_level']}
+        - Current Streak: {context['current_streak']} days
+        - Mastery Metrics: {json.dumps(context['mastery_metrics'], indent=2)}
+        
+        LEARNING NODE:
+        - Concept: {context['node_concept']}
+        - Skill Domain: {context['node_domain']}
+        - Learning Objectives: {json.dumps(context['learning_objectives'], indent=2)}
+        - Difficulty Range: {context['difficulty_range']}
+        - Example Content: {json.dumps(node.example_content or {}, indent=2)}
+        
+        PERSONALIZATION:
+        - Learned Vocabulary: {json.dumps(context['learned_vocabulary'][:20], indent=2)} (showing first 20)
+        - Weak Areas: {json.dumps(context['weak_areas'], indent=2)}
+        - Strong Areas: {json.dumps(context['strong_areas'], indent=2)}
+        - Vocabulary Due for Review: {json.dumps(context['vocab_due_for_review'][:10], indent=2)} (showing first 10)
+        
+        ACTIVITY TYPE: {activity_type}
+        
+        INSTRUCTIONS:
+        1. Generate content that DIRECTLY addresses the learning objectives
+        2. Use vocabulary the user has already learned where appropriate
+        3. Focus on weak areas: {', '.join(context['weak_areas'][:3]) if context['weak_areas'] else 'all skills'}
+        4. Incorporate vocabulary due for review when possible
+        5. Adjust difficulty to match user's proficiency level
+        6. Provide {context['native_language']} translations where helpful
+        7. Make the activity engaging and encourage the user's {context['current_streak']}-day streak
+        
+        Generate a {activity_type} activity and return as JSON with the following structure:
+        """
+        
+        # Add activity-type-specific JSON schema
+        if activity_type == 'quiz':
+            prompt += """
+        ```json
+        {
+            "activity_type": "quiz",
+            "title": "Activity title in English",
+            "description": "Brief description",
+            "instructions": "Clear instructions in English",
+            "instructions_telugu": "Telugu translation of instructions",
+            "estimated_time": 10,
+            "questions": [
+                {
+                    "question_text": "Question in English",
+                    "question_telugu": "Telugu translation",
+                    "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+                    "correct_answer": "Correct option text",
+                    "explanation": "Why this is correct (English + Telugu)"
+                }
+            ]
+        }
+        ```
+        """
+        elif activity_type == 'flashcard':
+            prompt += """
+        ```json
+        {
+            "activity_type": "flashcard",
+            "title": "Activity title",
+            "description": "Brief description",
+            "instructions": "Instructions in English",
+            "instructions_telugu": "Telugu instructions",
+            "estimated_time": 10,
+            "flashcards": [
+                {
+                    "front": "English word/phrase",
+                    "back": "Telugu translation",
+                    "example_sentence": "Example usage in English",
+                    "example_sentence_telugu": "Telugu translation"
+                }
+            ]
+        }
+        ```
+        """
+        elif activity_type == 'sentence_construction' or activity_type == 'error_correction':
+            prompt += """
+        ```json
+        {
+            "activity_type": "sentence_construction",
+            "title": "Activity title",
+            "description": "Brief description",
+            "instructions": "Instructions in English",
+            "instructions_telugu": "Telugu instructions",
+            "estimated_time": 15,
+            "exercises": [
+                {
+                    "prompt": "Exercise prompt in English",
+                    "prompt_telugu": "Telugu translation",
+                    "jumbled_words": ["word1", "word2", "word3"],
+                    "correct_sentence": "Correct sentence",
+                    "hint": "Helpful hint (optional)"
+                }
+            ]
+        }
+        ```
+        """
+        elif activity_type == 'role_play':
+            prompt += """
+        ```json
+        {
+            "activity_type": "role_play",
+            "title": "Activity title",
+            "description": "Brief description",
+            "instructions": "Instructions in English",
+            "instructions_telugu": "Telugu instructions",
+            "estimated_time": 15,
+            "scenario": {
+                "setting": "Description of the scene",
+                "setting_telugu": "Telugu translation",
+                "user_role": "Your role in the conversation",
+                "user_role_telugu": "Telugu translation",
+                "conversation_goal": "What you need to accomplish",
+                "conversation_goal_telugu": "Telugu translation",
+                "initial_dialogue": [
+                    {
+                        "speaker": "Other Character",
+                        "text": "First line in English",
+                        "text_telugu": "Telugu translation"
+                    }
+                ],
+                "suggested_responses": ["Response 1", "Response 2", "Response 3"]
+            }
+        }
+        ```
+        """
+        elif activity_type == 'reading_comprehension' or activity_type == 'reading':
+            prompt += """
+        ```json
+        {
+            "activity_type": "reading_comprehension",
+            "title": "Activity title",
+            "description": "Brief description",
+            "instructions": "Instructions in English",
+            "instructions_telugu": "Telugu instructions",
+            "estimated_time": 15,
+            "reading_text": "The full reading passage in English (100-150 words)",
+            "vocabulary_help": [
+                {
+                    "word": "difficult word",
+                    "meaning": "Telugu translation",
+                    "example": "Example usage"
+                }
+            ],
+            "comprehension_questions": [
+                {
+                    "question": "Question about the text",
+                    "question_telugu": "Telugu translation",
+                    "answer_type": "multiple_choice or short_answer",
+                    "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+                    "correct_answer": "Correct answer"
+                }
+            ]
+        }
+        ```
+        """
+        elif activity_type == 'writing_practice' or activity_type == 'writing':
+            prompt += """
+        ```json
+        {
+            "activity_type": "writing_practice",
+            "title": "Activity title",
+            "description": "Brief description",
+            "instructions": "Instructions in English",
+            "instructions_telugu": "Telugu instructions",
+            "estimated_time": 20,
+            "writing_prompt": {
+                "prompt": "Write about... (clear prompt in English)",
+                "prompt_telugu": "Telugu translation",
+                "minimum_sentences": 5,
+                "suggested_structure": ["Point 1 to cover", "Point 2 to cover"],
+                "vocabulary_to_use": ["word1", "word2", "word3"],
+                "grammar_focus": "Present simple tense"
+            }
+        }
+        ```
+        """
+        else:
+            # Generic activity structure
+            prompt += """
+        ```json
+        {
+            "activity_type": "general",
+            "title": "Activity title",
+            "description": "Brief description",
+            "instructions": "Clear instructions",
+            "instructions_telugu": "Telugu instructions",
+            "estimated_time": 15,
+            "content": {
+                "main_content": "Activity content here"
+            }
+        }
+        ```
+        """
+        
+        # Generate using LLM
+        result = LLMConfig.generate_text(prompt, json_mode=True)
+        if result['success']:
+            activity_data = _extract_json_from_response(result['text'])
+            
+            # Add metadata
+            activity_data['learning_node_id'] = node.node_id
+            activity_data['personalized_for_user'] = context['user_name']
+            activity_data['generated_at'] = datetime.now().isoformat()
+            
+            # Enhance with vocabulary tracking
+            try:
+                from app.services.vocabulary_integration_service import VocabularyIntegrationService
+                vocab_service = VocabularyIntegrationService()
+                
+                # Get target vocabulary for this activity
+                user_id = User.query.filter_by(username=context['user_name']).first().id
+                target_words = vocab_service.get_target_vocabulary_for_activity(
+                    user_id=user_id,
+                    activity_type=activity_type,
+                    difficulty_level=context['proficiency_level'],
+                    count=5
+                )
+                
+                # Enhance activity with vocabulary
+                if target_words:
+                    activity_data = vocab_service.enhance_activity_with_vocabulary(
+                        activity_data,
+                        target_words,
+                        activity_type
+                    )
+            except Exception as e:
+                print(f"Error enhancing activity with vocabulary: {e}")
+            
+            return activity_data
+        else:
+            return {"error": result.get('error', 'Failed to generate personalized activity')}
 
     def generate_quiz(self, topic, level="beginner"):
         """

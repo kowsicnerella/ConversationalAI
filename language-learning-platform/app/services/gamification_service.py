@@ -1,445 +1,807 @@
-from app.models import (
-    db,
-    User,
-    Profile,
-    Badge,
-    UserBadge,
-    Achievement,
-    UserActivityLog,
-    Activity,
-    LearningSession,
+"""
+Gamification Service - AI-Powered Challenges, Achievements, Streaks, and Social Features
+Handles all game mechanics, reward calculations, and motivational features
+"""
+
+import logging
+from datetime import datetime, timedelta, date
+from typing import Dict, List, Optional, Tuple
+from sqlalchemy import func, desc, and_, or_
+from app import db
+from app.models.gamification_enhanced import (
+    GamificationChallenge, GamificationAchievement, UserAchievement, LeaderboardEntry,
+    GamificationStreak, ProgressMilestone, SocialConnection, SharedAchievement
 )
-from datetime import datetime, date, timedelta
-from sqlalchemy import func
+from app.models.learning_analytics import LearningAnalytics
+import random
+
+logger = logging.getLogger(__name__)
 
 
 class GamificationService:
     """
-    A service class to manage gamification features for the Telugu-English learning platform.
-    Handles points, badges, streaks, and leaderboards.
+    Comprehensive gamification service with AI-powered features
     """
-
-    # Points System
-    POINTS = {
-        "quiz_per_correct": 8,  # 8 points per correct answer
-        "flashcard_per_card": 1,  # 1 point per flashcard reviewed
-        "reading_completion": 20,  # 20 points for completing reading
-        "writing_submission": 50,  # 50 points for writing submission
-        "roleplay_completion": 30,  # 30 points for role-play completion
-        "daily_goal": 25,  # 25 bonus points for meeting daily goal
-        "streak_7_days": 100,  # 100 bonus points for 7-day streak
-    }
-
-    def award_activity_points(self, user_id, activity_type, session_data=None):
+    
+    def __init__(self, llm_service=None):
         """
-        Award points based on activity type and performance.
-
+        Initialize gamification service
+        
+        Args:
+            llm_service: Optional LLM service for AI-generated content
+        """
+        self.llm_service = llm_service
+    
+    # ============================================================================
+    # DAILY CHALLENGES - AI-Generated Personalized Challenges
+    # ============================================================================
+    
+    def generate_daily_challenges(self, user_id: int) -> List[Dict]:
+        """
+        Generate 3 personalized daily challenges for user using AI
+        
         Args:
             user_id: User ID
-            activity_type: 'quiz', 'flashcard', 'writing', 'roleplay', 'reading'
-            session_data: Dict with activity details (correct_answers, card_count, etc.)
-
+            
         Returns:
-            dict: Points awarded and breakdown
+            List of challenge dictionaries
         """
         try:
-            profile = Profile.query.filter_by(user_id=user_id).first()
-            if not profile:
-                return {"success": False, "error": "Profile not found"}
-
-            points_awarded = 0
-            breakdown = {}
-
-            if activity_type == "quiz":
-                correct_answers = (
-                    session_data.get("correct_answers", 0) if session_data else 0
+            today = date.today()
+            
+            # Check if challenges already exist for today
+            existing = GamificationChallenge.query.filter_by(
+                user_id=user_id,
+                challenge_date=today
+            ).all()
+            
+            if existing and len(existing) >= 3:
+                return [c.to_dict() for c in existing]
+            
+            # Get user analytics for personalization
+            analytics = LearningAnalytics.query.filter_by(user_id=user_id).first()
+            
+            # Get streak info for bonus challenges
+            streak = GamificationStreak.query.filter_by(user_id=user_id).first()
+            
+            # Generate 3 different types of challenges
+            challenges = []
+            challenge_types = self._select_challenge_types(user_id, analytics, streak)
+            
+            for i, challenge_type in enumerate(challenge_types):
+                challenge = self._create_challenge(
+                    user_id=user_id,
+                    challenge_type=challenge_type,
+                    analytics=analytics,
+                    streak=streak,
+                    challenge_date=today
                 )
-                points_awarded = correct_answers * self.POINTS["quiz_per_correct"]
-                breakdown["correct_answers"] = correct_answers
-                breakdown["points_per_answer"] = self.POINTS["quiz_per_correct"]
-
-            elif activity_type == "flashcard":
-                cards_reviewed = (
-                    session_data.get("cards_reviewed", 0) if session_data else 0
-                )
-                points_awarded = cards_reviewed * self.POINTS["flashcard_per_card"]
-                breakdown["cards_reviewed"] = cards_reviewed
-                breakdown["points_per_card"] = self.POINTS["flashcard_per_card"]
-
-            elif activity_type == "reading":
-                points_awarded = self.POINTS["reading_completion"]
-                breakdown["activity"] = "reading_completion"
-
-            elif activity_type == "writing":
-                points_awarded = self.POINTS["writing_submission"]
-                breakdown["activity"] = "writing_submission"
-
-            elif activity_type == "roleplay":
-                points_awarded = self.POINTS["roleplay_completion"]
-                breakdown["activity"] = "roleplay_completion"
-
+                
+                if challenge:
+                    db.session.add(challenge)
+                    challenges.append(challenge)
+            
+            db.session.commit()
+            
+            return [c.to_dict() for c in challenges]
+            
+        except Exception as e:
+            logger.error(f"Error generating daily challenges: {str(e)}")
+            db.session.rollback()
+            return []
+    
+    def _select_challenge_types(self, user_id: int, analytics, streak) -> List[str]:
+        """Select 3 challenge types based on user needs"""
+        available_types = [
+            'vocabulary',      # Learn new words
+            'grammar',         # Grammar practice
+            'reading',         # Reading comprehension
+            'writing',         # Writing practice
+            'speaking',        # Speaking/pronunciation
+            'listening',       # Listening comprehension
+            'study_time',      # Study duration goal
+            'activity_count',  # Complete X activities
+            'accuracy',        # Achieve accuracy %
+            'streak_bonus'     # Extra streak challenge
+        ]
+        
+        # Prioritize weak areas
+        weak_areas = []
+        if analytics:
+            skills = {
+                'reading': analytics.reading_proficiency,
+                'writing': analytics.writing_proficiency,
+                'listening': analytics.listening_proficiency,
+                'speaking': analytics.speaking_proficiency,
+                'grammar': analytics.grammar_proficiency,
+                'vocabulary': analytics.vocabulary_proficiency
+            }
+            # Find 2 weakest skills
+            sorted_skills = sorted(skills.items(), key=lambda x: x[1] if x[1] else 0)
+            weak_areas = [skill[0] for skill in sorted_skills[:2]]
+        
+        # Select challenge types
+        selected = []
+        
+        # 1. Weak area challenge
+        if weak_areas:
+            selected.append(weak_areas[0])
+        else:
+            selected.append(random.choice(['vocabulary', 'grammar']))
+        
+        # 2. Second challenge - another weak area or study time
+        if len(weak_areas) > 1:
+            selected.append(weak_areas[1])
+        else:
+            selected.append(random.choice(['study_time', 'activity_count']))
+        
+        # 3. Streak bonus if streak >= 3 days, otherwise random
+        if streak and streak.current_streak >= 3:
+            selected.append('streak_bonus')
+        else:
+            remaining = [t for t in available_types if t not in selected and t != 'streak_bonus']
+            selected.append(random.choice(remaining))
+        
+        return selected
+    
+    def _create_challenge(
+        self,
+        user_id: int,
+        challenge_type: str,
+        analytics,
+        streak,
+        challenge_date: date
+    ) -> Optional[GamificationChallenge]:
+        """Create a specific challenge based on type"""
+        
+        # Determine difficulty
+        difficulty = self._determine_challenge_difficulty(analytics)
+        
+        # Challenge templates
+        templates = {
+            'vocabulary': {
+                'title': f"Vocabulary Builder - {difficulty.title()}",
+                'description': "Learn and practice 10 new vocabulary words today",
+                'target_metric': 'words_learned',
+                'target_value': 10,
+                'points_reward': 50
+            },
+            'grammar': {
+                'title': f"Grammar Master - {difficulty.title()}",
+                'description': "Complete 5 grammar exercises with 80%+ accuracy",
+                'target_metric': 'grammar_activities',
+                'target_value': 5,
+                'points_reward': 60
+            },
+            'reading': {
+                'title': f"Reading Challenge - {difficulty.title()}",
+                'description': "Read 2 passages and answer comprehension questions",
+                'target_metric': 'reading_activities',
+                'target_value': 2,
+                'points_reward': 55
+            },
+            'writing': {
+                'title': f"Writing Sprint - {difficulty.title()}",
+                'description': "Complete a writing exercise with 85%+ quality score",
+                'target_metric': 'writing_activities',
+                'target_value': 1,
+                'points_reward': 70
+            },
+            'speaking': {
+                'title': f"Speaking Practice - {difficulty.title()}",
+                'description': "Complete 3 speaking exercises",
+                'target_metric': 'speaking_activities',
+                'target_value': 3,
+                'points_reward': 65
+            },
+            'listening': {
+                'title': f"Listening Focus - {difficulty.title()}",
+                'description': "Complete 3 listening comprehension exercises",
+                'target_metric': 'listening_activities',
+                'target_value': 3,
+                'points_reward': 60
+            },
+            'study_time': {
+                'title': "Study Marathon",
+                'description': "Study for at least 30 minutes today",
+                'target_metric': 'study_minutes',
+                'target_value': 30,
+                'points_reward': 40
+            },
+            'activity_count': {
+                'title': "Activity Champion",
+                'description': "Complete 5 activities of any type",
+                'target_metric': 'activities_completed',
+                'target_value': 5,
+                'points_reward': 45
+            },
+            'accuracy': {
+                'title': "Accuracy Expert",
+                'description': "Maintain 85%+ accuracy across 3 activities",
+                'target_metric': 'accuracy_target',
+                'target_value': 3,
+                'points_reward': 75
+            },
+            'streak_bonus': {
+                'title': f"🔥 Streak Keeper Bonus",
+                'description': f"Extra challenge! Complete 3 activities to earn a {streak.current_streak}x multiplier",
+                'target_metric': 'streak_activities',
+                'target_value': 3,
+                'points_reward': 100,
+                'is_streak_bonus': True
+            }
+        }
+        
+        template = templates.get(challenge_type)
+        if not template:
+            return None
+        
+        # Calculate bonus multiplier for streak challenges
+        bonus_multiplier = 1.0
+        if challenge_type == 'streak_bonus' and streak:
+            bonus_multiplier = 1.0 + (streak.current_streak * 0.1)  # 10% per day
+        
+        # Identify weak areas this challenge addresses
+        weak_areas_targeted = []
+        if analytics:
+            if challenge_type in ['reading', 'writing', 'listening', 'speaking', 'grammar', 'vocabulary']:
+                proficiency = getattr(analytics, f"{challenge_type}_proficiency", None)
+                if proficiency and proficiency < 0.5:
+                    weak_areas_targeted.append(challenge_type)
+        
+        # Create challenge
+        challenge = GamificationChallenge(
+            user_id=user_id,
+            challenge_date=challenge_date,
+            challenge_type=challenge_type,
+            difficulty_level=difficulty,
+            title=template['title'],
+            description=template['description'],
+            target_metric=template['target_metric'],
+            target_value=template['target_value'],
+            points_reward=template['points_reward'],
+            bonus_multiplier=bonus_multiplier,
+            is_streak_bonus=template.get('is_streak_bonus', False),
+            skill_focus=[challenge_type] if challenge_type != 'streak_bonus' else [],
+            weak_areas_targeted=weak_areas_targeted,
+            expires_at=datetime.combine(challenge_date, datetime.max.time())
+        )
+        
+        return challenge
+    
+    def _determine_challenge_difficulty(self, analytics) -> str:
+        """Determine appropriate challenge difficulty based on user level"""
+        if not analytics or not analytics.overall_proficiency:
+            return 'beginner'
+        
+        proficiency = analytics.overall_proficiency
+        if proficiency < 0.3:
+            return 'beginner'
+        elif proficiency < 0.6:
+            return 'intermediate'
+        else:
+            return 'advanced'
+    
+    def update_challenge_progress(self, user_id: int, metric: str, value: int = 1) -> List[Dict]:
+        """
+        Update progress for challenges when user completes activities
+        
+        Args:
+            user_id: User ID
+            metric: Challenge metric (e.g., 'activities_completed', 'study_minutes')
+            value: Progress value to add (default 1)
+            
+        Returns:
+            List of newly completed challenges
+        """
+        try:
+            today = date.today()
+            
+            # Get active challenges for today that match the metric
+            challenges = GamificationChallenge.query.filter(
+                GamificationChallenge.user_id == user_id,
+                GamificationChallenge.challenge_date == today,
+                GamificationChallenge.is_completed == False,
+                GamificationChallenge.target_metric == metric
+            ).all()
+            
+            completed_challenges = []
+            
+            for challenge in challenges:
+                old_progress = challenge.current_progress
+                challenge.update_progress(old_progress + value)
+                
+                if challenge.is_completed:
+                    # Award points
+                    total_points = int(challenge.points_reward * challenge.bonus_multiplier)
+                    self._award_points(user_id, total_points, f"Challenge: {challenge.title}")
+                    
+                    completed_challenges.append(challenge.to_dict())
+                    
+                    logger.info(f"User {user_id} completed challenge: {challenge.title}")
+            
+            db.session.commit()
+            
+            return completed_challenges
+            
+        except Exception as e:
+            logger.error(f"Error updating challenge progress: {str(e)}")
+            db.session.rollback()
+            return []
+    
+    def get_user_challenges(self, user_id: int, challenge_date: date = None) -> List[Dict]:
+        """Get user's challenges for a specific date"""
+        if challenge_date is None:
+            challenge_date = date.today()
+        
+        challenges = GamificationChallenge.query.filter_by(
+            user_id=user_id,
+            challenge_date=challenge_date
+        ).all()
+        
+        return [c.to_dict() for c in challenges]
+    
+    # ============================================================================
+    # ACHIEVEMENTS - 50+ Achievements with Unlock Logic
+    # ============================================================================
+    
+    def check_achievement_unlocks(self, user_id: int, event_type: str, event_data: Dict) -> List[Dict]:
+        """
+        Check if user has unlocked any achievements based on an event
+        
+        Args:
+            user_id: User ID
+            event_type: Type of event (activity_completed, level_up, streak_milestone, etc.)
+            event_data: Event details
+            
+        Returns:
+            List of newly unlocked achievements
+        """
+        try:
+            # Get all active achievements
+            all_achievements = GamificationAchievement.query.filter_by(is_active=True).all()
+            
+            # Get user's already unlocked achievements
+            unlocked_ids = {ua.achievement_id for ua in UserAchievement.query.filter_by(user_id=user_id).all()}
+            
+            newly_unlocked = []
+            
+            for achievement in all_achievements:
+                # Skip if already unlocked and not repeatable
+                if achievement.id in unlocked_ids and not achievement.is_repeatable:
+                    continue
+                
+                # Check if criteria met
+                if self._check_achievement_criteria(user_id, achievement, event_type, event_data):
+                    user_achievement = self._unlock_achievement(user_id, achievement)
+                    if user_achievement:
+                        newly_unlocked.append(user_achievement.to_dict())
+            
+            return newly_unlocked
+            
+        except Exception as e:
+            logger.error(f"Error checking achievement unlocks: {str(e)}")
+            return []
+    
+    def _check_achievement_criteria(
+        self,
+        user_id: int,
+        achievement: GamificationAchievement,
+        event_type: str,
+        event_data: Dict
+    ) -> bool:
+        """Check if achievement criteria are met"""
+        criteria = achievement.unlock_criteria
+        criteria_type = criteria.get('type')
+        
+        # Check prerequisite
+        if achievement.prerequisite_achievement:
+            prereq = UserAchievement.query.join(GamificationAchievement).filter(
+                UserAchievement.user_id == user_id,
+                GamificationAchievement.achievement_key == achievement.prerequisite_achievement
+            ).first()
+            
+            if not prereq:
+                return False
+        
+        # Activity count achievements
+        if criteria_type == 'activity_count':
+            from app.models.user_activity_log import UserActivityLog
+            count = UserActivityLog.query.filter_by(user_id=user_id).count()
+            return count >= criteria.get('value', 0)
+        
+        # Streak achievements
+        elif criteria_type == 'streak_days':
+            streak = GamificationStreak.query.filter_by(user_id=user_id).first()
+            if streak:
+                return streak.current_streak >= criteria.get('value', 0)
+        
+        # Study time achievements
+        elif criteria_type == 'study_hours':
+            analytics = LearningAnalytics.query.filter_by(user_id=user_id).first()
+            if analytics:
+                hours = analytics.total_study_time / 60 if analytics.total_study_time else 0
+                return hours >= criteria.get('value', 0)
+        
+        # Skill mastery achievements
+        elif criteria_type == 'skill_mastery':
+            analytics = LearningAnalytics.query.filter_by(user_id=user_id).first()
+            if analytics:
+                skill = criteria.get('skill')
+                proficiency = getattr(analytics, f"{skill}_proficiency", 0)
+                return proficiency >= criteria.get('threshold', 0.8)
+        
+        # Level achievements
+        elif criteria_type == 'level_reached':
+            from app.models.user import User
+            user = User.query.get(user_id)
+            if user and hasattr(user, 'current_level'):
+                return user.current_level == criteria.get('level')
+        
+        # Perfect score achievements
+        elif criteria_type == 'perfect_score':
+            if event_type == 'activity_completed' and event_data.get('score') == 100:
+                return True
+        
+        return False
+    
+    def _unlock_achievement(self, user_id: int, achievement: GamificationAchievement) -> Optional[UserAchievement]:
+        """Unlock an achievement for user"""
+        try:
+            # Check if already unlocked
+            existing = UserAchievement.query.filter_by(
+                user_id=user_id,
+                achievement_id=achievement.id
+            ).first()
+            
+            if existing:
+                if achievement.is_repeatable:
+                    # Increment unlock count
+                    existing.unlock_count += 1
+                    existing.last_unlock_at = datetime.utcnow()
+                    db.session.commit()
+                    return existing
+                else:
+                    return None
+            
+            # Create new unlock
+            user_achievement = UserAchievement(
+                user_id=user_id,
+                achievement_id=achievement.id,
+                unlocked_at=datetime.utcnow()
+            )
+            
+            db.session.add(user_achievement)
+            
             # Award points
-            profile.points = (profile.points or 0) + points_awarded
+            if achievement.points_value > 0:
+                self._award_points(user_id, achievement.points_value, f"Achievement: {achievement.title}")
+            
             db.session.commit()
-
-            # Check for new achievements
-            new_badges = self.check_for_new_achievements(user_id)
-
-            # Update streak
-            self.update_streak(user_id)
-
-            # Check daily goal
-            daily_bonus = self._check_daily_goal(user_id)
-            if daily_bonus > 0:
-                profile.points += daily_bonus
-                points_awarded += daily_bonus
-                breakdown["daily_goal_bonus"] = daily_bonus
-                db.session.commit()
-
+            
+            logger.info(f"User {user_id} unlocked achievement: {achievement.title}")
+            
+            return user_achievement
+            
+        except Exception as e:
+            logger.error(f"Error unlocking achievement: {str(e)}")
+            db.session.rollback()
+            return None
+    
+    def get_user_achievements(self, user_id: int, category: str = None) -> Dict:
+        """
+        Get user's achievements with progress
+        
+        Args:
+            user_id: User ID
+            category: Optional category filter
+            
+        Returns:
+            Dictionary with unlocked and locked achievements
+        """
+        try:
+            # Get all achievements
+            query = GamificationAchievement.query.filter_by(is_active=True)
+            if category:
+                query = query.filter_by(category=category)
+            
+            all_achievements = query.all()
+            
+            # Get user's unlocked achievements
+            unlocked = UserAchievement.query.filter_by(user_id=user_id).all()
+            unlocked_map = {ua.achievement_id: ua for ua in unlocked}
+            
+            unlocked_achievements = []
+            locked_achievements = []
+            
+            for achievement in all_achievements:
+                if achievement.id in unlocked_map:
+                    ua = unlocked_map[achievement.id]
+                    unlocked_achievements.append(ua.to_dict())
+                else:
+                    locked_achievements.append(achievement.to_dict(is_unlocked=False))
+            
             return {
-                "success": True,
-                "points_awarded": points_awarded,
-                "total_points": profile.points,
-                "breakdown": breakdown,
-                "new_badges": new_badges,
+                'unlocked': unlocked_achievements,
+                'locked': locked_achievements,
+                'total_points': sum(ua.achievement.points_value for ua in unlocked),
+                'unlock_percentage': round(len(unlocked_achievements) / len(all_achievements) * 100, 1) if all_achievements else 0
             }
-
+            
         except Exception as e:
-            db.session.rollback()
-            return {"success": False, "error": str(e)}
-
-    def _check_daily_goal(self, user_id):
-        """
-        Check if user has met daily goal (3 activities) and award bonus.
-        Returns bonus points awarded (0 or 25).
-        """
+            logger.error(f"Error getting user achievements: {str(e)}")
+            return {'unlocked': [], 'locked': [], 'total_points': 0, 'unlock_percentage': 0}
+    
+    # ============================================================================
+    # LEADERBOARDS - Multi-Category Rankings
+    # ============================================================================
+    
+    def update_leaderboard(self, user_id: int, category: str, score_delta: int):
+        """Update user's leaderboard entry"""
         try:
             today = date.today()
-
-            # Count activities completed today
-            today_activities = LearningSession.query.filter(
-                LearningSession.user_id == user_id,
-                LearningSession.status == "completed",
-                func.date(LearningSession.completed_at) == today,
-            ).count()
-
-            # Check if already awarded daily bonus today
-            # We'll track this in a simple way - if they have 3+ activities today
-            # and their streak was updated today, award the bonus
-            if today_activities >= 3:
-                profile = Profile.query.filter_by(user_id=user_id).first()
-                if profile and profile.last_activity_date == today:
-                    # Check if we already gave bonus today (simple check)
-                    # In production, you'd want a separate tracking table
-                    return self.POINTS["daily_goal"]
-
-            return 0
-
-        except Exception as e:
-            return 0
-
-    def update_streak(self, user_id):
-        """
-        Updates the user's streak based on their recent activity.
-        This should be called upon activity completion or daily login.
-        """
-        try:
-            profile = Profile.query.filter_by(user_id=user_id).first()
-            if not profile:
-                return False
-
-            today = date.today()
-            yesterday = today - timedelta(days=1)
-
-            # Check if user has completed any activity today
-            today_activity = UserActivityLog.query.filter(
-                UserActivityLog.user_id == user_id,
-                func.date(UserActivityLog.completed_at) == today,
+            
+            # Update weekly leaderboard
+            week_start = today - timedelta(days=today.weekday())
+            week_end = week_start + timedelta(days=6)
+            
+            weekly_entry = LeaderboardEntry.query.filter_by(
+                user_id=user_id,
+                category=category,
+                time_period='weekly',
+                period_start=week_start
             ).first()
-
-            if today_activity:
-                if profile.last_activity_date == yesterday:
-                    # Continue streak
-                    profile.current_streak += 1
-                elif profile.last_activity_date != today:
-                    # First activity today, but gap exists
-                    profile.current_streak = 1
-
-                profile.last_activity_date = today
-                db.session.commit()
-
-                # Check for streak-based badges
-                self._check_streak_badges(user_id, profile.current_streak)
-
-            return True
-
-        except Exception as e:
-            db.session.rollback()
-            return False
-
-    def award_badge(self, user_id, badge_name):
-        """
-        Awards a specific badge to a user if they don't already have it.
-        """
-        try:
-            badge = Badge.query.filter_by(name=badge_name).first()
-            if not badge:
-                return False
-
-            # Check if user already has this badge
-            existing_user_badge = UserBadge.query.filter_by(
-                user_id=user_id, badge_id=badge.id
+            
+            if not weekly_entry:
+                weekly_entry = LeaderboardEntry(
+                    user_id=user_id,
+                    category=category,
+                    time_period='weekly',
+                    period_start=week_start,
+                    period_end=week_end,
+                    score=0
+                )
+                db.session.add(weekly_entry)
+            
+            weekly_entry.score += score_delta
+            weekly_entry.updated_at = datetime.utcnow()
+            
+            # Update all-time leaderboard
+            alltime_entry = LeaderboardEntry.query.filter_by(
+                user_id=user_id,
+                category=category,
+                time_period='all_time',
+                period_start=date(2020, 1, 1)
             ).first()
-
-            if existing_user_badge:
-                return False  # User already has this badge
-
-            # Award the badge
-            user_badge = UserBadge(user_id=user_id, badge_id=badge.id)
-
-            db.session.add(user_badge)
-
-            # Award bonus points
-            profile = Profile.query.filter_by(user_id=user_id).first()
-            if profile:
-                profile.points += badge.points_reward
-
+            
+            if not alltime_entry:
+                alltime_entry = LeaderboardEntry(
+                    user_id=user_id,
+                    category=category,
+                    time_period='all_time',
+                    period_start=date(2020, 1, 1),
+                    period_end=date(2099, 12, 31),
+                    score=0
+                )
+                db.session.add(alltime_entry)
+            
+            alltime_entry.score += score_delta
+            alltime_entry.updated_at = datetime.utcnow()
+            
             db.session.commit()
-            return True
-
+            
         except Exception as e:
+            logger.error(f"Error updating leaderboard: {str(e)}")
             db.session.rollback()
-            return False
-
-    def check_for_new_achievements(self, user_id):
+    
+    def get_leaderboard(
+        self,
+        category: str = 'overall',
+        time_period: str = 'weekly',
+        limit: int = 100,
+        user_id: Optional[int] = None
+    ) -> Dict:
         """
-        Checks if the user has met the criteria for any new badges
-        based on their progress and awards them accordingly.
-        """
-        try:
-            # Get user statistics
-            user_stats = self._get_user_statistics(user_id)
-            profile = Profile.query.filter_by(user_id=user_id).first()
-
-            if not profile:
-                return []
-
-            # Get all badges the user doesn't have yet
-            user_badge_ids = (
-                db.session.query(UserBadge.badge_id)
-                .filter_by(user_id=user_id)
-                .subquery()
-            )
-            available_badges = Badge.query.filter(~Badge.id.in_(user_badge_ids)).all()
-
-            newly_awarded = []
-
-            for badge in available_badges:
-                should_award = False
-
-                if badge.requirement_type == "activities_completed":
-                    should_award = (
-                        user_stats["total_activities"] >= badge.requirement_value
-                    )
-                elif badge.requirement_type == "streak_days":
-                    should_award = profile.current_streak >= badge.requirement_value
-                elif badge.requirement_type == "points_earned":
-                    should_award = profile.points >= badge.requirement_value
-                elif badge.requirement_type == "quiz_completed":
-                    should_award = user_stats["quiz_count"] >= badge.requirement_value
-                elif badge.requirement_type == "flashcard_completed":
-                    should_award = (
-                        user_stats["flashcard_count"] >= badge.requirement_value
-                    )
-                elif badge.requirement_type == "perfect_scores":
-                    should_award = (
-                        user_stats["perfect_scores"] >= badge.requirement_value
-                    )
-
-                if should_award:
-                    if self.award_badge(user_id, badge.name):
-                        newly_awarded.append(
-                            {
-                                "name": badge.name,
-                                "description": badge.description,
-                                "points_reward": badge.points_reward,
-                                "rarity": badge.rarity,
-                            }
-                        )
-
-            return newly_awarded
-
-        except Exception as e:
-            return []
-
-    def _get_user_statistics(self, user_id):
-        """
-        Gets comprehensive statistics for a user.
-        """
-        try:
-            # Total activities completed
-            total_activities = UserActivityLog.query.filter_by(user_id=user_id).count()
-
-            # Activities by type
-            quiz_count = (
-                UserActivityLog.query.join(Activity)
-                .filter(
-                    UserActivityLog.user_id == user_id, Activity.activity_type == "quiz"
-                )
-                .count()
-            )
-
-            flashcard_count = (
-                UserActivityLog.query.join(Activity)
-                .filter(
-                    UserActivityLog.user_id == user_id,
-                    Activity.activity_type == "flashcard",
-                )
-                .count()
-            )
-
-            # Perfect scores (100%)
-            perfect_scores = UserActivityLog.query.filter(
-                UserActivityLog.user_id == user_id,
-                UserActivityLog.score == UserActivityLog.max_score,
-                UserActivityLog.max_score > 0,
-            ).count()
-
-            # Average score
-            avg_score = (
-                db.session.query(func.avg(UserActivityLog.score))
-                .filter_by(user_id=user_id)
-                .scalar()
-                or 0
-            )
-
-            return {
-                "total_activities": total_activities,
-                "quiz_count": quiz_count,
-                "flashcard_count": flashcard_count,
-                "perfect_scores": perfect_scores,
-                "average_score": avg_score,
-            }
-
-        except Exception as e:
-            return {
-                "total_activities": 0,
-                "quiz_count": 0,
-                "flashcard_count": 0,
-                "perfect_scores": 0,
-                "average_score": 0,
-            }
-
-    def _check_streak_badges(self, user_id, streak_days):
-        """
-        Checks and awards streak-based badges.
-        """
-        streak_milestones = [3, 7, 14, 30, 60, 100]
-
-        for milestone in streak_milestones:
-            if streak_days >= milestone:
-                badge_name = f"{milestone}-Day Streak"
-                badge = Badge.query.filter_by(name=badge_name).first()
-                if badge:
-                    self.award_badge(user_id, badge_name)
-
-    def get_user_badges(self, user_id):
-        """
-        Gets all badges earned by a user.
-        """
-        try:
-            user_badges = (
-                db.session.query(UserBadge, Badge)
-                .join(Badge)
-                .filter(UserBadge.user_id == user_id)
-                .order_by(UserBadge.earned_at.desc())
-                .all()
-            )
-
-            badges = []
-            for user_badge, badge in user_badges:
-                badges.append(
-                    {
-                        "id": badge.id,
-                        "name": badge.name,
-                        "description": badge.description,
-                        "category": badge.category,
-                        "rarity": badge.rarity,
-                        "points_reward": badge.points_reward,
-                        "earned_at": user_badge.earned_at.isoformat(),
-                        "icon_url": badge.icon_url,
-                    }
-                )
-
-            return badges
-
-        except Exception as e:
-            return []
-
-    def get_leaderboard(self, limit=10, time_period="all_time"):
-        """
-        Gets the leaderboard based on points or other criteria.
-        """
-        try:
-            if time_period == "weekly":
-                week_ago = datetime.utcnow() - timedelta(days=7)
-                # This would require tracking weekly points separately
-                # For now, we'll use all-time points
-                pass
-
-            leaderboard = (
-                db.session.query(User, Profile)
-                .join(Profile)
-                .filter(Profile.points > 0)
-                .order_by(Profile.points.desc())
-                .limit(limit)
-                .all()
-            )
-
-            results = []
-            for rank, (user, profile) in enumerate(leaderboard, 1):
-                results.append(
-                    {
-                        "rank": rank,
-                        "username": user.username,
-                        "points": profile.points,
-                        "current_streak": profile.current_streak,
-                        "proficiency_level": profile.proficiency_level,
-                    }
-                )
-
-            return results
-
-        except Exception as e:
-            return []
-
-    def get_daily_challenge_status(self, user_id):
-        """
-        Checks if the user has completed today's challenge.
+        Get leaderboard rankings
+        
+        Args:
+            category: Leaderboard category
+            time_period: Time period (daily, weekly, monthly, all_time)
+            limit: Number of entries to return
+            user_id: Optional user ID to include their rank if not in top
+            
+        Returns:
+            Dictionary with rankings and user position
         """
         try:
             today = date.today()
-            today_activities = UserActivityLog.query.filter(
-                UserActivityLog.user_id == user_id,
-                func.date(UserActivityLog.completed_at) == today,
-            ).count()
-
-            # Daily challenge: complete at least 3 activities
-            challenge_target = 3
-
+            
+            # Determine period_start based on time_period
+            if time_period == 'daily':
+                period_start = today
+            elif time_period == 'weekly':
+                period_start = today - timedelta(days=today.weekday())
+            elif time_period == 'monthly':
+                period_start = today.replace(day=1)
+            else:  # all_time
+                period_start = date(2020, 1, 1)
+            
+            # Get top entries
+            entries = LeaderboardEntry.query.filter_by(
+                category=category,
+                time_period=time_period,
+                period_start=period_start
+            ).order_by(desc(LeaderboardEntry.score)).limit(limit).all()
+            
+            # Calculate ranks
+            for i, entry in enumerate(entries, 1):
+                entry.rank = i
+            
+            db.session.commit()
+            
+            rankings = [e.to_dict() for e in entries]
+            
+            # Get user's position if not in top
+            user_entry = None
+            if user_id:
+                user_entry = LeaderboardEntry.query.filter_by(
+                    user_id=user_id,
+                    category=category,
+                    time_period=time_period,
+                    period_start=period_start
+                ).first()
+                
+                if user_entry and user_entry.rank and user_entry.rank > limit:
+                    rankings.append(user_entry.to_dict())
+            
             return {
-                "completed_today": today_activities,
-                "target": challenge_target,
-                "is_completed": today_activities >= challenge_target,
-                "progress_percentage": min(
-                    100, (today_activities / challenge_target) * 100
-                ),
+                'category': category,
+                'time_period': time_period,
+                'rankings': rankings,
+                'user_rank': user_entry.rank if user_entry else None,
+                'total_participants': LeaderboardEntry.query.filter_by(
+                    category=category,
+                    time_period=time_period,
+                    period_start=period_start
+                ).count()
             }
-
+            
         except Exception as e:
-            return {
-                "completed_today": 0,
-                "target": 3,
-                "is_completed": False,
-                "progress_percentage": 0,
-            }
+            logger.error(f"Error getting leaderboard: {str(e)}")
+            return {'category': category, 'time_period': time_period, 'rankings': [], 'user_rank': None, 'total_participants': 0}
+    
+    # ============================================================================
+    # LEARNING STREAKS - Streak Tracking with Freeze/Recovery
+    # ============================================================================
+    
+    def update_streak(self, user_id: int, activity_date: date = None) -> Dict:
+        """Update user's learning streak"""
+        try:
+            if activity_date is None:
+                activity_date = date.today()
+            
+            streak = GamificationStreak.query.filter_by(user_id=user_id).first()
+            
+            if not streak:
+                streak = GamificationStreak(
+                    user_id=user_id,
+                    current_streak=1,
+                    last_activity_date=activity_date,
+                    streak_start_date=activity_date
+                )
+                db.session.add(streak)
+            else:
+                old_streak = streak.current_streak
+                streak.update_streak(activity_date)
+                
+                # Check for milestone achievements
+                if streak.current_streak != old_streak:
+                    self._check_streak_milestones(user_id, streak)
+            
+            db.session.commit()
+            
+            return streak.to_dict()
+            
+        except Exception as e:
+            logger.error(f"Error updating streak: {str(e)}")
+            db.session.rollback()
+            return {}
+    
+    def _check_streak_milestones(self, user_id: int, streak: GamificationStreak):
+        """Check if streak reached a milestone"""
+        milestones = {7, 30, 100, 365}
+        
+        if streak.current_streak in milestones:
+            # Create milestone
+            milestone = ProgressMilestone(
+                user_id=user_id,
+                milestone_type='streak',
+                milestone_key=f"streak_{streak.current_streak}",
+                title=f"🔥 {streak.current_streak}-Day Streak!",
+                description=f"Maintained a learning streak for {streak.current_streak} consecutive days!",
+                icon='🔥',
+                target_value=streak.current_streak,
+                achieved_value=streak.current_streak,
+                points_awarded=streak.current_streak * 10,
+                reached_at=datetime.utcnow()
+            )
+            
+            db.session.add(milestone)
+            
+            # Award points
+            self._award_points(user_id, milestone.points_awarded, f"Streak Milestone: {streak.current_streak} days")
+            
+            # Check for achievement unlock
+            self.check_achievement_unlocks(
+                user_id,
+                'streak_milestone',
+                {'days': streak.current_streak}
+            )
+    
+    def use_streak_freeze(self, user_id: int) -> Dict:
+        """Use a streak freeze to protect today's streak"""
+        try:
+            streak = GamificationStreak.query.filter_by(user_id=user_id).first()
+            
+            if not streak:
+                return {'success': False, 'message': 'No streak found'}
+            
+            if streak.freeze_count <= 0:
+                return {'success': False, 'message': 'No freezes available'}
+            
+            today = date.today()
+            days_since_activity = (today - streak.last_activity_date).days if streak.last_activity_date else 999
+            
+            if days_since_activity <= 1:
+                return {'success': False, 'message': 'Streak is not at risk'}
+            
+            # Use freeze
+            streak.freeze_count -= 1
+            streak.freezes_used += 1
+            streak.last_activity_date = today
+            
+            db.session.commit()
+            
+            return {'success': True, 'message': 'Streak freeze used successfully', 'streak': streak.to_dict()}
+            
+        except Exception as e:
+            logger.error(f"Error using streak freeze: {str(e)}")
+            db.session.rollback()
+            return {'success': False, 'message': 'Error using freeze'}
+    
+    def get_user_streak(self, user_id: int) -> Dict:
+        """Get user's streak information"""
+        streak = GamificationStreak.query.filter_by(user_id=user_id).first()
+        
+        if not streak:
+            # Create initial streak
+            streak = GamificationStreak(user_id=user_id)
+            db.session.add(streak)
+            db.session.commit()
+        
+        return streak.to_dict()
+    
+    # ============================================================================
+    # HELPER METHODS
+    # ============================================================================
+    
+    def _award_points(self, user_id: int, points: int, reason: str):
+        """Award points to user"""
+        try:
+            from app.models.user import User
+            user = User.query.get(user_id)
+            
+            if user and hasattr(user, 'total_points'):
+                user.total_points = (user.total_points or 0) + points
+                
+                # Update leaderboard
+                self.update_leaderboard(user_id, 'overall', points)
+                
+                logger.info(f"Awarded {points} points to user {user_id} for: {reason}")
+                
+        except Exception as e:
+            logger.error(f"Error awarding points: {str(e)}")
+
+
+# Initialize service
+gamification_service = GamificationService()

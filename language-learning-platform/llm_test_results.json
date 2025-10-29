@@ -1,0 +1,121 @@
+{
+  "timestamp": "2025-10-19T18:27:30.293326",
+  "endpoint": "https://hpc.kluniversity.in/dev/jupyter/MTkyLjE2OC4yMC4xNDo1NDEzMg/infer",
+  "model": "sarvamai/sarvam-m",
+  "summary": {
+    "total_tests": 10,
+    "passed": 8,
+    "failed": 2,
+    "success_rate": "80.0%"
+  },
+  "results": [
+    {
+      "test": "1. Endpoint Connection Test",
+      "status": "FAILED",
+      "duration": "0.35s",
+      "details": {
+        "success": false,
+        "error": "Cannot connect to endpoint",
+        "endpoint": "https://hpc.kluniversity.in/dev/jupyter/MTkyLjE2OC4yMC4xNDo1NDEzMg/infer"
+      }
+    },
+    {
+      "test": "2. Basic Text Generation",
+      "status": "PASSED",
+      "duration": "8.18s",
+      "details": {
+        "success": true,
+        "response": "Okay, the user wants me to say \"Hello, World!\" in both Telugu and English. Let me start by confirming the correct Telugu translation. I remember that \"Hello\" in Telugu is commonly \"హలో\" (Halo), but sometimes people also use \"నమస్తే\" (Namaste) as a greeting. However, \"Hello, World!\" is a standard programming example, so \"హలో\" might be more appropriate here. Let me double-check that.\n\nYes",
+        "model": "sarvamai/sarvam-m",
+        "tokens": {
+          "prompt_tokens": 49,
+          "total_tokens": 149,
+          "completion_tokens": 100,
+          "prompt_tokens_details": null
+        }
+      }
+    },
+    {
+      "test": "3. Telugu Translation",
+      "status": "PASSED",
+      "duration": "7.30s",
+      "details": {
+        "success": true,
+        "response": "Okay, the user wants me to translate \"Good morning, how are you?\" into Telugu. Let me start by breaking down the sentence. \"Good morning\" is a common greeting, so I need the appropriate Telugu equivalent. In Telugu, \"Good morning\" is often \"శుభోదయం\" (Shubhōdayam). Then the question \"how are you?\" translates to \"మీరు ఎలా ఉన్నారు?\" (Mīru elā unnāru?). But wait, in Telugu, depending on the context, sometimes people use \"మీరు ఎలా ఉన్నారు?\" for formal and \"ఎలా ఉన్నారు?\" for informal. Since the original is a general greeting, maybe the formal version is better",
+        "model": "sarvamai/sarvam-m"
+      }
+    },
+    {
+      "test": "4. Grammar Explanation",
+      "status": "PASSED",
+      "duration": "14.47s",
+      "details": {
+        "success": true,
+        "response": "Okay, the user wants me to explain the difference between present simple and present continuous tenses in English for a beginner. Let me start by recalling the basic definitions.\n\nPresent simple is used for habitual actions or general truths. For example, \"I go to school every day.\" It's about routines and facts. The structure is subject + base verb (or 's' for third person singular) + object.\n\nPresent continuous is for actions happening right now or temporary situations. Like \"I am eating lunch.\" The structure is subject + am/is/are + verb-ing. Also used for future arrangements, like \"She is coming tomorrow.\"\n\nI need to make sure the examples are simple and clear. Maybe use everyday situations. Let me think of more examples for each. For present simple: \"He reads a book every day.\" \"The sun rises in the east.\" For present continuous: \"They are playing football now.\" \"I am studying English.\"\n\nWait, should I mention the time markers? Like \"every day\" for present simple and \"now\" for present continuous. That might help beginners spot the difference.\n\nAlso, the user might be a teacher preparing a lesson or a student learning on their own. Either way, clarity is key. Maybe use a table to compare them side by side. But since the user asked for an explanation with examples, perhaps a bullet list would be better.\n\nCheck if there are common mistakes beginners make. Maybe confusing the two when talking about habits",
+        "model": "sarvamai/sarvam-m"
+      }
+    },
+    {
+      "test": "5. JSON Generation",
+      "status": "FAILED",
+      "duration": "14.41s",
+      "details": {
+        "success": false,
+        "error": "Invalid JSON: Expecting value: line 1 column 1 (char 0)",
+        "raw_response": "Okay, the user wants me to generate a simple vocabulary quiz question about animals. Let me think about how to approach this.\n\nFirst, I need to make sure the question is straightforward. Maybe start with a basic animal term. Words like \"herd\" come to mind. What animal is associated with a herd? Cows, elephants, sheep, or maybe lions? Wait, lions are usually called prides, right? So herd would be for cows or sheep. Let me confirm that. Yes, a group of cows is a herd. So the question could be: What term describes a group of cows?\n\nNext, the options. Let's list possible terms. A. Herd, B. Pack, C. Group, D. Flock. Wait, flock is for birds. Pack is for wolves or dogs. Group is too generic. So the correct answer should be A. Herd.\n\nExplanation: Need to explain why herd is correct and why the others aren't. Herd is specifically for cows, sheep, etc. Pack for wolves, flock for birds, group is too general. That makes sense. Let me check if there's any other possible confusion. Maybe \"mob\" for cows? But that's not a standard term. So stick with herd. Alright, that should work.\n</think>\n\n{\n    \"question\": \"What term describes a group of cows?\",\n    \"options\": [\"A. Herd\", \"B. Pack\", \"C"
+      }
+    },
+    {
+      "test": "6. Chat Completion",
+      "status": "PASSED",
+      "duration": "5.64s",
+      "details": {
+        "success": true,
+        "response": "Okay, great question! Here are some common greetings in English, categorized by formality and time of day, along with some extra details:\n\n**Formal Greetings:**\n\n*   **\"Hello.\"** - This is a standard, polite greeting suitable for almost any situation.\n*   **\"Good morning.\"** - Used from sunrise to noon (12:00 PM).\n*   **\"Good afternoon.\"** - Used from noon (12:00 PM) to around 6:00 PM.\n*   **\"Good evening.\"** - Used from around 6:00 PM onwards, or when the sun starts to set.\n*   **\"How do you do?\"** -  This is a very formal greeting, often used when meeting someone for the first time. The expected response is also \"How do you do?\"  It's more common in British English than American English.\n\n**Informal Greetings:**\n\n*   **",
+        "model": "gemini-2.0-flash-exp"
+      }
+    },
+    {
+      "test": "7. Long Form Content",
+      "status": "PASSED",
+      "duration": "15.45s",
+      "details": {
+        "success": true,
+        "response": "Okay, the user wants a short story about a student learning English, motivational and encouraging. Let me think. The story needs to be 3-4 sentences. First, the main character should face a challenge. Maybe struggling with pronunciation or grammar. Then, a moment of perseverance. Maybe a teacher or friend helps. Finally, success and encouragement.\n\nWait, the user mentioned \"motivational and encouraging,\" so the ending should be positive. Maybe the student overcomes the obstacle through effort. Let me set the scene. Maybe a classroom setting. The student, let's name her Priya. She's nervous to speak. The teacher encourages her. She practices daily, maybe has a breakthrough. Ends with her confidence boosted. Need to keep it concise. Check the sentences to ensure they flow and hit the motivational points. Make sure the cultural context is Indian, maybe mention a local festival or scenario to add relatability. Also, use simple language since it's for a student. Avoid complex words. Ensure the story is uplifting and shows determination.\n</think>\n\n**The Breakthrough**  \nRiya fumbled with her words during the English class debate, her cheeks flushing as laughter echoed. That night, she scrawled sentences in her notebook, imagining each word as a stepping stone. Weeks later, her teacher called her to read aloud—a clear, confident voice filled the room. The class clapped, and Riya smiled, knowing every stumble had been a secret lesson. *\"Progress,\"* her teacher whispered, *\"is born in the courage to begin.\"*",
+        "model": "sarvamai/sarvam-m",
+        "word_count": 238
+      }
+    },
+    {
+      "test": "8. System Prompt Adherence",
+      "status": "PASSED",
+      "duration": "4.91s",
+      "details": {
+        "success": true,
+        "response": "Okay, the user wrote \"Me go to school yesterday.\" Let me check the grammar here. The sentence starts with \"Me,\" which is an object pronoun. The correct subject pronoun should be \"I.\" Then the verb \"go\" needs to be in the past tense because the action happened yesterday. So \"go\" becomes \"went.\" The rest of the sentence seems okay. So the corrected sentence should be \"I went to school yesterday.\" I need to make sure there are no other errors.",
+        "model": "sarvamai/sarvam-m"
+      }
+    },
+    {
+      "test": "9. Temperature Variation",
+      "status": "PASSED",
+      "duration": "7.58s",
+      "details": {
+        "success": true,
+        "response": "[\n  {\n    \"temperature\": 0.0,\n    \"response\": \"Okay, the user wants a one-sentence description of a sunny day. Let me start by visualizing a sunny day. I need to include elements that convey warmth, brightness, and maybe some nature. Words like \\\"golden sunlight\\\" come\"\n  },\n  {\n    \"temperature\": 0.5,\n    \"response\": \"Okay, the user wants a one-sentence description of a sunny day. Let me start by visualizing a sunny day. What elements are essential? Bright sunlight, clear blue sky, maybe the warmth. I should include sensory details to make it\"\n  },\n  {\n    \"temperature\": 1.0,\n    \"response\": \"Okay, the user wants a one-sentence description of a sunny day. Let me think about the key elements that make a sunny day. Bright sunlight, maybe the color of the sky, like blue. Warmth from the sun, perhaps a\"\n  }\n]",
+        "model": "temperature comparison"
+      }
+    },
+    {
+      "test": "10. Fallback Mechanism",
+      "status": "PASSED",
+      "duration": "2.52s",
+      "details": {
+        "success": true,
+        "response": "Okay, the user wants me to say hello in a simple way. Let me start by understanding the request. They might be testing if I can handle basic interactions.\n\nFirst, I need to respond in the same language as the query. The user's",
+        "model": "sarvamai/sarvam-m",
+        "used_fallback": false
+      }
+    }
+  ]
+}

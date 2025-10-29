@@ -27,6 +27,7 @@ import PageTransition from "../../components/common/PageTransition";
 import GradientText from "../../components/common/GradientText";
 import AnimatedButton from "../../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../../config/api";
+import gamificationService from "../../services/gamificationService";
 
 const FlashcardsActivity = () => {
   const { activityId } = useParams();
@@ -36,6 +37,8 @@ const FlashcardsActivity = () => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [knownCards, setKnownCards] = useState([]);
   const [studyComplete, setStudyComplete] = useState(false);
+  const [nextActivityId, setNextActivityId] = useState(null);
+  const [learningPathId, setLearningPathId] = useState(null);
 
   useEffect(() => {
     fetchFlashcards();
@@ -103,6 +106,36 @@ const FlashcardsActivity = () => {
     }
   };
 
+  // Fetch learning path and next activity
+  useEffect(() => {
+    const fetchNextActivity = async () => {
+      try {
+        // Try to get learning path ID from localStorage (set when navigating from LearningPathDetail)
+        const pathIdFromStorage = localStorage.getItem("currentLearningPathId");
+        if (pathIdFromStorage) {
+          setLearningPathId(pathIdFromStorage);
+          const pathResponse = await axiosInstance.get(
+            API_ENDPOINTS.COURSES.PATH_DETAIL(pathIdFromStorage)
+          );
+          const activities = pathResponse.data.learning_path.activities;
+          const currentIndex = activities.findIndex(
+            (a) => a.id === parseInt(activityId)
+          );
+          
+          if (currentIndex !== -1 && currentIndex < activities.length - 1) {
+            setNextActivityId(activities[currentIndex + 1]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching next activity:", error);
+      }
+    };
+
+    if (studyComplete) {
+      fetchNextActivity();
+    }
+  }, [studyComplete, activityId]);
+
   const handleFlip = () => {
     setIsFlipped(!isFlipped);
   };
@@ -128,7 +161,7 @@ const FlashcardsActivity = () => {
     setIsFlipped(false);
   };
 
-  const handleMarkKnown = (known) => {
+  const handleMarkKnown = async (known) => {
     const cardId = flashcards[currentCard].id;
     if (known) {
       setKnownCards([...knownCards, cardId]);
@@ -136,10 +169,81 @@ const FlashcardsActivity = () => {
       setKnownCards(knownCards.filter((id) => id !== cardId));
     }
 
-    // Move to next card
+    // Move to next card or complete study
     if (currentCard < flashcards.length - 1) {
       handleNext();
     } else {
+      // Calculate final results
+      const finalKnownCards = known 
+        ? [...knownCards, cardId]
+        : knownCards.filter((id) => id !== cardId);
+      
+      const totalCount = flashcards.length;
+      const knownCount = finalKnownCards.length;
+      const percentage = Math.round((knownCount / totalCount) * 100);
+      
+      // Save results to backend
+      try {
+        // Get activity data from sessionStorage to extract learning_node_id
+        const activityData = JSON.parse(sessionStorage.getItem('currentActivity') || '{}');
+        
+        // Use multiple fallbacks to find learning_node_id
+        let learningNodeId = activityData.nodeId;
+        
+        // If nodeId is not available, try to construct one from available data
+        if (!learningNodeId) {
+          // Try to use _node_info if available
+          const nodeInfo = activityData._node_info;
+          if (nodeInfo) {
+            learningNodeId = nodeInfo.id 
+              || nodeInfo.node_id 
+              || `node_${activityData.nodeName?.replace(/\s+/g, '_').toLowerCase() || 'unknown'}`;
+          }
+        }
+        
+        // Final fallback: use activity ID as a reference
+        if (!learningNodeId) {
+          learningNodeId = `node_from_activity_${activityId}`;
+          console.warn("⚠️ Using fallback learning_node_id:", learningNodeId);
+        }
+        
+        console.log("Saving flashcard activity results:", {
+          activityId,
+          learningNodeId,
+          score: percentage,
+          knownCount,
+          totalCount
+        });
+        
+        await axiosInstance.post(
+          API_ENDPOINTS.LEARNING_PATH.COMPLETE_ACTIVITY,
+          {
+            learning_node_id: learningNodeId,
+            activity_id: activityId,
+            score: percentage,
+            time_spent: 0, // You can track actual time if needed
+            activity_type: "flashcards",
+            activity_results: {
+              cardsStudied: totalCount,
+              cardsKnown: knownCount,
+            },
+          }
+        );
+        
+        console.log("✅ Activity results saved successfully");
+      } catch (error) {
+        console.error("❌ Error saving activity results:", error);
+        // Continue to show completion screen even if API call fails
+      }
+
+      // Update streak after completing activity
+      try {
+        await gamificationService.updateStreak();
+        console.log("✅ Streak updated successfully");
+      } catch (error) {
+        console.error("Failed to update streak:", error);
+      }
+      
       setStudyComplete(true);
     }
   };
@@ -205,7 +309,30 @@ const FlashcardsActivity = () => {
                 </Typography>
               </Box>
 
-              <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+              <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+                {nextActivityId && (
+                  <AnimatedButton
+                    variant="contained"
+                    color="success"
+                    startIcon={<NavigateNext />}
+                    onClick={() => {
+                      // Navigate based on activity type
+                      const actType = nextActivityId.type || "flashcard";
+                      const typeStr = String(actType).toLowerCase();
+                      if (typeStr === "flashcard" || typeStr === "flashcards") {
+                        navigate(`/activities/flashcards/${nextActivityId.id}`);
+                      } else if (typeStr === "quiz") {
+                        navigate(`/activities/quiz/${nextActivityId.id}`);
+                      } else if (typeStr === "reading") {
+                        navigate(`/activities/reading/${nextActivityId.id}`);
+                      } else {
+                        navigate(`/activities/${nextActivityId.id}`);
+                      }
+                    }}
+                  >
+                    Next Activity
+                  </AnimatedButton>
+                )}
                 <AnimatedButton
                   variant="contained"
                   startIcon={<Home />}

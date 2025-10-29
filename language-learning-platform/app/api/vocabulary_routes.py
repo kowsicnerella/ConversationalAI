@@ -4,7 +4,7 @@ from app.models import db, VocabularyWord, User, LearningSession
 from datetime import datetime
 from sqlalchemy import or_, and_
 
-vocabulary_bp = Blueprint("vocabulary", __name__)
+vocabulary_bp = Blueprint("vocabulary_api", __name__)
 
 
 @vocabulary_bp.route("/words", methods=["GET"])
@@ -20,7 +20,7 @@ def get_vocabulary_words():
         search = request.args.get("search", "").strip()
         difficulty = request.args.get("difficulty", "").strip()
         mastery_level = request.args.get("mastery_level", "").strip()
-        sort_by = request.args.get("sort_by", "created_at").strip()
+        sort_by = request.args.get("sort_by", "discovered_at").strip()  # Fixed: use discovered_at
         sort_order = request.args.get("sort_order", "desc").strip()
 
         # Build query
@@ -50,7 +50,7 @@ def get_vocabulary_words():
         elif sort_by == "mastery":
             order_column = VocabularyWord.mastery_level
         else:
-            order_column = VocabularyWord.created_at
+            order_column = VocabularyWord.discovered_at  # Fixed: use discovered_at
 
         if sort_order == "asc":
             query = query.order_by(order_column.asc())
@@ -74,8 +74,8 @@ def get_vocabulary_words():
                     "mastery_level": word.mastery_level,
                     "practice_count": word.practice_count,
                     "correct_count": word.correct_count,
-                    "created_at": (
-                        word.created_at.isoformat() if word.created_at else None
+                    "discovered_at": (  # Fixed: use discovered_at
+                        word.discovered_at.isoformat() if word.discovered_at else None
                     ),
                     "last_practiced": (
                         word.last_practiced.isoformat() if word.last_practiced else None
@@ -166,7 +166,7 @@ def add_vocabulary_word():
             example_sentence=data.get("example_sentence", "").strip(),
             difficulty_level=data.get("difficulty_level", "beginner"),
             mastery_level="learning",
-            created_at=datetime.utcnow(),
+            discovered_at=datetime.utcnow(),  # Fixed: use discovered_at
         )
 
         db.session.add(vocab_word)

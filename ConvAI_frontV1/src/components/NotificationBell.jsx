@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   IconButton,
   Badge,
   Menu,
-  MenuItem,
   Typography,
   Box,
   Divider,
@@ -13,7 +12,6 @@ import {
   ListItemText,
   ListItemAvatar,
   Avatar,
-  Chip,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
@@ -30,14 +28,8 @@ const NotificationBell = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchNotifications();
-    // Poll for new notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchNotifications = async () => {
+  // Use useCallback to prevent recreating the function and causing multiple effects
+  const fetchNotifications = useCallback(async () => {
     try {
       const response = await API.get('/notifications/?limit=5&offset=0');
       if (response.data.success) {
@@ -47,7 +39,14 @@ const NotificationBell = () => {
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications();
+    // Poll for new notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, [fetchNotifications]);
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);

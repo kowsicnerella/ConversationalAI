@@ -1,0 +1,54 @@
+# Phase 3 Quick Seeding - Flask Shell Commands
+
+# Run these commands in Flask shell:
+# cd d:\ConversationalAI\language-learning-platform
+# set FLASK_APP=app.py
+# flask shell
+
+# Then paste this:
+
+from app.models.learning_node import CurriculumLevel, SkillDomain, LearningNode
+from app import db
+
+print("Seeding CEFR Levels...")
+
+levels = [
+    CurriculumLevel(cefr_level='A1', level_name='Beginner', vocabulary_range_min=0, vocabulary_range_max=500, level_order=1, estimated_hours=80),
+    CurriculumLevel(cefr_level='A2', level_name='Elementary', vocabulary_range_min=500, vocabulary_range_max=1000, level_order=2, estimated_hours=150),
+    CurriculumLevel(cefr_level='B1', level_name='Intermediate', vocabulary_range_min=1000, vocabulary_range_max=2000, level_order=3, estimated_hours=200),
+    CurriculumLevel(cefr_level='B2', level_name='Upper-Intermediate', vocabulary_range_min=2000, vocabulary_range_max=4000, level_order=4, estimated_hours=250),
+    CurriculumLevel(cefr_level='C1', level_name='Advanced', vocabulary_range_min=4000, vocabulary_range_max=8000, level_order=5, estimated_hours=300),
+    CurriculumLevel(cefr_level='C2', level_name='Proficient', vocabulary_range_min=8000, vocabulary_range_max=16000, level_order=6, estimated_hours=400),
+]
+
+for level in levels:
+    if not CurriculumLevel.query.filter_by(cefr_level=level.cefr_level).first():
+        db.session.add(level)
+        print(f"Added: {level.cefr_level} - {level.level_name}")
+
+db.session.commit()
+print(f"Total levels: {CurriculumLevel.query.count()}")
+
+print("\nSeeding Skill Domains...")
+
+domains = [
+    SkillDomain(domain_name='Listening', icon='🎧', color='#4A90E2', order=1),
+    SkillDomain(domain_name='Speaking', icon='🗣️', color='#F5A623', order=2),
+    SkillDomain(domain_name='Reading', icon='📖', color='#7ED321', order=3),
+    SkillDomain(domain_name='Writing', icon='✍️', color='#BD10E0', order=4),
+    SkillDomain(domain_name='Vocabulary', icon='📚', color='#50E3C2', order=5),
+    SkillDomain(domain_name='Grammar', icon='📝', color='#FF6B6B', order=6),
+]
+
+for domain in domains:
+    if not SkillDomain.query.filter_by(domain_name=domain.domain_name).first():
+        db.session.add(domain)
+        print(f"Added: {domain.domain_name} - {domain.icon}")
+
+db.session.commit()
+print(f"Total domains: {SkillDomain.query.count()}")
+
+print("\n✅ Seeding complete!")
+print(f"CEFR Levels: {CurriculumLevel.query.count()}")
+print(f"Skill Domains: {SkillDomain.query.count()}")
+print(f"Learning Nodes: {LearningNode.query.count()}")

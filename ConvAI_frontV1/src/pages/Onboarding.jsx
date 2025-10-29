@@ -69,6 +69,17 @@ const Onboarding = () => {
       const status = response.data.onboarding_status;
       setOnboardingStatus(status);
 
+      // Extract assessment results from the status response if available
+      if (status.assessment && status.assessment.completed) {
+        const assessmentResults = {
+          overall_score: 100, // Backend doesn't return score, use proficiency level
+          overall_proficiency_level: status.assessment.proficiency_level,
+          assessment_id: status.assessment.assessment_id,
+        };
+        setAssessmentResults(assessmentResults);
+        console.log("Assessment results loaded from status:", assessmentResults);
+      }
+
       // Determine which step to show based on status
       if (status.onboarding_completed) {
         navigate("/dashboard");
@@ -91,7 +102,7 @@ const Onboarding = () => {
           setActiveStep(2);
           break;
         case "choose_learning_path":
-          setActiveStep(4);
+          setActiveStep(5); // Changed from 4 to 5 (skip goals step since assessment is done)
           break;
         case "ready_to_start":
           setActiveStep(5);

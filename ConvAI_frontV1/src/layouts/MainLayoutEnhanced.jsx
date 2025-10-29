@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import axiosInstance, { API_ENDPOINTS } from "../config/api";
+import gamificationService from "../services/gamificationService";
 import NotificationBell from "../components/NotificationBell";
 import {
   Box,
@@ -22,6 +22,7 @@ import {
   MenuItem,
   useMediaQuery,
   CircularProgress,
+  Badge,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -40,6 +41,8 @@ import {
   Close as CloseIcon,
   EmojiEvents as GoalsIcon,
   Psychology as PracticeIcon,
+  VideogameAsset as GamificationIcon,
+  LocalFireDepartment as FireIcon,
 } from "@mui/icons-material";
 
 const drawerWidth = 260;
@@ -53,6 +56,7 @@ const menuItems = [
   { text: "Practice", icon: <PracticeIcon />, path: "/practice" },
   { text: "AI Chat", icon: <ChatIcon />, path: "/chat" },
   { text: "Analytics", icon: <AnalyticsIcon />, path: "/analytics" },
+  { text: "Gamification", icon: <GamificationIcon />, path: "/gamification" },
   { text: "Leaderboard", icon: <LeaderboardIcon />, path: "/leaderboard" },
 ];
 
@@ -65,25 +69,29 @@ const MainLayout = () => {
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [userStatus, setUserStatus] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [showNavbar, setShowNavbar] = useState(true);
+  const [streak, setStreak] = useState(null);
+  const { userStatus } = useAuth(); // Get userStatus from AuthContext instead of duplicating
 
   useEffect(() => {
-    fetchUserStatus();
+    fetchStreakData();
   }, [location.pathname]);
 
-  const fetchUserStatus = async () => {
+  // Update navbar visibility when userStatus changes from AuthContext
+  useEffect(() => {
+    if (userStatus) {
+      setShowNavbar(userStatus.navigation?.show_navbar ?? true);
+      setLoading(false);
+    }
+  }, [userStatus]);
+
+  const fetchStreakData = async () => {
     try {
-      const response = await axiosInstance.get(API_ENDPOINTS.USER.STATUS);
-      const status = response.data.user_status;
-      setUserStatus(status);
-      setShowNavbar(status.navigation.show_navbar);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching user status:", error);
-      setShowNavbar(true); // Default to showing navbar on error
-      setLoading(false);
+      const data = await gamificationService.getStreak();
+      setStreak(data.streak);
+    } catch (err) {
+      console.error('Failed to fetch streak:', err);
     }
   };
 
@@ -261,6 +269,27 @@ const MainLayout = () => {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             {menuItems.find((item) => item.path === location.pathname)?.text || "Dashboard"}
           </Typography>
+
+          {/* Streak Badge */}
+          {streak && (
+            <IconButton
+              onClick={() => navigate("/gamification")}
+              title="View your gamification"
+              sx={{
+                mr: 1,
+                background: streak.current_streak > 0 ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" : undefined,
+                color: streak.current_streak > 0 ? "white" : "inherit",
+                transition: "all 0.2s",
+                "&:hover": {
+                  transform: "scale(1.1)",
+                },
+              }}
+            >
+              <Badge badgeContent={streak.current_streak} color="error">
+                <FireIcon />
+              </Badge>
+            </IconButton>
+          )}
 
           {/* Notification Bell */}
           <NotificationBell />

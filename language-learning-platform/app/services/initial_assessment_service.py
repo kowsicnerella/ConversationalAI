@@ -161,20 +161,22 @@ class InitialAssessmentService:
             "assessment_structure": assessment_data["structure"],
         }
 
-    def submit_assessment_answers(self, assessment_id: int, answers: Dict) -> Dict:
+    def submit_assessment_answers(self, assessment_id: int, answers: Dict, force_re_evaluate: bool = False) -> Dict:
         """
         Submit and evaluate assessment answers.
 
         Args:
             assessment_id: Assessment ID
             answers: Dictionary of question_id -> answer mappings
+            force_re_evaluate: If True, allow re-evaluation of already-completed assessments
         """
         assessment = ProficiencyAssessment.query.get(assessment_id)
         if not assessment:
             raise ValueError("Assessment not found")
 
         # Check if assessment is already completed
-        if assessment.user_responses:
+        # Allow re-evaluation if force_re_evaluate is True (for auto-evaluation of already-completed but not-evaluated assessments)
+        if assessment.user_responses and not force_re_evaluate:
             raise ValueError("Assessment is already completed")
 
         # Load questions data
@@ -209,22 +211,23 @@ class InitialAssessmentService:
             questions=questions,
             user_answers=answers,
             correct_answers={
-                q["id"]: q.get("correct_answer", q.get("sample_answer"))
+                (q.get("id") or q.get("question_id")): q.get("correct_answer", q.get("sample_answer"))
                 for q in questions
             },
             score=evaluation_result["total_score"],
+            max_score=evaluation_result.get("max_score", assessment.max_score),
             proficiency_level=proficiency_analysis["overall_level"],
             skill_breakdown=proficiency_analysis.get("skill_breakdown", {}),
             strengths=proficiency_analysis.get("strengths", []),
             weaknesses=proficiency_analysis.get("weaknesses", []),
             ai_feedback=evaluation_result.get("feedback", ""),
             recommendations=learning_path_recommendations,
-            time_taken_seconds=int(
-                (datetime.utcnow() - assessment.created_at).total_seconds()
+            duration_seconds=int(
+                (datetime.utcnow() - assessment.started_at).total_seconds()
             )
-            if assessment.created_at
+            if assessment.started_at
             else None,
-            confidence_score=proficiency_analysis.get("confidence", 0.5),
+            started_at=assessment.started_at or datetime.utcnow(),
             completed_at=datetime.utcnow(),
         )
         db.session.add(history_entry)
@@ -1129,7 +1132,7 @@ class InitialAssessmentService:
                 "title": primary_path.title,
                 "description": primary_path.description,
                 "difficulty_level": primary_path.difficulty_level,
-                "estimated_duration_weeks": primary_path.estimated_duration_weeks,
+                "estimated_duration_hours": primary_path.estimated_duration_hours,
                 "match_reason": f"Matches your {overall_level} proficiency level",
             }
 

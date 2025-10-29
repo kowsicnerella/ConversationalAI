@@ -11,6 +11,13 @@ import {
   Grid,
   Card,
   CardContent,
+  Drawer,
+  Switch,
+  FormControlLabel,
+  Divider,
+  Tooltip,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   Send,
@@ -20,13 +27,21 @@ import {
   Lightbulb,
   QuestionAnswer,
   Translate,
+  Menu as MenuIcon,
+  Download,
+  Refresh,
+  Search,
+  MoreVert,
 } from "@mui/icons-material";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
+import { useChat } from "../context/ChatContext";
 import PageTransition from "../components/common/PageTransition";
 import GradientText from "../components/common/GradientText";
 import AnimatedButton from "../components/common/AnimatedButton";
-import axiosInstance, { API_ENDPOINTS } from "../config/api";
+import ChatHistorySidebar from "../components/chat/ChatHistorySidebar";
+import MemoryInsights from "../components/chat/MemoryInsights";
+import WebSearchResults from "../components/chat/WebSearchResults";
 
 const suggestedPrompts = [
   "Help me practice basic greetings",
@@ -36,24 +51,33 @@ const suggestedPrompts = [
 ];
 
 const Chat = () => {
-  const { user } = useAuth();
-  const [messages, setMessages] = useState([]);
+  useAuth();
+  const {
+    currentConversation,
+    messages,
+    loading: chatLoading,
+    typing,
+    sendMessage,
+    createConversation,
+    loadConversation,
+    webSearchResults,
+  } = useChat();
+
   const [inputMessage, setInputMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [typing, setTyping] = useState(false);
+  const [useWebSearch, setUseWebSearch] = useState(false);
+  const [topic, setTopic] = useState("general");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showInsights, setShowInsights] = useState(true);
+  const [anchorEl, setAnchorEl] = useState(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Load chat history or show welcome message
-    setMessages([
-      {
-        id: 1,
-        role: "assistant",
-        content: `Hello ${user?.username}! I'm your AI English learning assistant. How can I help you today?`,
-        timestamp: new Date(),
-      },
-    ]);
-  }, [user]);
+    // Initialize chat
+    if (!currentConversation) {
+      createConversation(`Chat - ${new Date().toLocaleTimeString()}`, topic);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
@@ -64,46 +88,13 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || !currentConversation) return;
 
-    const userMessage = {
-      id: Date.now(),
-      role: "user",
-      content: inputMessage,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    await sendMessage(inputMessage, {
+      useWebSearch,
+      topic,
+    });
     setInputMessage("");
-    setTyping(true);
-
-    try {
-      const response = await axiosInstance.post(API_ENDPOINTS.CHAT.MESSAGE, {
-        message: inputMessage,
-      });
-
-      setTyping(false);
-      const assistantMessage = {
-        id: Date.now() + 1,
-        role: "assistant",
-        content: response.data.response || response.data.message,
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Error sending message:", error);
-      setTyping(false);
-      // Mock response for demo
-      setTimeout(() => {
-        const mockResponse = {
-          id: Date.now() + 1,
-          role: "assistant",
-          content: `That's a great question! Let me help you with that. "${inputMessage}" - I can provide you with examples, explanations, and practice exercises for this topic.`,
-          timestamp: new Date(),
-        };
-        setMessages((prev) => [...prev, mockResponse]);
-      }, 1000);
-    }
   };
 
   const handlePromptClick = (prompt) => {
@@ -115,6 +106,19 @@ const Chat = () => {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handleSelectConversation = (conversation) => {
+    loadConversation(conversation.id);
+    setSidebarOpen(false);
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   return (
@@ -240,7 +244,7 @@ const Chat = () => {
           }}
         >
           <AnimatePresence>
-            {messages.map((message, index) => (
+            {messages.map((message) => (
               <motion.div
                 key={message.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -370,16 +374,16 @@ const Chat = () => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              disabled={loading}
+              disabled={chatLoading}
               variant="outlined"
             />
             <AnimatedButton
               variant="contained"
               onClick={handleSend}
-              disabled={!inputMessage.trim() || loading}
+              disabled={!inputMessage.trim() || chatLoading}
               sx={{ minWidth: 56, height: 56 }}
             >
-              {loading ? (
+              {chatLoading ? (
                 <CircularProgress size={24} color="inherit" />
               ) : (
                 <Send />

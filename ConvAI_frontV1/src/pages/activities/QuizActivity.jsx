@@ -26,6 +26,7 @@ import PageTransition from "../../components/common/PageTransition";
 import GradientText from "../../components/common/GradientText";
 import AnimatedButton from "../../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../../config/api";
+import gamificationService from "../../services/gamificationService";
 
 const QuizActivity = () => {
   const { activityId } = useParams();
@@ -37,6 +38,8 @@ const QuizActivity = () => {
   const [answers, setAnswers] = useState([]);
   const [timeLeft, setTimeLeft] = useState(300); // 5 minutes
   const [quizComplete, setQuizComplete] = useState(false);
+  const [nextActivityId, setNextActivityId] = useState(null);
+  const [learningPathId, setLearningPathId] = useState(null);
 
   useEffect(() => {
     fetchQuiz();
@@ -130,6 +133,36 @@ const QuizActivity = () => {
     }
   };
 
+  // Fetch learning path and next activity
+  useEffect(() => {
+    const fetchNextActivity = async () => {
+      try {
+        // Try to get learning path ID from localStorage (set when navigating from LearningPathDetail)
+        const pathIdFromStorage = localStorage.getItem("currentLearningPathId");
+        if (pathIdFromStorage) {
+          setLearningPathId(pathIdFromStorage);
+          const pathResponse = await axiosInstance.get(
+            API_ENDPOINTS.COURSES.PATH_DETAIL(pathIdFromStorage)
+          );
+          const activities = pathResponse.data.learning_path.activities;
+          const currentIndex = activities.findIndex(
+            (a) => a.id === parseInt(activityId)
+          );
+          
+          if (currentIndex !== -1 && currentIndex < activities.length - 1) {
+            setNextActivityId(activities[currentIndex + 1]);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching next activity:", error);
+      }
+    };
+
+    if (quizComplete) {
+      fetchNextActivity();
+    }
+  }, [quizComplete, activityId]);
+
   const handleAnswerSelect = (answerIndex) => {
     if (!showResult) {
       setSelectedAnswer(answerIndex);
@@ -160,7 +193,75 @@ const QuizActivity = () => {
     }
   };
 
-  const handleSubmitQuiz = () => {
+  const handleSubmitQuiz = async () => {
+    // Calculate score
+    const correct = answers.filter((a) => a.isCorrect).length;
+    const total = answers.length;
+    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
+    
+    // Save results to backend
+    try {
+      // Get activity data from sessionStorage to extract learning_node_id
+      const activityData = JSON.parse(sessionStorage.getItem('currentActivity') || '{}');
+      
+      // Use multiple fallbacks to find learning_node_id
+      let learningNodeId = activityData.nodeId;
+      
+      // If nodeId is not available, try to construct one from available data
+      if (!learningNodeId) {
+        // Try to use _node_info if available
+        const nodeInfo = activityData._node_info;
+        if (nodeInfo) {
+          learningNodeId = nodeInfo.id 
+            || nodeInfo.node_id 
+            || `node_${activityData.nodeName?.replace(/\s+/g, '_').toLowerCase() || 'unknown'}`;
+        }
+      }
+      
+      // Final fallback: use activity ID as a reference
+      if (!learningNodeId) {
+        learningNodeId = `node_from_activity_${activityId}`;
+        console.warn("⚠️ Using fallback learning_node_id:", learningNodeId);
+      }
+      
+      console.log("Saving quiz activity results:", {
+        activityId,
+        learningNodeId,
+        score: percentage,
+        correct,
+        total,
+        timeTaken: 600 - timeLeft
+      });
+      
+      await axiosInstance.post(
+        API_ENDPOINTS.LEARNING_PATH.COMPLETE_ACTIVITY,
+        {
+          learning_node_id: learningNodeId,
+          activity_id: activityId,
+          score: percentage,
+          time_spent: 600 - timeLeft, // Time spent in seconds
+          activity_type: "quiz",
+          activity_results: {
+            correctAnswers: correct,
+            totalQuestions: total,
+          },
+        }
+      );
+      
+      console.log("✅ Quiz results saved successfully");
+    } catch (error) {
+      console.error("❌ Error saving quiz results:", error);
+      // Continue to show results even if API call fails
+    }
+
+    // Update streak after completing activity
+    try {
+      await gamificationService.updateStreak();
+      console.log("✅ Streak updated successfully");
+    } catch (error) {
+      console.error("Failed to update streak:", error);
+    }
+    
     setQuizComplete(true);
   };
 
@@ -240,7 +341,30 @@ const QuizActivity = () => {
                 </Grid>
               </Grid>
 
-              <Box sx={{ display: "flex", gap: 2, justifyContent: "center" }}>
+              <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+                {nextActivityId && (
+                  <AnimatedButton
+                    variant="contained"
+                    color="success"
+                    startIcon={<NavigateNext />}
+                    onClick={() => {
+                      // Navigate based on activity type
+                      const actType = nextActivityId.type || "quiz";
+                      const typeStr = String(actType).toLowerCase();
+                      if (typeStr === "flashcard" || typeStr === "flashcards") {
+                        navigate(`/activities/flashcards/${nextActivityId.id}`);
+                      } else if (typeStr === "quiz") {
+                        navigate(`/activities/quiz/${nextActivityId.id}`);
+                      } else if (typeStr === "reading") {
+                        navigate(`/activities/reading/${nextActivityId.id}`);
+                      } else {
+                        navigate(`/activities/${nextActivityId.id}`);
+                      }
+                    }}
+                  >
+                    Next Activity
+                  </AnimatedButton>
+                )}
                 <AnimatedButton
                   variant="contained"
                   startIcon={<Home />}

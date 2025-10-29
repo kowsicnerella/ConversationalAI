@@ -19,11 +19,14 @@ import LearningPaths from "./pages/LearningPaths";
 import LearningPathDetail from "./pages/LearningPathDetail";
 import Activities from "./pages/Activities";
 import ActivityDetail from "./pages/ActivityDetail";
+import ActivityHistory from "./pages/ActivityHistory";
 import Vocabulary from "./pages/Vocabulary";
+import VocabularyMastery from "./pages/VocabularyMastery"; // Phase 5: SM-2 Vocabulary System
 import ImageLearning from "./pages/ImageLearning";
 import Chat from "./pages/Chat";
 import ChatTutor from "./pages/ChatTutor";
 import Analytics from "./pages/Analytics";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";  // NEW Phase 2 Analytics
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
@@ -38,6 +41,7 @@ import AssessmentResults from "./pages/AssessmentResults";
 import LessonView from "./pages/LessonView";
 import Goals from "./pages/Goals";
 import Practice from "./pages/Practice";
+import Gamification from "./pages/Gamification"; // Phase 9: Gamification Hub
 
 // Activity Types
 import QuizActivity from "./pages/activities/QuizActivity";
@@ -185,6 +189,14 @@ function App() {
           }
         />
         <Route
+          path="/vocabulary-mastery"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <VocabularyMastery />
+            </OnboardingGuard>
+          }
+        />
+        <Route
           path="/goals"
           element={
             <OnboardingGuard requireOnboarding>
@@ -233,10 +245,34 @@ function App() {
           }
         />
         <Route
+          path="/analytics-dashboard"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <AnalyticsDashboard />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/activity-history"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <ActivityHistory />
+            </OnboardingGuard>
+          }
+        />
+        <Route
           path="/leaderboard"
           element={
             <OnboardingGuard requireOnboarding>
               <Leaderboard />
+            </OnboardingGuard>
+          }
+        />
+        <Route
+          path="/gamification"
+          element={
+            <OnboardingGuard requireOnboarding>
+              <Gamification />
             </OnboardingGuard>
           }
         />

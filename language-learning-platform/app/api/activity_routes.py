@@ -2035,19 +2035,13 @@ def search_activities():
             # Query activities only
             query = Activity.query
 
-        # Apply keyword search
+        # Apply keyword search (search in title and description only - content is JSON)
         if keyword:
             keyword_filter = f"%{keyword}%"
-            if completion_status in ["completed", "not_completed", "bookmarked"]:
-                query = query.filter(
-                    Activity.title.ilike(keyword_filter)
-                    | Activity.content.astext.ilike(keyword_filter)
-                )
-            else:
-                query = query.filter(
-                    Activity.title.ilike(keyword_filter)
-                    | Activity.content.astext.ilike(keyword_filter)
-                )
+            query = query.filter(
+                Activity.title.ilike(keyword_filter)
+                | Activity.description.ilike(keyword_filter)
+            )
 
         # Apply other filters
         if activity_type:

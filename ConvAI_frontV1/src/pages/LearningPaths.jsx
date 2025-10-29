@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
   Grid,
-  Card,
   CardContent,
   Typography,
   Chip,
@@ -21,7 +20,6 @@ import {
 import {
   Search,
   School,
-  TrendingUp,
   CheckCircle,
   AccessTime,
   PlayArrow,
@@ -39,6 +37,7 @@ const LearningPaths = () => {
   const navigate = useNavigate();
   const [learningPaths, setLearningPaths] = useState([]);
   const [myPaths, setMyPaths] = useState([]);
+  const [enrolledPathIds, setEnrolledPathIds] = useState(new Set()); // Track enrolled path IDs
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState(0);
@@ -46,23 +45,30 @@ const LearningPaths = () => {
   const [enrolling, setEnrolling] = useState(null);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    fetchLearningPaths();
-  }, [activeTab]);
-
-  const fetchLearningPaths = async () => {
+  const fetchLearningPaths = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
+      // Always fetch enrolled paths first to get the current enrollment status
+      const enrolledResponse = await learningPathService.getMyLearningPaths();
+      const enrolledPaths = enrolledResponse.learning_paths || enrolledResponse.data || [];
+      const enrolledIds = new Set(enrolledPaths.map(p => p.id));
+      setEnrolledPathIds(enrolledIds);
+      setMyPaths(enrolledPaths);
+
       if (activeTab === 0) {
         // Fetch all available learning paths
         const response = await learningPathService.getLearningPaths();
-        setLearningPaths(response.learning_paths || response.data || []);
-      } else {
-        // Fetch user's enrolled paths
-        const response = await learningPathService.getMyLearningPaths();
-        setMyPaths(response.learning_paths || response.data || []);
+        const allPaths = response.learning_paths || response.data || [];
+        
+        // Mark enrolled paths with is_enrolled flag based on enrolledIds
+        const pathsWithEnrollmentStatus = allPaths.map(path => ({
+          ...path,
+          is_enrolled: enrolledIds.has(path.id) || path.is_enrolled || path.enrolled
+        }));
+        
+        setLearningPaths(pathsWithEnrollmentStatus);
       }
     } catch (error) {
       console.error("Error fetching learning paths:", error);
@@ -81,13 +87,33 @@ const LearningPaths = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab]);
+
+  useEffect(() => {
+    fetchLearningPaths();
+  }, [fetchLearningPaths]);
 
   const handleEnroll = async (pathId) => {
     try {
       setEnrolling(pathId);
+      // Enroll in the path
       await learningPathService.enrollInPath(pathId);
-      // Refresh the learning paths to update enrollment status
+      
+      // Immediately update the UI with the enrolled path
+      const newEnrolledIds = new Set(enrolledPathIds);
+      newEnrolledIds.add(pathId);
+      setEnrolledPathIds(newEnrolledIds);
+      
+      // Update the learningPaths list to mark this path as enrolled
+      setLearningPaths(prevPaths =>
+        prevPaths.map(p =>
+          p.id === pathId
+            ? { ...p, is_enrolled: true, enrolled: true }
+            : p
+        )
+      );
+      
+      // Refresh the learning paths to get latest data
       await fetchLearningPaths();
     } catch (error) {
       console.error("Error enrolling in learning path:", error);

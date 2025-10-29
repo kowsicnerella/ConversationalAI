@@ -313,21 +313,55 @@ def complete_assessment(assessment_id):
                 404,
             )
 
-        # Check if already completed
+        # Check if already completed - evaluate if needed and return results
         if assessment.completed_at:
+            # Assessment was already completed
+            # But check if it needs evaluation
+            if not assessment.ai_evaluation and assessment.user_responses:
+                try:
+                    print(f"⚠️ Assessment {assessment_id} was completed but not evaluated - evaluating now...")
+                    # Evaluate the assessment now
+                    current_responses = assessment.user_responses if assessment.user_responses else {}
+                    questions_asked = assessment.questions_asked if assessment.questions_asked else []
+                    answers = {qid: resp["answer"] for qid, resp in current_responses.items() if "answer" in resp}
+                    
+                    if answers and questions_asked:
+                        # Call the evaluation service with force_re_evaluate=True
+                        eval_results = assessment_service.submit_assessment_answers(assessment_id, answers, force_re_evaluate=True)
+                        if eval_results:
+                            print(f"✅ Successfully evaluated assessment {assessment_id}")
+                except Exception as eval_err:
+                    print(f"⚠️ Could not re-evaluate assessment {assessment_id}: {str(eval_err)}")
+                    # Continue and return whatever we have
+            
+            # Return the results (evaluated or not)
+            questions_for_scoring = assessment.questions_asked if assessment.questions_asked else []
+            max_score = sum(q.get("points", 2) for q in questions_for_scoring) if questions_for_scoring else 1
+            formatted_results = {
+                "overall_score": assessment.score or 0,
+                "max_score": max_score,
+                "percentage": (
+                    (assessment.score / max_score) * 100 if max_score > 0 else 0
+                ),
+                "proficiency_level": assessment.proficiency_level or "not_assessed",
+                "skill_breakdown": (
+                    assessment.ai_evaluation.get("skill_scores", {})
+                    if assessment.ai_evaluation
+                    else {}
+                ),
+            }
+            
             return (
                 jsonify(
                     {
-                        "error": "Assessment is already completed",
-                        "telugu_error": "మూల్యాంకనం ఇప్పటికే పూర్తయింది",
-                        "results": {
-                            "proficiency_level": assessment.proficiency_level,
-                            "score": assessment.score,
-                            "max_score": assessment.max_score,
-                        },
+                        "success": True,
+                        "results": formatted_results,
+                        "message": "Assessment was already completed. Returning results.",
+                        "telugu_message": "మూల్యాంకనం ఇప్పటికే పూర్తయింది. ఫలితాలు తిరిగి ఇస్తున్నాం.",
+                        "assessment_completed": True,
                     }
                 ),
-                400,
+                200,
             )
 
         # Check if all questions have been answered
@@ -353,7 +387,7 @@ def complete_assessment(assessment_id):
         # Submit and evaluate if not already evaluated
         if not assessment.ai_evaluation:
             results = assessment_service.submit_assessment_answers(
-                assessment_id, answers
+                assessment_id, answers, force_re_evaluate=True
             )
         else:
             # Already evaluated, just format the results
@@ -449,6 +483,135 @@ def complete_assessment(assessment_id):
                 {
                     "error": "Failed to complete assessment",
                     "telugu_error": "మూల్యాంకనం పూర్తి చేయడంలో వైఫల్యం",
+                    "details": str(e),
+                }
+            ),
+            500,
+        )
+
+
+@assessment_routes.route("/api/assessment/<int:assessment_id>/results", methods=["GET"])
+@jwt_required()
+def get_assessment_results(assessment_id):
+    """
+    Get results for a completed assessment.
+    Can be called at any time after assessment is completed.
+    """
+    try:
+        user_id = int(get_jwt_identity())
+
+        # Verify assessment belongs to current user
+        assessment = ProficiencyAssessment.query.get(assessment_id)
+        if not assessment or assessment.user_id != user_id:
+            return (
+                jsonify(
+                    {
+                        "error": "Assessment not found or unauthorized",
+                        "telugu_error": "మూల్యాంకనం కనుగొనబడలేదు లేదా అనధికృతం",
+                    }
+                ),
+                404,
+            )
+
+        # Check if assessment is completed or has all answers submitted
+        user_responses = assessment.user_responses or {}
+        questions_asked = assessment.questions_asked or []
+        
+        # Count answers that match question IDs
+        if questions_asked:
+            question_ids = {q.get("id") or q.get("question_id") for q in questions_asked}
+            answered_ids = [qid for qid in user_responses.keys() if qid in question_ids]
+            all_answered = len(answered_ids) >= len(questions_asked)
+        else:
+            all_answered = False
+        
+        # Allow results if completed OR if all questions are answered (even if /complete wasn't called)
+        if not assessment.completed_at and not all_answered:
+            return (
+                jsonify(
+                    {
+                        "error": "Assessment is not completed yet",
+                        "telugu_error": "మూల్యాంకనం ఇంకా పూర్తికాలేదు",
+                    }
+                ),
+                400,
+            )
+
+        # If all questions answered but not yet evaluated, evaluate now
+        if all_answered and not assessment.ai_evaluation:
+            try:
+                print(f"⚠️ Assessment {assessment_id} has all answers but no evaluation - evaluating now...")
+                # Prepare answers for evaluation
+                answers = {qid: resp.get("answer") for qid, resp in user_responses.items() if qid in question_ids}
+                # Call the evaluation service with force_re_evaluate=True
+                eval_result = assessment_service.submit_assessment_answers(assessment_id, answers, force_re_evaluate=True)
+                # The service will update the assessment with evaluation results
+                assessment = ProficiencyAssessment.query.get(assessment_id)  # Refresh
+                print(f"✅ Assessment {assessment_id} evaluated successfully")
+            except Exception as e:
+                print(f"⚠️ Error evaluating assessment {assessment_id}: {str(e)}")
+                # Continue even if evaluation fails - return what we have
+
+        # Format and return results
+        max_score = sum(q.get("points", 2) for q in (assessment.questions_asked or [])) if assessment.questions_asked else 1
+        
+        formatted_results = {
+            "overall_score": (
+                (assessment.score / max_score) * 100 if max_score > 0 and assessment.score else 0
+            ),
+            "overall_proficiency_level": assessment.proficiency_level or "not_assessed",
+            "max_score": max_score,
+            "raw_score": assessment.score or 0,
+            "skill_breakdown": {},
+            "strengths": [],
+            "weaknesses": [],
+            "recommendations": assessment.recommendations or [],
+            "next_steps": [],
+        }
+
+        # Parse skill breakdown if available
+        if assessment.ai_evaluation:
+            try:
+                import json
+                if isinstance(assessment.ai_evaluation, str):
+                    eval_data = json.loads(assessment.ai_evaluation)
+                else:
+                    eval_data = assessment.ai_evaluation
+                
+                skill_scores = eval_data.get("skill_scores", {})
+                for skill, data in skill_scores.items():
+                    if isinstance(data, dict):
+                        formatted_results["skill_breakdown"][skill] = data.get("percentage", 0)
+                        if data.get("level") == "strong":
+                            formatted_results["strengths"].append(skill)
+                        elif data.get("level") == "needs_improvement":
+                            formatted_results["weaknesses"].append(skill)
+                    else:
+                        formatted_results["skill_breakdown"][skill] = data
+            except Exception as e:
+                print(f"Error parsing evaluation data: {str(e)}")
+
+        return (
+            jsonify(
+                {
+                    "success": True,
+                    "results": formatted_results,
+                    "assessment_id": assessment_id,
+                    "message": "Assessment results retrieved successfully",
+                    "telugu_message": "మూల్యాంకన ఫలితాలు విజయవంతంగా వెలికితీయబడ్డాయి",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        print(f"Error in get_assessment_results: {str(e)}")
+        traceback.print_exc()
+        return (
+            jsonify(
+                {
+                    "error": "Failed to retrieve assessment results",
+                    "telugu_error": "మూల్యాంకన ఫలితాలను వెలికితీయడంలో వైఫల్యం",
                     "details": str(e),
                 }
             ),

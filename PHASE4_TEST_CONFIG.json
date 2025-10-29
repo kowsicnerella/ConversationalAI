@@ -1,0 +1,76 @@
+{
+  "target_coverage": "95%",
+  "target_response_time": "<200ms",
+  "error_threshold": "0%",
+  "categories": {
+    "Unit Tests": {
+      "description": "Test individual route handlers",
+      "target": "All 165 endpoints",
+      "time": "3 hours"
+    },
+    "Integration Tests": {
+      "description": "Test interactions between modules",
+      "target": "Cross-module workflows",
+      "time": "3 hours"
+    },
+    "E2E Tests": {
+      "description": "Test complete user journeys",
+      "target": "End-to-end workflows",
+      "time": "2 hours"
+    },
+    "Performance Tests": {
+      "description": "Measure response times and throughput",
+      "target": "<200ms per endpoint",
+      "time": "1 hour"
+    },
+    "Security Tests": {
+      "description": "Verify auth, validation, and error handling",
+      "target": "All endpoints",
+      "time": "1 hour"
+    }
+  },
+  "modules_to_test": [
+    "activities",
+    "activity",
+    "activity_history",
+    "adaptive",
+    "adaptive_learning",
+    "ai_learning_path",
+    "analytics",
+    "analytics_v2",
+    "assessment",
+    "auth",
+    "chapters",
+    "chat",
+    "chat_tutor",
+    "content_generation",
+    "courses",
+    "enhanced_activity",
+    "enhanced_activity_v2",
+    "enhanced_analytics",
+    "enhanced_assessment",
+    "enhanced_chat",
+    "gamification",
+    "gamification_phase9",
+    "goals",
+    "image",
+    "intelligent_assessment",
+    "learning_analytics",
+    "learning_path",
+    "lesson",
+    "media",
+    "notifications",
+    "onboarding",
+    "performance",
+    "personalization",
+    "practice",
+    "test_auth",
+    "test_singular",
+    "tests",
+    "unknown",
+    "user",
+    "user_status",
+    "vocabulary",
+    "vocabulary_api"
+  ]
+}

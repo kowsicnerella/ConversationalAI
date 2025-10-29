@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
@@ -51,30 +51,7 @@ const ActivityDetail = () => {
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (id) {
-      fetchActivityDetail();
-    }
-  }, [id]);
-
-  const fetchActivityDetail = async () => {
-    try {
-      setLoading(true);
-      const response = await axiosInstance.get(
-        API_ENDPOINTS.ACTIVITIES.DETAIL(id)
-      );
-      // Backend returns {message: ..., activity: {...}}
-      setActivity(response.data.activity || response.data);
-    } catch (error) {
-      console.error("Error fetching activity detail:", error);
-      // Use mock data
-      setActivity(getMockActivity());
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getMockActivity = () => ({
+  const getMockActivity = useCallback(() => ({
     id: id,
     type: "flashcard",
     title: "Daily Vocabulary Practice",
@@ -105,28 +82,97 @@ const ActivityDetail = () => {
       totalAttempts: 1250,
       averageTimeSpent: 14,
     },
-  });
+  }), [id, theme.palette.primary.main]);
+
+  const fetchActivityDetail = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await axiosInstance.get(
+        API_ENDPOINTS.ACTIVITIES.DETAIL(id)
+      );
+      // Backend returns {message: ..., activity: {...}}
+      setActivity(response.data.activity || response.data);
+    } catch (error) {
+      console.error("Error fetching activity detail:", error);
+      // Use mock data
+      setActivity(getMockActivity());
+    } finally {
+      setLoading(false);
+    }
+  }, [id, getMockActivity]);
+
+  useEffect(() => {
+    if (id) {
+      fetchActivityDetail();
+    }
+  }, [id, fetchActivityDetail]);
 
   const handleStartActivity = () => {
-    if (activity.type === "flashcard") {
-      navigate(`/activities/flashcards/${id}`);
-    } else if (activity.type === "quiz") {
-      navigate(`/activities/quiz/${id}`);
-    } else if (activity.type === "reading") {
-      navigate(`/activities/reading/${id}`);
+    console.log("Start activity button clicked", { activity, id });
+    
+    if (!activity) {
+      console.warn("Activity object not available");
+      return;
+    }
+    
+    // Try to get activity type with fallback
+    const activityType = activity.type || activity.activityType || "flashcard";
+    console.log("Activity data:", { 
+      type: activity.type,
+      activityType: activity.activityType,
+      resolved: activityType,
+      id 
+    });
+    
+    const typeString = String(activityType).toLowerCase();
+    console.log("Navigating to activity:", typeString, "with id:", id);
+    
+    // Navigate to the appropriate activity type page
+    switch (typeString) {
+      case "flashcard":
+      case "flashcards":
+        navigate(`/activities/flashcards/${id}`);
+        break;
+      case "quiz":
+        navigate(`/activities/quiz/${id}`);
+        break;
+      case "reading":
+        navigate(`/activities/reading/${id}`);
+        break;
+      default:
+        console.log("Unknown activity type, navigating to Activities list");
+        // If type is unknown, navigate back to activities list or show info
+        navigate("/activities");
     }
   };
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case "beginner":
-        return "success";
+        return theme.palette.success.main;
       case "intermediate":
-        return "warning";
+        return theme.palette.warning.main;
       case "advanced":
-        return "error";
+        return theme.palette.error.main;
       default:
-        return "default";
+        return theme.palette.primary.main;
+    }
+  };
+
+  // Get color for activity - use activity.color if available, otherwise generate from theme
+  const getActivityColor = (act) => {
+    if (act?.color) return act.color;
+    
+    // Generate color based on activity type
+    switch (act?.type) {
+      case "flashcard":
+        return theme.palette.info.main;
+      case "quiz":
+        return theme.palette.success.main;
+      case "reading":
+        return theme.palette.warning.main;
+      default:
+        return theme.palette.primary.main;
     }
   };
 
@@ -220,7 +266,7 @@ const ActivityDetail = () => {
                   background:
                     theme.palette.mode === "dark"
                       ? `linear-gradient(135deg, ${alpha(
-                          activity.color,
+                          getActivityColor(activity),
                           0.1
                         )} 0%, ${alpha(
                           theme.palette.background.paper,
@@ -228,7 +274,10 @@ const ActivityDetail = () => {
                         )} 100%)`
                       : theme.palette.background.paper,
                   backdropFilter: "blur(10px)",
-                  border: `1px solid ${alpha(activity.color, 0.2)}`,
+                  border: `1px solid ${alpha(
+                    getActivityColor(activity),
+                    0.2
+                  )}`,
                 }}
               >
                 {/* Progress bar */}
@@ -253,11 +302,11 @@ const ActivityDetail = () => {
                       sx={{
                         height: 8,
                         borderRadius: 4,
-                        background: alpha(activity.color, 0.1),
+                        background: alpha(getActivityColor(activity), 0.1),
                         "& .MuiLinearProgress-bar": {
                           background: `linear-gradient(90deg, ${
-                            activity.color
-                          }, ${alpha(activity.color, 0.7)})`,
+                            getActivityColor(activity)
+                          }, ${alpha(getActivityColor(activity), 0.7)})`,
                         },
                       }}
                     />
@@ -279,16 +328,16 @@ const ActivityDetail = () => {
                         p: 2,
                         borderRadius: 3,
                         background: `linear-gradient(135deg, ${alpha(
-                          activity.color,
+                          getActivityColor(activity),
                           0.2
-                        )}, ${alpha(activity.color, 0.1)})`,
+                        )}, ${alpha(getActivityColor(activity), 0.1)})`,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
                       <IconComponent
-                        sx={{ color: activity.color, fontSize: 40 }}
+                        sx={{ color: getActivityColor(activity), fontSize: 40 }}
                       />
                     </Box>
                     <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
@@ -296,8 +345,8 @@ const ActivityDetail = () => {
                         label={getActivityTypeLabel(activity.type)}
                         sx={{
                           fontWeight: 600,
-                          background: alpha(activity.color, 0.1),
-                          color: activity.color,
+                          background: alpha(getActivityColor(activity), 0.1),
+                          color: getActivityColor(activity),
                         }}
                       />
                       <Chip
@@ -353,7 +402,7 @@ const ActivityDetail = () => {
                             <ListItemIcon sx={{ minWidth: 32 }}>
                               <CheckCircle
                                 fontSize="small"
-                                sx={{ color: activity.color }}
+                                sx={{ color: getActivityColor(activity) }}
                               />
                             </ListItemIcon>
                             <ListItemText primary={objective} />
@@ -611,8 +660,8 @@ const ActivityDetail = () => {
                   sx={{
                     py: 2,
                     background: `linear-gradient(135deg, ${
-                      activity.color
-                    }, ${alpha(activity.color, 0.7)})`,
+                      getActivityColor(activity)
+                    }, ${alpha(getActivityColor(activity), 0.7)})`,
                     fontSize: "1.1rem",
                     fontWeight: 700,
                   }}

@@ -3,6 +3,15 @@ import axios from 'axios';
 // API base URL
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
 
+// ===== Request Deduplication Cache =====
+// Tracks pending GET requests to prevent duplicate simultaneous requests
+const requestCache = new Map();
+
+// Create a key for caching based on method and URL
+const getCacheKey = (config) => {
+  return `${config.method.toUpperCase()}:${config.url}`;
+};
+
 // Create axios instance
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -12,7 +21,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and deduplicate requests
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -28,6 +37,18 @@ axiosInstance.interceptors.request.use(
     } else {
       console.warn('⚠️ No token found in localStorage');
     }
+
+    // ===== Deduplication for GET requests =====
+    if (config.method.toUpperCase() === 'GET') {
+      const cacheKey = getCacheKey(config);
+      
+      // If a similar request is already pending, return that promise instead
+      if (requestCache.has(cacheKey)) {
+        console.log('🔄 DEDUPLICATING: Already fetching', cacheKey);
+        config.adapter = () => requestCache.get(cacheKey);
+      }
+    }
+
     return config;
   },
   (error) => {
@@ -36,10 +57,17 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Response interceptor for error handling
+// Response interceptor for error handling and cache cleanup
 axiosInstance.interceptors.response.use(
   (response) => {
     console.log('✅ Response received:', response.config.url, response.status);
+    
+    // Clean up cache after successful response
+    if (response.config.method.toUpperCase() === 'GET') {
+      const cacheKey = getCacheKey(response.config);
+      requestCache.delete(cacheKey);
+    }
+    
     return response;
   },
   (error) => {
@@ -51,6 +79,12 @@ axiosInstance.interceptors.response.use(
       data: error.response?.data,
       headers: error.response?.headers,
     });
+
+    // Clean up cache on error
+    if (error.config?.method?.toUpperCase() === 'GET') {
+      const cacheKey = getCacheKey(error.config);
+      requestCache.delete(cacheKey);
+    }
     
     if (error.response?.status === 401) {
       console.warn('🔒 401 Unauthorized - Clearing auth and redirecting to login');
@@ -180,25 +214,32 @@ export const API_ENDPOINTS = {
   
   // Gamification (Updated for new backend implementation)
   GAMIFICATION: {
-    // Core endpoints (JWT-protected)
-    POINTS: '/gamification/points',                    // GET - User's total points & rank
-    BADGES: '/gamification/badges',                    // GET - Earned + available badges with progress
-    LEADERBOARD: '/gamification/leaderboard',          // GET - Ranked user list (query: timeframe, limit)
-    STATS: '/gamification/stats',                      // GET - Comprehensive gamification stats
-    ACHIEVEMENTS: '/gamification/achievements',        // GET - Achievement history
-    DAILY_CHALLENGE: '/gamification/daily-challenge',  // GET/POST - Get or complete daily challenge
+    // Phase 9 Enhanced Gamification Core endpoints (JWT-protected, registered at /api/gamification-v2)
+    POINTS: '/gamification-v2/points',                    // GET - User's total points & rank
+    BADGES: '/gamification-v2/badges',                    // GET - Earned + available badges with progress
+    LEADERBOARD: '/gamification-v2/leaderboard',          // GET - Ranked user list (query: timeframe, limit)
+    STATS: '/gamification-v2/stats',                      // GET - Comprehensive gamification stats
+    ACHIEVEMENTS: '/gamification-v2/achievements',        // GET - Achievement history
+    DAILY_CHALLENGE: '/gamification-v2/daily-challenge',  // GET/POST - Get or complete daily challenge
+    
+    // Phase 9 Enhanced endpoints
+    STREAK: '/gamification-v2/streak',                    // GET - User's streak information
+    STREAK_FREEZE: '/gamification-v2/streak/freeze',      // POST - Use streak freeze
+    STREAK_UPDATE: '/gamification-v2/streak/update',      // POST - Update streak
+    SUMMARY: '/gamification-v2/summary',                  // GET - Comprehensive gamification summary
     
     // Legacy endpoints (for backward compatibility)
-    USER_BADGES: (userId) => `/gamification/badges/${userId}`,
-    USER_STATS: (userId) => `/gamification/stats/${userId}`,
-    CHECK_ACHIEVEMENTS: (userId) => `/gamification/check-achievements/${userId}`,
-    UPDATE_STREAK: (userId) => `/gamification/streak/${userId}`,
-    PROFILE: '/gamification/profile',
-    REWARD: (id) => `/gamification/rewards/${id}`,
+    USER_BADGES: (userId) => `/gamification-v2/badges/${userId}`,
+    USER_STATS: (userId) => `/gamification-v2/stats/${userId}`,
+    CHECK_ACHIEVEMENTS: (userId) => `/gamification-v2/check-achievements/${userId}`,
+    UPDATE_STREAK: (userId) => `/gamification-v2/streak/${userId}`,
+    PROFILE: '/gamification-v2/profile',
+    REWARD: (id) => `/gamification-v2/rewards/${id}`,
   },
   
-  // Vocabulary
+  // Vocabulary (Old API - backward compatible)
   VOCABULARY: {
+    // Legacy endpoints (old API at /api/vocabulary)
     WORDS: '/vocabulary/words',
     WORD_DETAIL: (id) => `/vocabulary/words/${id}`,
     UPDATE_WORD: (id) => `/vocabulary/words/${id}`,
@@ -211,6 +252,21 @@ export const API_ENDPOINTS = {
     SEARCH: '/vocabulary/search',
     PRACTICE: '/vocabulary/practice',
     SPACED_REPETITION: '/vocabulary/spaced-repetition',
+  },
+  
+  // Vocabulary Mastery v2 (Phase 5 - SM-2 Spaced Repetition)
+  VOCABULARY_V2: {
+    INTRODUCE: '/vocabulary-v2/introduce',
+    INTRODUCE_FROM_TEXT: '/vocabulary-v2/introduce-from-text',
+    ADD_TO_VOCABULARY: '/vocabulary-v2/add-to-my-vocabulary',
+    WORDS_DUE: '/vocabulary-v2/words-due',
+    REVIEW: '/vocabulary-v2/review',
+    PRACTICE_SESSION_START: '/vocabulary-v2/practice-session/start',
+    PRACTICE_SESSION_COMPLETE: (sessionId) => `/vocabulary-v2/practice-session/${sessionId}/complete`,
+    PRACTICE_ACTIVITY: '/vocabulary-v2/practice-activity',
+    MASTERY: '/vocabulary-v2/mastery',
+    WORD_NETWORK: (itemId) => `/vocabulary-v2/word-network/${itemId}`,
+    RELATED_WORDS: '/vocabulary-v2/related-words',
   },
   
   // Analytics
@@ -280,6 +336,18 @@ export const API_ENDPOINTS = {
     LEARNING_PROFILE: '/adaptive/learning-profile',           // GET - User learning profile
     ADJUST_DIFFICULTY: '/adaptive/adjust-difficulty',         // POST - Adjust difficulty dynamically
     LEARNING_PACE: '/adaptive/learning-pace',                 // GET - Learning pace analysis
+  },
+  
+  // AI-Personalized Learning Path (New intelligent orchestrator system)
+  LEARNING_PATH: {
+    NEXT_ACTIVITY: '/learning-path/next-activity',           // POST - Get next personalized activity
+    COMPLETE_ACTIVITY: '/learning-path/complete-activity',   // POST - Complete activity & update progress
+    PROGRESS: (userId) => `/learning-path/progress/${userId}`, // GET - User learning path progress
+    NODES: '/learning-path/nodes',                           // GET - All learning nodes
+    LEVELS: '/learning-path/levels',                         // GET - All curriculum levels
+    NODE_DETAIL: (nodeId) => `/learning-path/node/${nodeId}`, // GET - Learning node details
+    STATS: '/learning-path/stats',                           // GET - Learning statistics
+    CURRICULUM: '/learning-path/curriculum',                  // GET - Full curriculum structure
   },
   
   // Goals & Achievements

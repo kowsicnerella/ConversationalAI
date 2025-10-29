@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Container,
@@ -33,6 +33,7 @@ const LessonView = () => {
 
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const completingLessonRef = useRef(false);
   const [lesson, setLesson] = useState(null);
   const [activity, setActivity] = useState(null);
   const [lessonReview, setLessonReview] = useState(null);
@@ -98,7 +99,13 @@ const LessonView = () => {
   };
 
   const handleActivityComplete = async (score, results) => {
+    if (completingLessonRef.current) {
+      console.log("handleActivityComplete already in progress - ignoring duplicate call");
+      return;
+    }
+
     try {
+      completingLessonRef.current = true;
       setSubmitting(true);
       setActivityScore(score);
 
@@ -132,6 +139,7 @@ const LessonView = () => {
       setError("Failed to save lesson progress. Please try again.");
     } finally {
       setSubmitting(false);
+      completingLessonRef.current = false;
     }
   };
 
@@ -215,6 +223,7 @@ const LessonView = () => {
               variant="contained"
               onClick={() => handleActivityComplete(100, { status: "skipped" })}
               sx={{ mt: 2 }}
+              disabled={submitting}
             >
               Continue to Next Lesson
             </Button>
@@ -236,6 +245,7 @@ const LessonView = () => {
               variant="contained"
               onClick={() => handleActivityComplete(100, { status: "skipped" })}
               sx={{ mt: 2 }}
+              disabled={submitting}
             >
               Continue to Next Lesson
             </Button>

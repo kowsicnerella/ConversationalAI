@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Grid,
@@ -18,13 +18,13 @@ import {
   LocalFireDepartment,
   EmojiEvents,
   AutoStories,
-  School,
   AccessTime,
   ArrowForward,
-  TrendingUp,
   PlayArrow,
   Star,
   CheckCircle,
+  VideogameAsset,
+  EmojiEventsOutlined,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import {
@@ -37,11 +37,14 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
 import StatCard from "../components/common/StatCard";
 import HoverCard from "../components/common/HoverCard";
 import PageTransition from "../components/common/PageTransition";
+import ResumeActivities from "../components/ResumeActivities";
+import ReviewNotification from "../components/ReviewNotification";
+import GamificationSummary from "../components/gamification/GamificationSummary";
+import StreakTracker from "../components/gamification/StreakTracker";
 import { useAuth } from "../context/AuthContext";
 import axiosInstance, { API_ENDPOINTS } from "../config/api";
 import { useNavigate } from "react-router-dom";
@@ -53,11 +56,7 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -81,7 +80,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   if (loading) {
     return (
@@ -154,7 +157,126 @@ const Dashboard = () => {
           </motion.div>
         </Box>
 
-        {/* Stats Cards */}
+        {/* Review Notification - Spaced Repetition */}
+        <Box sx={{ mb: 3 }}>
+          <ReviewNotification />
+        </Box>
+
+        {/* Resume Activities */}
+        <Box sx={{ mb: 3 }}>
+          <ResumeActivities />
+        </Box>
+
+        {/* Gamification Section */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h5" fontWeight={700} gutterBottom sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <VideogameAsset />
+            Gamification Hub
+          </Typography>
+          <Grid container spacing={3}>
+            {/* Streak Tracker Widget */}
+            <Grid item xs={12} md={4}>
+              <StreakTracker />
+            </Grid>
+
+            {/* Daily Challenge Widget */}
+            <Grid item xs={12} md={4}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card
+                  sx={{
+                    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    color: "white",
+                    cursor: "pointer",
+                    transition: "transform 0.2s",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                    },
+                  }}
+                  onClick={() => navigate("/gamification")}
+                >
+                  <CardContent>
+                    <Typography variant="h6" fontWeight={700} gutterBottom>
+                      ⚡ Daily Challenge
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 2, opacity: 0.9 }}>
+                      Complete today&apos;s challenge and earn points!
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{
+                        backgroundColor: "rgba(255,255,255,0.2)",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor: "rgba(255,255,255,0.3)",
+                        },
+                      }}
+                      endIcon={<ArrowForward />}
+                    >
+                      View Challenge
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Grid>
+
+            {/* Achievements Widget */}
+            <Grid item xs={12} md={4}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+              >
+                <Card
+                  sx={{
+                    background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+                    color: "white",
+                    cursor: "pointer",
+                    transition: "transform 0.2s",
+                    "&:hover": {
+                      transform: "translateY(-4px)",
+                    },
+                  }}
+                  onClick={() => navigate("/gamification")}
+                >
+                  <CardContent>
+                    <Typography variant="h6" fontWeight={700} gutterBottom>
+                      🏆 Achievements
+                    </Typography>
+                    <Typography variant="body2" sx={{ mb: 2, opacity: 0.9 }}>
+                      Unlock badges and become a language master!
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      sx={{
+                        backgroundColor: "rgba(255,255,255,0.2)",
+                        color: "white",
+                        "&:hover": {
+                          backgroundColor: "rgba(255,255,255,0.3)",
+                        },
+                      }}
+                      endIcon={<EmojiEventsOutlined />}
+                    >
+                      View All
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </Grid>
+          </Grid>
+
+          {/* Gamification Summary Card */}
+          <Box sx={{ mt: 3 }}>
+            <GamificationSummary />
+          </Box>
+        </Box>
+
+        {/* Daily Challenge Card moved below */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={6} md={3}>
             <StatCard

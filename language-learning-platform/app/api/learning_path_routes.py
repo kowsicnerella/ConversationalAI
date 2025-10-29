@@ -91,10 +91,17 @@ def get_personalized_learning_path_recommendation():
         ```
         """
 
-        response = activity_service.model.generate_content(recommendation_prompt)
+        from app.services.llm_config import LLMConfig
         from app.services.activity_generator_service import _extract_json_from_response
 
-        recommendation_data = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(recommendation_prompt, json_mode=True)
+        if not result['success']:
+            return jsonify({
+                "error": "Failed to generate recommendations",
+                "telugu_error": "సిఫార్సులను రూపొందించడంలో విఫలమైంది"
+            }), 500
+        
+        recommendation_data = _extract_json_from_response(result['text'])
 
         # Get actual learning paths from database
         available_paths = LearningPath.query.all()
@@ -245,10 +252,17 @@ def create_custom_learning_path():
         ```
         """
 
-        response = activity_service.model.generate_content(generation_prompt)
+        from app.services.llm_config import LLMConfig
         from app.services.activity_generator_service import _extract_json_from_response
 
-        path_structure = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(generation_prompt, json_mode=True)
+        if not result['success']:
+            return jsonify({
+                "error": "Failed to generate learning path structure",
+                "telugu_error": "అభ్యాస మార్గ నిర్మాణం రూపొందించడంలో విఫలమైంది"
+            }), 500
+        
+        path_structure = _extract_json_from_response(result['text'])
 
         # Create the learning path in database
         new_learning_path = LearningPath(
@@ -469,10 +483,17 @@ def adjust_adaptive_difficulty():
         ```
         """
 
-        response = activity_service.model.generate_content(adjustment_prompt)
+        from app.services.llm_config import LLMConfig
         from app.services.activity_generator_service import _extract_json_from_response
 
-        adjustment_data = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(adjustment_prompt, json_mode=True)
+        if not result['success']:
+            return jsonify({
+                "error": "Failed to generate learning adjustments",
+                "telugu_error": "ఆచరణ సమాయోజనలను రూపొందించడంలో విఫలమైంది"
+            }), 500
+        
+        adjustment_data = _extract_json_from_response(result['text'])
 
         # Apply adjustments (in a real system, you might update user preferences or create new activities)
         user = User.query.get(user_id)
@@ -670,10 +691,17 @@ def analyze_learning_path_progress(learning_path_id):
         ```
         """
 
-        response = activity_service.model.generate_content(analysis_prompt)
+        from app.services.llm_config import LLMConfig
         from app.services.activity_generator_service import _extract_json_from_response
 
-        analysis_data = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(analysis_prompt, json_mode=True)
+        if not result['success']:
+            return jsonify({
+                "error": "Failed to analyze learning progress",
+                "telugu_error": "ఆచరణ పురోగతిని విశ్లేషించడంలో విఫలమైంది"
+            }), 500
+        
+        analysis_data = _extract_json_from_response(result['text'])
 
         return (
             jsonify(

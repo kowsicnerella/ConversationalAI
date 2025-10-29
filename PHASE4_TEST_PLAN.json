@@ -1,0 +1,2009 @@
+{
+  "generated": "2025-10-22T09:17:51.959501",
+  "total_routes": 448,
+  "total_modules": 42,
+  "modules": {
+    "activities": {
+      "count": 10,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/activities/generate-quiz"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activities/generate-flashcards"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activities/generate-writing-prompt"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activities/submit"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activities/topics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activities/history"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activities/generate-role-play"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activities/conversation"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activities/complete-roleplay"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activities/complete-reading"
+        }
+      ]
+    },
+    "activity": {
+      "count": 28,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/activity/generate/quiz"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/generate/flashcards"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/generate/reading"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/generate/writing-prompt"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/generate/role-play"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/analyze-image"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/chat"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/feedback"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/save"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/path/<int:path_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/user-activities"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/<int:activity_id>/details"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/<int:activity_id>/submit"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/learning-path/<int:learning_path_id>/activities"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/next-activity"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/user-progress/summary"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/all"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/by-type/<activity_type>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/my-generated"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/activity/<int:activity_id>/update"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/activity/<int:activity_id>/delete"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity/<int:activity_id>/bookmark"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/activity/<int:activity_id>/unbookmark"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/bookmarks"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/search"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/history"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/history/<int:history_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity/history/stats"
+        }
+      ]
+    },
+    "activity_history": {
+      "count": 6,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/activity-history/view/<int:activity_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/activity-history/start/<int:activity_id>"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/activity-history/complete/<int:log_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity-history/user/recent"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity-history/activity/<int:activity_id>/attempts"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activity-history/stats/summary"
+        }
+      ]
+    },
+    "adaptive": {
+      "count": 7,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/adaptive/performance-analysis"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/next-activities"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/adjust-difficulty"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/learning-gaps"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/learning-pace"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/generate-exercise"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/learning-profile"
+        }
+      ]
+    },
+    "adaptive_learning": {
+      "count": 14,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/adaptive/assessment/comprehensive/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/assessment/<int:assessment_id>/respond"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/assessment/<int:assessment_id>/complete"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/learning-path/<int:path_id>/next-activity"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/activity/<int:activity_id>/start-session"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/session/track-interaction"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/session/end"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/concept/<skill_area>/<concept>/mastery-check"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/learning-difficulties/detect"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/spaced-repetition/<concept>/schedule"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/learning-path/<int:path_id>/validate-mastery"
+        },
+        {
+          "method": "POST",
+          "path": "/api/adaptive/performance/adaptive-content"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/user/progress-analytics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/adaptive/activity-recommendations"
+        }
+      ]
+    },
+    "ai_learning_path": {
+      "count": 26,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/learning-path/next-activity"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-path/complete-activity"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/progress/<int:user_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/nodes"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/levels"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/node/<string:node_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/stats"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/activities"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/activities/<int:activity_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/activities/incomplete"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/learning-path/activities/<int:activity_id>/resume"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/activity-logs"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/activity-logs/<int:log_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/activity-history"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/spaced-repetition/due"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/phase3/curriculum-levels"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/phase3/skill-domains"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/phase3/skill-level/<skill_domain>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/phase3/skill-levels"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-path/phase3/next-activity"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-path/phase3/plan-session"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-path/phase3/adjust-difficulty"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/phase3/skill-trajectory/<skill_domain>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-path/phase3/difficulty-recommendation"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/phase3/learning-nodes"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-path/phase3/node-progress/<node_id>"
+        }
+      ]
+    },
+    "analytics": {
+      "count": 9,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/analytics/dashboard-summary"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics/learning-trends"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics/performance-analysis"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics/vocabulary-analytics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics/export/progress-report"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics/activity-performance-analysis"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics/learning-pattern-recognition"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics/engagement-analytics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics/predictive-analytics"
+        }
+      ]
+    },
+    "analytics_v2": {
+      "count": 6,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/analytics-v2/performance-trends"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics-v2/skill-breakdown"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics-v2/activity-summary"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics-v2/time-analytics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics-v2/learning-velocity"
+        },
+        {
+          "method": "GET",
+          "path": "/api/analytics-v2/weak-areas"
+        }
+      ]
+    },
+    "assessment": {
+      "count": 16,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/assessment/generate"
+        },
+        {
+          "method": "POST",
+          "path": "/api/assessment/<int:assessment_id>/submit"
+        },
+        {
+          "method": "POST",
+          "path": "/api/assessment/<int:assessment_id>/submit-answer"
+        },
+        {
+          "method": "POST",
+          "path": "/api/assessment/<int:assessment_id>/complete"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/<int:assessment_id>/results"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/history"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/<int:assessment_id>/details"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/<int:assessment_id>/report"
+        },
+        {
+          "method": "POST",
+          "path": "/api/assessment/<int:assessment_id>/retake"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/placement-recommendations"
+        },
+        {
+          "method": "POST",
+          "path": "/api/assessment/quick-check"
+        },
+        {
+          "method": "POST",
+          "path": "/api/assessment/validate-answers"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/health"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/history/detailed"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/history/detailed/<int:history_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/assessment/history/stats"
+        }
+      ]
+    },
+    "auth": {
+      "count": 7,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/auth/register"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/login"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/refresh"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/logout"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/auth/profile/<int:user_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/forgot-password"
+        },
+        {
+          "method": "POST",
+          "path": "/api/auth/reset-password"
+        }
+      ]
+    },
+    "chapters": {
+      "count": 14,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/chapters/chapters"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chapters/all"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chapters/<int:chapter_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chapters/<int:chapter_id>/start-practice"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/chapters/<int:chapter_id>/progress"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chapters/progress-graph"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chapters/chapters/<int:chapter_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chapters/chapters/<int:chapter_id>/start-practice"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/chapters/chapters/<int:chapter_id>/progress"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chapters/chapters/progress-graph"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chapters/chapters/create-custom"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chapters/chapters/<int:chapter_id>/adaptive-content"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chapters/chapters/learning-path/<int:learning_path_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chapters/chapters/unlock-next"
+        }
+      ]
+    },
+    "chat": {
+      "count": 22,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/chat/conversations"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/conversations/<int:conversation_id>/messages"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/conversations/<int:conversation_id>/message"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/quick-chat"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/send-message"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/conversations/<int:conversation_id>/feedback"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/chat-suggestions"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/suggestions"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/feedback"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/practice-assistant"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/practice-assistant/<int:practice_session_id>/chat"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/notes"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/notes"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/chat/notes/<int:note_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/conversation-context/<int:context_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/user-memories"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat/search-memories"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/personalized-suggestions"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/user-learning-context"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/history"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/history/<int:history_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat/history/stats"
+        }
+      ]
+    },
+    "chat_tutor": {
+      "count": 9,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/chat-tutor/conversations"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat-tutor/conversations"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat-tutor/conversations/<int:conversation_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat-tutor/conversations/<int:conversation_id>/messages"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/chat-tutor/conversations/<int:conversation_id>/clear"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/chat-tutor/conversations/<int:conversation_id>"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/chat-tutor/conversations/<int:conversation_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/chat-tutor/conversations/<int:conversation_id>/summary"
+        },
+        {
+          "method": "POST",
+          "path": "/api/chat-tutor/quick-chat"
+        }
+      ]
+    },
+    "content_generation": {
+      "count": 23,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/content-generation/generate"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/quiz"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/flashcards"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/reading"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/writing"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/listening"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/speaking"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/real-world"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/pronunciation"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/sentence-construction"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/dialogue-completion"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/error-correction"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/story-sequencing"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/synonym-antonym"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/dictation"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/translation"
+        },
+        {
+          "method": "POST",
+          "path": "/api/content-generation/batch"
+        },
+        {
+          "method": "GET",
+          "path": "/api/content-generation/activity-types"
+        },
+        {
+          "method": "GET",
+          "path": "/api/content-generation/activities"
+        },
+        {
+          "method": "GET",
+          "path": "/api/content-generation/activities/<int:activity_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/content-generation/activities/by-type/<activity_type>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/content-generation/activities/stats"
+        },
+        {
+          "method": "GET",
+          "path": "/api/content-generation/activities/<int:activity_id>/history"
+        }
+      ]
+    },
+    "courses": {
+      "count": 9,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/courses/learning-paths"
+        },
+        {
+          "method": "GET",
+          "path": "/api/courses/learning-paths/<int:path_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/courses/enroll"
+        },
+        {
+          "method": "POST",
+          "path": "/api/courses/learning-paths/<int:path_id>/enroll"
+        },
+        {
+          "method": "GET",
+          "path": "/api/courses/enrollment/<int:path_id>/progress"
+        },
+        {
+          "method": "GET",
+          "path": "/api/courses/my-learning-paths"
+        },
+        {
+          "method": "POST",
+          "path": "/api/courses/start-activity"
+        },
+        {
+          "method": "POST",
+          "path": "/api/courses/activities/<int:activity_id>/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/courses/activities/<int:activity_id>/complete"
+        }
+      ]
+    },
+    "enhanced_activity": {
+      "count": 2,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/enhanced-activity/<int:activity_id>/question-breakdown"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-activity/performance-history"
+        }
+      ]
+    },
+    "enhanced_activity_v2": {
+      "count": 4,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/activities-v2/generate"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activities-v2/suggest"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activities-v2/performance"
+        },
+        {
+          "method": "GET",
+          "path": "/api/activities-v2/difficulty-test"
+        }
+      ]
+    },
+    "enhanced_analytics": {
+      "count": 7,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/enhanced-analytics/performance-trends"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-analytics/learning-streaks"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-analytics/skill-breakdown"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-analytics/time-spent"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-analytics/difficulty-progression"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-analytics/learning-timeline"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-analytics/comprehensive-report"
+        }
+      ]
+    },
+    "enhanced_assessment": {
+      "count": 3,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/enhanced-assessment/<int:assessment_id>/question-analysis"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-assessment/<int:assessment_id>/comparative-report"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-assessment/skill-progression"
+        }
+      ]
+    },
+    "enhanced_chat": {
+      "count": 8,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/enhanced-chat/conversations"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-chat/conversations"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-chat/conversations/<int:conversation_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/enhanced-chat/conversations/<int:conversation_id>/message"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-chat/conversations/<int:conversation_id>/summary"
+        },
+        {
+          "method": "GET",
+          "path": "/api/enhanced-chat/test-mem0"
+        },
+        {
+          "method": "POST",
+          "path": "/api/enhanced-chat/quick-chat"
+        },
+        {
+          "method": "POST",
+          "path": "/api/enhanced-chat/message"
+        }
+      ]
+    },
+    "gamification": {
+      "count": 7,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/gamification/points"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification/badges"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification/leaderboard"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification/daily-challenge"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gamification/daily-challenge"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification/stats"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification/achievements"
+        }
+      ]
+    },
+    "gamification_phase9": {
+      "count": 18,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/challenges/today"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/challenges/history"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gamification-v2/challenges/<int:challenge_id>/complete"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/achievements"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gamification-v2/achievements/<int:achievement_id>/showcase"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/leaderboard"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/leaderboard/categories"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/streak"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gamification-v2/streak/freeze"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gamification-v2/streak/update"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/milestones"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gamification-v2/milestones/<int:milestone_id>/celebrate"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/social/connections"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gamification-v2/social/connect/<int:target_user_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/gamification-v2/social/share-achievement"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/social/feed"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/summary"
+        },
+        {
+          "method": "GET",
+          "path": "/api/gamification-v2/health"
+        }
+      ]
+    },
+    "goals": {
+      "count": 13,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/goals/available"
+        },
+        {
+          "method": "POST",
+          "path": "/api/goals/create"
+        },
+        {
+          "method": "GET",
+          "path": "/api/goals/my-goals"
+        },
+        {
+          "method": "GET",
+          "path": "/api/goals/<int:goal_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/goals/<int:goal_id>/update-progress"
+        },
+        {
+          "method": "POST",
+          "path": "/api/goals/<int:goal_id>/complete"
+        },
+        {
+          "method": "POST",
+          "path": "/api/goals/<int:goal_id>/abandon"
+        },
+        {
+          "method": "GET",
+          "path": "/api/goals/certificates"
+        },
+        {
+          "method": "GET",
+          "path": "/api/goals/certificates/<int:certificate_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/goals/certificates/<int:certificate_id>/download"
+        },
+        {
+          "method": "GET",
+          "path": "/api/goals/certificates/verify/<certificate_number>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/goals/level-progression"
+        },
+        {
+          "method": "GET",
+          "path": "/api/goals/statistics"
+        }
+      ]
+    },
+    "image": {
+      "count": 6,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/image-learning/analyze"
+        },
+        {
+          "method": "GET",
+          "path": "/api/image-learning/history"
+        },
+        {
+          "method": "GET",
+          "path": "/api/image-learning/<int:image_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/image-learning/<int:image_id>/save-words"
+        },
+        {
+          "method": "POST",
+          "path": "/api/image-learning/<int:image_id>/create-flashcards"
+        },
+        {
+          "method": "GET",
+          "path": "/api/image-learning/uploads/images/<filename>"
+        }
+      ]
+    },
+    "intelligent_assessment": {
+      "count": 27,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/intelligent-assessment/assessments/create"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/<int:assessment_id>"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/intelligent-assessment/assessments/<int:assessment_id>"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/intelligent-assessment/assessments/<int:assessment_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/intelligent-assessment/assessments/<int:assessment_id>/questions"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/questions/<int:question_id>"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/intelligent-assessment/assessments/questions/<int:question_id>"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/intelligent-assessment/assessments/questions/<int:question_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/intelligent-assessment/assessments/questions/bulk-import"
+        },
+        {
+          "method": "POST",
+          "path": "/api/intelligent-assessment/assessments/<int:assessment_id>/start"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/attempts/<int:attempt_id>/next-question"
+        },
+        {
+          "method": "POST",
+          "path": "/api/intelligent-assessment/assessments/attempts/<int:attempt_id>/submit"
+        },
+        {
+          "method": "POST",
+          "path": "/api/intelligent-assessment/assessments/attempts/<int:attempt_id>/complete"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/attempts/<int:attempt_id>/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/attempts/<int:attempt_id>/results"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/attempts/<int:attempt_id>/diagnostics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/my-history"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/<int:assessment_id>/analytics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/compare/<int:attempt_id_1>/<int:attempt_id_2>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/recommendations"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/certification-ready"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/attempts/<int:attempt_id>/learning-path-recommendations"
+        },
+        {
+          "method": "POST",
+          "path": "/api/intelligent-assessment/assessments/attempts/<int:attempt_id>/create-personalized-path"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/learning-paths/<int:path_id>/suggested-assessments"
+        },
+        {
+          "method": "POST",
+          "path": "/api/intelligent-assessment/assessments/learning-paths/<int:path_id>/update-from-assessment/<int:attempt_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/intelligent-assessment/assessments/health"
+        }
+      ]
+    },
+    "learning_analytics": {
+      "count": 17,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/weekly-report"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/weekly-reports"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/progress-visualization"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/skill-radar"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/predictions/level-completion"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/predictions/skill-mastery/<skill>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/comparisons"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/percentile/<metric>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/velocity"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/study-schedule"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/insights"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/patterns"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/study-sessions"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-analytics/study-sessions"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/snapshots"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-analytics/snapshots/create"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-analytics/health"
+        }
+      ]
+    },
+    "learning_path": {
+      "count": 4,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/learning-paths/personalized-recommendation"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-paths/create-custom-path"
+        },
+        {
+          "method": "POST",
+          "path": "/api/learning-paths/adaptive-difficulty"
+        },
+        {
+          "method": "GET",
+          "path": "/api/learning-paths/progress-analysis/<int:learning_path_id>"
+        }
+      ]
+    },
+    "lesson": {
+      "count": 4,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/lesson/complete"
+        },
+        {
+          "method": "GET",
+          "path": "/api/lesson/review/<int:review_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/lesson/reviews"
+        },
+        {
+          "method": "POST,GET",
+          "path": "/api/lesson/next"
+        }
+      ]
+    },
+    "media": {
+      "count": 6,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/media/upload/image"
+        },
+        {
+          "method": "POST",
+          "path": "/api/media/upload/audio"
+        },
+        {
+          "method": "POST",
+          "path": "/api/media/record/voice"
+        },
+        {
+          "method": "POST",
+          "path": "/api/media/generate/pronunciation-exercise"
+        },
+        {
+          "method": "GET",
+          "path": "/api/media/files/<filename>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/media/my-uploads"
+        }
+      ]
+    },
+    "notifications": {
+      "count": 10,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/notifications/"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notifications/mark-read/<int:notification_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notifications/mark-all-read"
+        },
+        {
+          "method": "GET",
+          "path": "/api/notifications/preferences"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notifications/preferences"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/notifications/clear"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/notifications/<int:notification_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notifications/test/daily-reminder"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notifications/test/streak-alert"
+        },
+        {
+          "method": "POST",
+          "path": "/api/notifications/test/personalized-tip"
+        }
+      ]
+    },
+    "onboarding": {
+      "count": 4,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/onboarding/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/onboarding/status"
+        },
+        {
+          "method": "POST",
+          "path": "/api/onboarding/complete"
+        },
+        {
+          "method": "GET",
+          "path": "/api/onboarding/progress/snapshot"
+        }
+      ]
+    },
+    "performance": {
+      "count": 17,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/performance/listening"
+        },
+        {
+          "method": "POST",
+          "path": "/api/performance/speaking"
+        },
+        {
+          "method": "POST",
+          "path": "/api/performance/reading"
+        },
+        {
+          "method": "POST",
+          "path": "/api/performance/writing"
+        },
+        {
+          "method": "POST",
+          "path": "/api/performance/real-world"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/trajectory/<skill_domain>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/patterns"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/mastery-prediction/<skill_domain>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/all-trajectories"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/history/listening"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/history/speaking"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/history/reading"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/history/writing"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/history/real-world"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/listening/<int:performance_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/speaking/<int:performance_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/performance/dashboard"
+        }
+      ]
+    },
+    "personalization": {
+      "count": 12,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/personalization/goals"
+        },
+        {
+          "method": "POST",
+          "path": "/api/personalization/preferences"
+        },
+        {
+          "method": "GET",
+          "path": "/api/personalization/preferences"
+        },
+        {
+          "method": "POST",
+          "path": "/api/personalization/assessment/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/personalization/assessment/<int:assessment_id>/respond"
+        },
+        {
+          "method": "POST",
+          "path": "/api/personalization/assessment/<int:assessment_id>/complete"
+        },
+        {
+          "method": "GET",
+          "path": "/api/personalization/dashboard"
+        },
+        {
+          "method": "POST",
+          "path": "/api/personalization/session/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/personalization/session/<int:session_id>/end"
+        },
+        {
+          "method": "POST",
+          "path": "/api/personalization/vocabulary/track"
+        },
+        {
+          "method": "GET",
+          "path": "/api/personalization/vocabulary"
+        },
+        {
+          "method": "POST",
+          "path": "/api/personalization/vocabulary/<int:vocab_id>/practice"
+        }
+      ]
+    },
+    "practice": {
+      "count": 9,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/practice/generate-questions"
+        },
+        {
+          "method": "POST",
+          "path": "/api/practice/submit-answer"
+        },
+        {
+          "method": "POST",
+          "path": "/api/practice/<int:session_id>/complete"
+        },
+        {
+          "method": "POST",
+          "path": "/api/practice/practice/<int:session_id>/generate-questions"
+        },
+        {
+          "method": "POST",
+          "path": "/api/practice/practice/<int:session_id>/submit-answer"
+        },
+        {
+          "method": "POST",
+          "path": "/api/practice/practice/<int:session_id>/complete"
+        },
+        {
+          "method": "GET",
+          "path": "/api/practice/history"
+        },
+        {
+          "method": "GET",
+          "path": "/api/practice/history/<int:history_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/practice/history/stats"
+        }
+      ]
+    },
+    "test_auth": {
+      "count": 2,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/test-auth"
+        },
+        {
+          "method": "GET",
+          "path": "/api/test-no-auth"
+        }
+      ]
+    },
+    "test_singular": {
+      "count": 9,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/test/tests/create"
+        },
+        {
+          "method": "POST",
+          "path": "/api/test/create"
+        },
+        {
+          "method": "POST",
+          "path": "/api/test/tests/<int:test_id>/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/test/<int:test_id>/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/test/tests/<int:test_id>/submit"
+        },
+        {
+          "method": "POST",
+          "path": "/api/test/<int:test_id>/submit"
+        },
+        {
+          "method": "GET",
+          "path": "/api/test/tests/<int:test_id>/results"
+        },
+        {
+          "method": "GET",
+          "path": "/api/test/<int:test_id>/results"
+        },
+        {
+          "method": "GET",
+          "path": "/api/test/tests/history"
+        }
+      ]
+    },
+    "tests": {
+      "count": 9,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/tests/tests/create"
+        },
+        {
+          "method": "POST",
+          "path": "/api/tests/create"
+        },
+        {
+          "method": "POST",
+          "path": "/api/tests/tests/<int:test_id>/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/tests/<int:test_id>/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/tests/tests/<int:test_id>/submit"
+        },
+        {
+          "method": "POST",
+          "path": "/api/tests/<int:test_id>/submit"
+        },
+        {
+          "method": "GET",
+          "path": "/api/tests/tests/<int:test_id>/results"
+        },
+        {
+          "method": "GET",
+          "path": "/api/tests/<int:test_id>/results"
+        },
+        {
+          "method": "GET",
+          "path": "/api/tests/tests/history"
+        }
+      ]
+    },
+    "unknown": {
+      "count": 1,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/health"
+        }
+      ]
+    },
+    "user": {
+      "count": 12,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/user/profile"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/user/profile"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/settings"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/user/settings"
+        },
+        {
+          "method": "POST",
+          "path": "/api/user/change-password"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/statistics"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/user/delete-account"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/history/<int:user_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/learning-paths/<int:user_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/user/learning-paths"
+        },
+        {
+          "method": "POST",
+          "path": "/api/user/activity-completion"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/dashboard/<int:user_id>"
+        }
+      ]
+    },
+    "user_status": {
+      "count": 2,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/user/status"
+        },
+        {
+          "method": "GET",
+          "path": "/api/user/can-access/<path:route_path>"
+        }
+      ]
+    },
+    "vocabulary": {
+      "count": 21,
+      "endpoints": [
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/introduce"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/introduce-from-text"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/add-to-my-vocabulary"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/words-due"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/review"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/practice-session/start"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/practice-session/<int:session_id>/complete"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/practice-activity"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/mastery"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/word-network/<int:vocabulary_item_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/related-words"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/my-vocabulary"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/vocabulary-item/<int:vocabulary_item_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/search"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/statistics"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/review-history"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/toggle-favorite/<int:user_vocabulary_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/add-note/<int:user_vocabulary_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/archive/<int:user_vocabulary_id>"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary/batch-review"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary/reinforcement-stats"
+        }
+      ]
+    },
+    "vocabulary_api": {
+      "count": 8,
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/vocabulary-old/words"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary-old/words"
+        },
+        {
+          "method": "PUT",
+          "path": "/api/vocabulary-old/words/<int:word_id>"
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/vocabulary-old/words/<int:word_id>"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary-old/words/<int:word_id>/examples"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary-old/words/<int:word_id>/practice-result"
+        },
+        {
+          "method": "GET",
+          "path": "/api/vocabulary-old/stats"
+        },
+        {
+          "method": "POST",
+          "path": "/api/vocabulary-old/practice-flashcards"
+        }
+      ]
+    }
+  }
+}

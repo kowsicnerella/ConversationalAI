@@ -12,7 +12,10 @@ import requests
 from typing import Optional, Dict, List, Any, Union
 from enum import Enum
 from PIL import Image
-import google.generativeai as genai
+try:
+    import google.generativeai as genai
+except Exception:
+    genai = None
 from config import Config
 import sseclient
 
@@ -101,6 +104,13 @@ class LLMConfig:
     @classmethod
     def _init_gemini(cls):
         """Initialize Google Gemini API"""
+        if genai is None:
+            # Provide clearer error message instead of crashing on import
+            raise ImportError(
+                "google.generativeai is not installed or failed to import. "
+                "Install the package or set LLMConfig.DEFAULT_PROVIDER to CUSTOM."
+            )
+
         if not hasattr(cls, "_gemini_initialized"):
             genai.configure(api_key=Config.GEMINI_API_KEY)
             cls._gemini_initialized = True
@@ -251,22 +261,34 @@ class LLMConfig:
             "max_completion_tokens": max_tokens,
         }
 
-        response = requests.post(
-            endpoint,
-            json=payload,
-            headers={"Content-Type": "application/json"},
-            timeout=60,
-            verify=False
-        )
-        response.raise_for_status()
+        try:
+            response = requests.post(
+                endpoint,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=60,
+                verify=False
+            )
+            response.raise_for_status()
 
-        data = response.json()
-        return {
-            "success": True,
-            "text": data["choices"][0]["message"]["content"],
-            "model": data.get("model", "custom"),
-            "usage": data.get("usage", {}),
-        }
+            # Try to parse JSON, but handle non-JSON responses
+            try:
+                data = response.json()
+                # Check if response contains actual content
+                if "choices" in data and data["choices"] and "message" in data["choices"][0]:
+                    return {
+                        "success": True,
+                        "text": data["choices"][0]["message"]["content"],
+                        "model": data.get("model", "custom"),
+                        "usage": data.get("usage", {}),
+                    }
+                else:
+                    raise ValueError(f"Invalid response format from custom endpoint: {data}")
+            except (json.JSONDecodeError, ValueError) as json_error:
+                # Response is not valid JSON or doesn't have expected structure
+                raise ValueError(f"Custom endpoint returned invalid response: {response.text[:200]}")
+        except requests.exceptions.RequestException as req_error:
+            raise ValueError(f"Custom endpoint request failed: {str(req_error)}")
 
     # ==================== CHAT COMPLETION ====================
 

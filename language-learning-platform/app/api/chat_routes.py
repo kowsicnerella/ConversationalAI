@@ -246,8 +246,11 @@ def send_message(conversation_id):
         """
 
         # Get AI response
-        ai_response = activity_service.model.generate_content(conversation_context)
-        ai_message = ai_response.text.strip()
+        from app.services.llm_config import LLMConfig
+        result = LLMConfig.generate_text(conversation_context, json_mode=False)
+        if not result['success']:
+            return jsonify({"error": "Failed to generate response", "telugu_error": "ప్రతిస్పందన రూపొందించడంలో విఫలమైంది"}), 500
+        ai_message = result['text'].strip()
 
         # Save user message to mem0
         mem0_service.add_user_interaction(
@@ -314,12 +317,14 @@ def send_message(conversation_id):
         """
 
         try:
-            vocab_response = activity_service.model.generate_content(
-                vocabulary_extraction_prompt
-            )
-            vocab_data = activity_service._extract_json_from_response(
-                vocab_response.text
-            )
+            from app.services.llm_config import LLMConfig
+            from app.services.activity_generator_service import _extract_json_from_response
+            
+            result = LLMConfig.generate_text(vocabulary_extraction_prompt, json_mode=True)
+            if not result['success']:
+                vocab_data = []
+            else:
+                vocab_data = _extract_json_from_response(result['text'])
 
             if isinstance(vocab_data, list) and len(vocab_data) > 0:
                 for vocab in vocab_data:
@@ -440,8 +445,11 @@ def quick_chat():
         prompt = context_prompts.get(context, context_prompts["casual_chat"])
 
         # Get AI response
-        ai_response = activity_service.model.generate_content(prompt)
-        ai_message = ai_response.text.strip()
+        from app.services.llm_config import LLMConfig
+        result = LLMConfig.generate_text(prompt, json_mode=False)
+        if not result['success']:
+            return jsonify({"error": "Failed to generate response", "telugu_error": "ప్రతిస్పందన రూపొందించడంలో విఫలమైంది"}), 500
+        ai_message = result['text'].strip()
 
         # Track this as a quick interaction (no formal session)
         interaction_data = {
@@ -549,8 +557,11 @@ def send_simple_message():
         User message: "{user_message}"
         """
 
-        ai_response = activity_service.model.generate_content(prompt)
-        ai_message = ai_response.text.strip()
+        from app.services.llm_config import LLMConfig
+        result = LLMConfig.generate_text(prompt, json_mode=False)
+        if not result['success']:
+            return jsonify({"error": "Failed to generate response", "telugu_error": "ప్రతిస్పందన రూపొందించడంలో విఫలమైంది"}), 500
+        ai_message = result['text'].strip()
 
         # Update conversation
         current_messages = (
@@ -1143,8 +1154,11 @@ def general_practice_assistant():
         prompt = assistance_prompts.get(assistance_type, assistance_prompts["general"])
 
         # Get AI response
-        ai_response = activity_service.model.generate_content(prompt)
-        ai_message = ai_response.text.strip()
+        from app.services.llm_config import LLMConfig
+        result = LLMConfig.generate_text(prompt, json_mode=False)
+        if not result['success']:
+            return jsonify({"error": "Failed to generate response", "telugu_error": "ప్రతిస్పందన రూపొందించడంలో విఫలమైంది"}), 500
+        ai_message = result['text'].strip()
 
         # Generate follow-up suggestions based on assistance type
         follow_up_suggestions = {
@@ -1692,8 +1706,11 @@ def _generate_practice_assistant_response(
         Respond naturally and helpfully as an AI tutor assistant.
         """
 
-        response = activity_service.model.generate_content(prompt)
-        return response.text.strip()
+        from app.services.llm_config import LLMConfig
+        result = LLMConfig.generate_text(prompt, json_mode=False)
+        if not result['success']:
+            return "Sorry, I encountered an error generating a response. Please try again."
+        return result['text'].strip()
 
     except Exception as e:
         current_app.logger.error(f"Error generating assistant response: {str(e)}")

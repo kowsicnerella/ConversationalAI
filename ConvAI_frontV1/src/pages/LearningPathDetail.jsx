@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Grid,
-  Card,
   CardContent,
   Typography,
   Chip,
@@ -39,7 +38,6 @@ import GradientText from "../components/common/GradientText";
 import HoverCard from "../components/common/HoverCard";
 import AnimatedButton from "../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../config/api";
-import learningPathService from "../services/learningPathService";
 
 const LearningPathDetail = () => {
   const { id } = useParams();
@@ -48,24 +46,80 @@ const LearningPathDetail = () => {
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedChapter, setExpandedChapter] = useState(null);
-  const [chapterProgress, setChapterProgress] = useState({});
-  const [startingChapter, setStartingChapter] = useState(null);
-  const [completingChapter, setCompletingChapter] = useState(null);
 
-  useEffect(() => {
-    fetchPathDetails();
-  }, [id]);
+  // Helper function to group activities into chapters
+  const groupActivitiesIntoChapters = (activities) => {
+    if (!activities || activities.length === 0) return [];
+    
+    // Group activities by order (every 2-3 activities form a chapter)
+    const chapterSize = 2;
+    const chapters = [];
+    
+    for (let i = 0; i < activities.length; i += chapterSize) {
+      const chapterActivities = activities.slice(i, i + chapterSize);
+      const chapterId = Math.floor(i / chapterSize) + 1;
+      const firstActivity = chapterActivities[0];
+      
+      chapters.push({
+        id: chapterId,
+        title: `Chapter ${chapterId}: ${firstActivity.title}`,
+        description: `Learn about ${firstActivity.title} and related concepts`,
+        lessons: chapterActivities.length,
+        duration: `${chapterActivities.length * 15} min`,
+        completed: chapterActivities.every(a => a.is_completed),
+        inProgress: chapterActivities.some(a => a.is_completed) && !chapterActivities.every(a => a.is_completed),
+        locked: false,
+        activities: chapterActivities.map(a => ({
+          id: a.id,
+          title: a.title,
+          type: a.activity_type || 'Activity',
+          completed: a.is_completed,
+        })),
+      });
+    }
+    
+    return chapters;
+  };
 
-  const fetchPathDetails = async () => {
+  const fetchPathDetails = useCallback(async () => {
     try {
-      const [pathResponse, chaptersResponse] = await Promise.all([
-        axiosInstance.get(API_ENDPOINTS.COURSES.PATH_DETAIL(id)),
-        axiosInstance.get(API_ENDPOINTS.CHAPTERS.LIST(id)),
-      ]);
-      setPathData(pathResponse.data);
-      setChapters(
-        chaptersResponse.data.chapters || chaptersResponse.data || []
-      );
+      const pathResponse = await axiosInstance.get(API_ENDPOINTS.COURSES.PATH_DETAIL(id));
+      const pathInfo = pathResponse.data.learning_path;
+      
+      // Helper function to safely convert learning_objectives to array
+      const getObjectivesArray = (objectives) => {
+        if (!objectives) return [];
+        if (Array.isArray(objectives)) return objectives;
+        if (typeof objectives === 'string') {
+          try {
+            const parsed = JSON.parse(objectives);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [objectives];
+          }
+        }
+        return [];
+      };
+      
+      // Map API response to component's expected data structure
+      const mappedPathData = {
+        id: pathInfo.id,
+        title: pathInfo.title,
+        description: pathInfo.description,
+        level: pathInfo.difficulty_level || 'Beginner',
+        duration: `${pathInfo.estimated_duration_hours || 8} hours`,
+        totalChapters: pathInfo.progress?.total_activities || 0,
+        progress: pathInfo.progress?.completion_percentage || 0,
+        enrolled: pathInfo.is_enrolled || false,
+        icon: '🎯',
+        objectives: getObjectivesArray(pathInfo.learning_objectives),
+      };
+      
+      setPathData(mappedPathData);
+      
+      // Transform activities into chapters structure
+      const transformedChapters = groupActivitiesIntoChapters(pathInfo.activities || []);
+      setChapters(transformedChapters);
     } catch (error) {
       console.error("Error fetching path details:", error);
       // Mock data for demo
@@ -179,62 +233,64 @@ const LearningPathDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchPathDetails();
+  }, [fetchPathDetails]);
 
   const handleChapterExpand = (chapterId) => {
     setExpandedChapter(expandedChapter === chapterId ? null : chapterId);
   };
 
-  const handleStartChapter = async (chapterId) => {
-    try {
-      setStartingChapter(chapterId);
-      const response = await learningPathService.startChapter(chapterId);
-      
-      if (response.success) {
-        // Update chapter status
-        setChapters(prevChapters =>
-          prevChapters.map(ch =>
-            ch.id === chapterId ? { ...ch, inProgress: true } : ch
-          )
-        );
-        // Reload progress
-        await fetchPathDetails();
-      }
-    } catch (error) {
-      console.error('Error starting chapter:', error);
-    } finally {
-      setStartingChapter(null);
+  const handleStartChapter = (chapterId) => {
+    // Navigate to first activity in this chapter
+    const chapter = chapters.find(ch => ch.id === chapterId);
+    if (chapter && chapter.activities && chapter.activities.length > 0) {
+      const firstActivity = chapter.activities[0];
+      handleStartActivity(firstActivity.id);
     }
   };
 
-  const handleCompleteChapter = async (chapterId) => {
-    try {
-      setCompletingChapter(chapterId);
-      const response = await learningPathService.completeChapter(chapterId, {
-        completion_time: 0, // Could track actual time
-        score: null,
-        notes: ''
-      });
-      
-      if (response.success) {
-        // Update chapter status
-        setChapters(prevChapters =>
-          prevChapters.map(ch =>
-            ch.id === chapterId ? { ...ch, completed: true, inProgress: false } : ch
-          )
-        );
-        // Reload to update overall progress
-        await fetchPathDetails();
-      }
-    } catch (error) {
-      console.error('Error completing chapter:', error);
-    } finally {
-      setCompletingChapter(null);
-    }
+  const handleCompleteChapter = (chapterId) => {
+    // Chapters are auto-completed when all activities are done
+    // Update chapter status locally
+    setChapters(prevChapters =>
+      prevChapters.map(ch =>
+        ch.id === chapterId ? { ...ch, inProgress: false, completed: true } : ch
+      )
+    );
   };
+
 
   const handleStartActivity = (activityId) => {
-    navigate(`/activities/${activityId}`);
+    // Store the learning path ID so activities can get the next activity
+    localStorage.setItem("currentLearningPathId", id);
+    
+    // Find the activity to get its type
+    let activityType = null;
+    
+    for (const chapter of chapters) {
+      const activity = chapter.activities.find(a => a.id === activityId);
+      if (activity) {
+        activityType = activity.type;
+        break;
+      }
+    }
+    
+    // Map activity type to correct route
+    const typeString = String(activityType || '').toLowerCase();
+    
+    if (typeString === 'flashcard' || typeString === 'flashcards') {
+      navigate(`/activities/flashcards/${activityId}`);
+    } else if (typeString === 'quiz') {
+      navigate(`/activities/quiz/${activityId}`);
+    } else if (typeString === 'reading') {
+      navigate(`/activities/reading/${activityId}`);
+    } else {
+      // Fallback to detail page for other types
+      navigate(`/activities/${activityId}`);
+    }
   };
 
   const getActivityIcon = (type) => {
@@ -496,10 +552,9 @@ const LearningPathDetail = () => {
                           e.stopPropagation();
                           handleStartChapter(chapter.id);
                         }}
-                        disabled={startingChapter === chapter.id}
                         size="small"
                       >
-                        {startingChapter === chapter.id ? 'Starting...' : 'Start Chapter'}
+                        Start Chapter
                       </Button>
                     )}
                     {chapter.inProgress && !chapter.completed && (
@@ -511,10 +566,9 @@ const LearningPathDetail = () => {
                           e.stopPropagation();
                           handleCompleteChapter(chapter.id);
                         }}
-                        disabled={completingChapter === chapter.id}
                         size="small"
                       >
-                        {completingChapter === chapter.id ? 'Completing...' : 'Mark as Complete'}
+                        Mark as Complete
                       </Button>
                     )}
                     {chapter.completed && (

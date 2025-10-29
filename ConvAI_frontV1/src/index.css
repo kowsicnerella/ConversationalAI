@@ -24,6 +24,95 @@ body {
   width: 100%;
 }
 
+/* Responsive container helper - use .app-container on top-level wrappers */
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+@media (max-width: 900px) {
+  .app-container {
+    padding: 12px;
+  }
+}
+
+/* Card grid for consistent spacing and responsive columns */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive padding utility */
+.responsive-padding {
+  padding: 32px;
+}
+
+@media (max-width: 900px) {
+  .responsive-padding {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .responsive-padding {
+    padding: 16px;
+  }
+}
+
+/* Responsive gap utility */
+.responsive-gap-md {
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .responsive-gap-md {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .responsive-gap-md {
+    gap: 12px;
+  }
+}
+
+/* Ensure full-width on small screens */
+.full-width-mobile {
+  width: 100%;
+}
+
+@media (min-width: 601px) {
+  .full-width-mobile {
+    width: auto;
+  }
+}
+
+/* Button full-width on mobile */
+.button-full-mobile {
+  width: 100%;
+}
+
+@media (min-width: 601px) {
+  .button-full-mobile {
+    width: auto;
+  }
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
