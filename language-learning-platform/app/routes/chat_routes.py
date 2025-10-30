@@ -13,7 +13,7 @@ from app.models import db, ChatConversation, ChatMessage, User
 from datetime import datetime
 
 # Create blueprint
-chat_bp = Blueprint("chat", __name__, url_prefix="/api/chat")
+chat_bp = Blueprint("chat_v2", __name__, url_prefix="/chat-v2")
 
 
 def token_required(f):
