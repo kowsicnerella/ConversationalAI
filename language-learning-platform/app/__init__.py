@@ -226,7 +226,7 @@ def create_app(config_name="development"):
     app.register_blueprint(gamification_phase9_bp)  # Already has url_prefix in blueprint
     
     # Register NEW Enhanced Chat Routes V2 with Mem0, Web Search, and Vector DB
-    app.register_blueprint(enhanced_chat_routes_bp, url_prefix="/api/chat-v2", name="enhanced_chat_v2")
+    app.register_blueprint(enhanced_chat_routes_bp, url_prefix="/api", name="enhanced_chat_v2")
 
     # Register test auth blueprint (for debugging)
     app.register_blueprint(test_auth_bp, url_prefix="/api")

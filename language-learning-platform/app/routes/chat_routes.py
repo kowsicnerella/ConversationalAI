@@ -5,6 +5,7 @@ API endpoints for AI chat, web search, memory, and learning management
 
 from flask import Blueprint, request, jsonify
 from functools import wraps
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services.enhanced_chat_service_v2 import enhanced_chat_service
 from app.services.chat_history_service import chat_history_service
 from app.services.mem0_service import mem0_service
@@ -16,30 +17,16 @@ from datetime import datetime
 chat_bp = Blueprint("chat_v2", __name__, url_prefix="/chat-v2")
 
 
-def token_required(f):
-    """Decorator to check JWT token"""
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = request.headers.get("Authorization")
-        if not token:
-            return jsonify({"error": "Missing authorization token"}), 401
-        # Token validation logic here
-        return f(*args, **kwargs)
-    return decorated
-
-
 def get_user_id_from_token():
-    """Extract user ID from token"""
-    # Implementation depends on your auth system
-    # This is a placeholder
-    return request.headers.get("X-User-ID")
+    """Extract user ID from JWT token"""
+    return get_jwt_identity()
 
 
 # ============ CONVERSATION MANAGEMENT ============
 
 
 @chat_bp.route("/conversations", methods=["POST"])
-@token_required
+@jwt_required()
 def create_conversation():
     """Create a new chat conversation"""
     try:
@@ -62,7 +49,7 @@ def create_conversation():
 
 
 @chat_bp.route("/conversations", methods=["GET"])
-@token_required
+@jwt_required()
 def get_conversations():
     """Get all conversations for the user"""
     try:
@@ -82,7 +69,7 @@ def get_conversations():
 
 
 @chat_bp.route("/conversations/<int:conversation_id>", methods=["GET"])
-@token_required
+@jwt_required()
 def get_conversation(conversation_id):
     """Get a specific conversation with messages"""
     try:
@@ -102,7 +89,7 @@ def get_conversation(conversation_id):
 
 
 @chat_bp.route("/conversations/<int:conversation_id>", methods=["PUT"])
-@token_required
+@jwt_required()
 def update_conversation(conversation_id):
     """Update conversation title"""
     try:
@@ -125,7 +112,7 @@ def update_conversation(conversation_id):
 
 
 @chat_bp.route("/conversations/<int:conversation_id>", methods=["DELETE"])
-@token_required
+@jwt_required()
 def delete_conversation(conversation_id):
     """Delete a conversation"""
     try:
@@ -148,7 +135,7 @@ def delete_conversation(conversation_id):
 
 
 @chat_bp.route("/conversations/<int:conversation_id>/messages", methods=["POST"])
-@token_required
+@jwt_required()
 def send_message(conversation_id):
     """Send a message and get AI response with optional web search"""
     try:
@@ -180,7 +167,7 @@ def send_message(conversation_id):
 
 
 @chat_bp.route("/conversations/<int:conversation_id>/messages", methods=["GET"])
-@token_required
+@jwt_required()
 def get_messages(conversation_id):
     """Get messages from a conversation"""
     try:
@@ -205,7 +192,7 @@ def get_messages(conversation_id):
 
 
 @chat_bp.route("/web-search", methods=["POST"])
-@token_required
+@jwt_required()
 def web_search():
     """Perform a web search"""
     try:
@@ -229,7 +216,7 @@ def web_search():
 
 
 @chat_bp.route("/user-learning-context", methods=["GET"])
-@token_required
+@jwt_required()
 def get_learning_context():
     """Get user's learning context"""
     try:
@@ -244,7 +231,7 @@ def get_learning_context():
 
 
 @chat_bp.route("/user-memories", methods=["GET"])
-@token_required
+@jwt_required()
 def get_user_memories():
     """Get user's stored memories"""
     try:
@@ -279,7 +266,7 @@ def get_user_memories():
 
 
 @chat_bp.route("/search-memories", methods=["POST"])
-@token_required
+@jwt_required()
 def search_memories():
     """Search user's memories"""
     try:
@@ -313,7 +300,7 @@ def search_memories():
 
 
 @chat_bp.route("/personalized-suggestions", methods=["GET"])
-@token_required
+@jwt_required()
 def get_personalized_suggestions():
     """Get personalized learning suggestions based on memory and context"""
     try:
@@ -342,7 +329,7 @@ def get_personalized_suggestions():
 
 
 @chat_bp.route("/conversations/<int:conversation_id>/analytics", methods=["GET"])
-@token_required
+@jwt_required()
 def get_conversation_analytics(conversation_id):
     """Get analytics for a conversation"""
     try:
@@ -359,7 +346,7 @@ def get_conversation_analytics(conversation_id):
 
 
 @chat_bp.route("/learning-statistics", methods=["GET"])
-@token_required
+@jwt_required()
 def get_learning_statistics():
     """Get comprehensive learning statistics for user"""
     try:
@@ -374,7 +361,7 @@ def get_learning_statistics():
 
 
 @chat_bp.route("/learning-insights", methods=["GET"])
-@token_required
+@jwt_required()
 def get_learning_insights():
     """Get learning insights from chat history"""
     try:
@@ -392,7 +379,7 @@ def get_learning_insights():
 
 
 @chat_bp.route("/search-conversations", methods=["POST"])
-@token_required
+@jwt_required()
 def search_conversations():
     """Search conversations by title or topic"""
     try:
@@ -415,7 +402,7 @@ def search_conversations():
 
 
 @chat_bp.route("/search-similar", methods=["POST"])
-@token_required
+@jwt_required()
 def search_similar_conversations():
     """Find conversations similar to the given one"""
     try:
@@ -446,7 +433,7 @@ def search_similar_conversations():
 
 
 @chat_bp.route("/conversations/<int:conversation_id>/export", methods=["GET"])
-@token_required
+@jwt_required()
 def export_conversation(conversation_id):
     """Export a conversation"""
     try:
@@ -470,7 +457,7 @@ def export_conversation(conversation_id):
 
 
 @chat_bp.route("/recent-conversations", methods=["GET"])
-@token_required
+@jwt_required()
 def get_recent_conversations():
     """Get recent conversations"""
     try:
@@ -492,7 +479,7 @@ def get_recent_conversations():
 
 
 @chat_bp.route("/semantic-search", methods=["POST"])
-@token_required
+@jwt_required()
 def semantic_search():
     """Perform semantic search on chat history"""
     try:
@@ -513,7 +500,7 @@ def semantic_search():
 
 
 @chat_bp.route("/conversations/<int:conversation_id>/embed", methods=["POST"])
-@token_required
+@jwt_required()
 def embed_conversation(conversation_id):
     """Embed all messages in a conversation for vector search"""
     try:

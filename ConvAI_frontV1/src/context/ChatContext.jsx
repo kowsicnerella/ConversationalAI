@@ -17,7 +17,7 @@ export const ChatProvider = ({ children }) => {
   const loadConversations = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get("/api/chat-v2/conversations");
+      const response = await axiosInstance.get("/chat-v2/conversations");
       if (response.data.success) {
         setConversations(response.data.conversations);
         if (response.data.conversations.length > 0) {
@@ -37,7 +37,7 @@ export const ChatProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await axiosInstance.get(
-        `/api/chat-v2/conversations/${conversationId}`
+        `/chat-v2/conversations/${conversationId}`
       );
       if (response.data.success) {
         setCurrentConversation(response.data.conversation);
@@ -56,7 +56,7 @@ export const ChatProvider = ({ children }) => {
     async (title, topic = "General") => {
       try {
         setLoading(true);
-        const response = await axiosInstance.post("/api/chat-v2/conversations", {
+        const response = await axiosInstance.post("/chat-v2/conversations", {
           title,
           topic,
         });
@@ -85,7 +85,7 @@ export const ChatProvider = ({ children }) => {
       try {
         setLoading(true);
         const response = await axiosInstance.post(
-          `/api/chat-v2/conversations/${currentConversation.id}/messages`,
+          `/chat-v2/conversations/${currentConversation.id}/messages`,
           {
             message,
             use_web_search: useWebSearch,
@@ -115,7 +115,7 @@ export const ChatProvider = ({ children }) => {
   // Load learning context
   const loadLearningContext = useCallback(async () => {
     try {
-      const response = await axiosInstance.get("/api/chat-v2/user-learning-context");
+      const response = await axiosInstance.get("/chat-v2/user-learning-context");
       if (response.data.success) {
         setLearningContext(response.data.context);
       }
@@ -127,7 +127,7 @@ export const ChatProvider = ({ children }) => {
   // Load memories
   const loadMemories = useCallback(async () => {
     try {
-      const response = await axiosInstance.get("/api/chat-v2/user-memories");
+      const response = await axiosInstance.get("/chat-v2/user-memories");
       if (response.data.success) {
         setMemories(response.data.memories);
       }
@@ -139,7 +139,7 @@ export const ChatProvider = ({ children }) => {
   // Load statistics
   const loadStatistics = useCallback(async () => {
     try {
-      const response = await axiosInstance.get("/api/chat-v2/learning-statistics");
+      const response = await axiosInstance.get("/chat-v2/learning-statistics");
       if (response.data.success) {
         setStatistics(response.data.statistics);
       }
@@ -151,7 +151,7 @@ export const ChatProvider = ({ children }) => {
   // Search conversations
   const searchConversations = useCallback(async (query) => {
     try {
-      const response = await axiosInstance.post("/api/chat-v2/search-conversations", {
+      const response = await axiosInstance.post("/chat-v2/search-conversations", {
         query,
       });
       if (response.data.success) {
@@ -165,7 +165,7 @@ export const ChatProvider = ({ children }) => {
   // Web search
   const webSearch = useCallback(async (query) => {
     try {
-      const response = await axiosInstance.post("/api/chat-v2/web-search", {
+      const response = await axiosInstance.post("/chat-v2/web-search", {
         query,
       });
       if (response.data.success) {
@@ -180,7 +180,7 @@ export const ChatProvider = ({ children }) => {
   // Search memories
   const searchMemories = useCallback(async (query) => {
     try {
-      const response = await axiosInstance.post("/api/chat-v2/search-memories", {
+      const response = await axiosInstance.post("/chat-v2/search-memories", {
         query,
       });
       if (response.data.success) {
@@ -196,7 +196,7 @@ export const ChatProvider = ({ children }) => {
   const deleteConversation = useCallback(async (conversationId) => {
     try {
       const response = await axiosInstance.delete(
-        `/api/chat-v2/conversations/${conversationId}`
+        `/chat-v2/conversations/${conversationId}`
       );
       if (response.data.success) {
         setConversations(conversations.filter((c) => c.id !== conversationId));
@@ -217,7 +217,7 @@ export const ChatProvider = ({ children }) => {
 
       try {
         const response = await axiosInstance.get(
-          `/api/chat-v2/conversations/${currentConversation.id}/export`,
+          `/chat-v2/conversations/${currentConversation.id}/export`,
           { params: { format } }
         );
         return response.data.data;
@@ -232,7 +232,7 @@ export const ChatProvider = ({ children }) => {
   // Semantic search
   const semanticSearch = useCallback(async (query) => {
     try {
-      const response = await axiosInstance.post("/api/chat-v2/semantic-search", {
+      const response = await axiosInstance.post("/chat-v2/semantic-search", {
         query,
       });
       if (response.data.success) {
