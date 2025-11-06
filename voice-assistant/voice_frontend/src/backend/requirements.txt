@@ -1,0 +1,7 @@
+transformers
+torch
+gtts
+soundfile
+langdetect
+flask
+flask-cors
