@@ -1,57 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
 function App() {
   const [message, setMessage] = useState("Click the mic to speak");
   const [isListening, setIsListening] = useState(false);
-  const SpeechRecognition =
-    window.SpeechRecognition || window.webkitSpeechRecognition;
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
 
-  const synth = window.speechSynthesis;
+  // --- send audio to Flask backend ---
+  async function sendAudio(audioBlob) {
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "user_audio.wav");
 
-  const handleListen = () => {
-    if (!SpeechRecognition) {
-      alert("Speech Recognition not supported in this browser!");
-      return;
-    }
+    const response = await fetch("http://127.0.0.1:5000/process-audio", {
+      method: "POST",
+      body: formData,
+    });
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
+    const data = await response.json();
+    console.log("LLM Reply:", data.reply_text);
+    setMessage("Assistant: " + data.reply_text);
 
-    recognition.start();
+    // Play the TTS audio reply
+    const audio = new Audio("http://127.0.0.1:5000/get-audio");
+    audio.play();
+  }
+
+  // --- start recording ---
+  const handleListen = async () => {
+    if (isListening) return;
+    setMessage("Listening...");
     setIsListening(true);
 
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setMessage(`You said: ${transcript}`);
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorderRef.current = new MediaRecorder(stream);
+    audioChunksRef.current = [];
 
-      // Simple example response (your friend will connect backend later)
-      let reply = "";
-      if (transcript.toLowerCase().includes("hello")) {
-        reply = "Hi there! How can I help you?";
-      } else if (transcript.toLowerCase().includes("time")) {
-        reply = `The time is ${new Date().toLocaleTimeString()}`;
-      } else {
-        reply = "Sorry, I didn't understand that.";
-      }
-
-      speak(reply);
+    mediaRecorderRef.current.ondataavailable = (event) => {
+      audioChunksRef.current.push(event.data);
     };
 
-    recognition.onerror = (event) => {
-      console.error(event.error);
-      setMessage("Error occurred: " + event.error);
+    mediaRecorderRef.current.onstop = async () => {
+      const audioBlob = new Blob(audioChunksRef.current, { type: "audio/wav" });
+      await sendAudio(audioBlob);
       setIsListening(false);
     };
 
-    recognition.onend = () => setIsListening(false);
-  };
+    mediaRecorderRef.current.start();
 
-  const speak = (text) => {
-    const utter = new SpeechSynthesisUtterance(text);
-    utter.lang = "en-US";
-    synth.speak(utter);
+    // Auto-stop after 5 seconds (you can adjust this)
+    setTimeout(() => {
+      mediaRecorderRef.current.stop();
+    }, 5000);
   };
 
   return (
@@ -73,17 +72,17 @@ function App() {
 
 const styles = {
   container: {
-    height: "100%",           // full height of root
-    width: "100%",            // full width
+    height: "100%",
+    width: "100%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center", // vertical centering
-    alignItems: "center",     // horizontal centering
+    justifyContent: "center",
+    alignItems: "center",
     fontFamily: "Arial, sans-serif",
     background: "linear-gradient(to right, #8360c3, #2ebf91)",
     color: "#fff",
     textAlign: "center",
-    padding: "0 20px",        // responsive padding for smaller screens
+    padding: "0 20px",
     boxSizing: "border-box",
   },
   title: { fontSize: "3rem", marginBottom: "20px" },
