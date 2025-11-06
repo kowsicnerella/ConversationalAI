@@ -108,6 +108,60 @@ def generate_assessment():
         )
 
 
+@assessment_routes.route("/api/assessment/<int:assessment_id>/regenerate", methods=["POST"])
+@jwt_required()
+def regenerate_assessment(assessment_id):
+    """
+    Delete an incomplete assessment and generate a fresh one with unique questions.
+    This is useful when an assessment has duplicate questions due to old code.
+    """
+    try:
+        user_id = get_jwt_identity()
+        
+        # Find the assessment
+        assessment = ProficiencyAssessment.query.get(assessment_id)
+        if not assessment or assessment.user_id != user_id:
+            return jsonify({
+                "error": "Assessment not found or unauthorized",
+                "telugu_error": "మూల్యాంకనం కనుగొనబడలేదు"
+            }), 404
+        
+        # Check if it's incomplete
+        if assessment.completed_at:
+            return jsonify({
+                "error": "Cannot regenerate a completed assessment",
+                "telugu_error": "పూర్తయిన మూల్యాంకనాన్ని మళ్లీ రూపొందించలేము"
+            }), 400
+        
+        # Store the assessment type
+        assessment_type = assessment.assessment_type
+        
+        # Delete the old assessment
+        db.session.delete(assessment)
+        db.session.commit()
+        
+        # Generate a new assessment
+        new_assessment_data = assessment_service.conduct_comprehensive_initial_assessment(
+            user_id, assessment_type
+        )
+        
+        return jsonify({
+            "success": True,
+            "message": "Assessment regenerated successfully with unique questions",
+            "telugu_message": "ప్రత్యేక ప్రశ్నలతో మూల్యాంకనం మళ్లీ రూపొందించబడింది",
+            "assessment": new_assessment_data
+        }), 200
+        
+    except Exception as e:
+        print(f"Error regenerating assessment: {str(e)}")
+        traceback.print_exc()
+        return jsonify({
+            "error": "Failed to regenerate assessment",
+            "telugu_error": "మూల్యాంకనం మళ్లీ రూపొందించడంలో వైఫల్యం",
+            "details": str(e)
+        }), 500
+
+
 @assessment_routes.route("/api/assessment/<int:assessment_id>/submit", methods=["POST"])
 @jwt_required()
 def submit_assessment(assessment_id):
