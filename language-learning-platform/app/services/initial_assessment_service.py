@@ -1666,23 +1666,50 @@ class InitialAssessmentService:
         questions = []
         question_list = question_bank.get(skill_area, {}).get(level, [])
         
-        # If we don't have enough questions, repeat them with different IDs
-        for i in range(count):
-            if question_list:
-                template = question_list[i % len(question_list)]  # Cycle through available questions
-                question = {
-                    "question_id": f"q_{skill_area}_{level}_{i+1}",
-                    "question_text": template["question_text"],
-                    "options": template["options"],
-                    "correct_answer": template["correct_answer"],
-                    "points": points_map[level],
-                    "skill_area": skill_area,
-                    "difficulty_level": level,
-                    "telugu_hint": template.get("telugu_hint", "సూచన అందుబాటులో లేదు"),
-                    "explanation": template.get("explanation", "Standard assessment question"),
-                    "question_type": "multiple_choice",
-                }
-                questions.append(question)
+        # Select questions in a way that avoids simple repetition.
+        # - If we have enough unique templates, sample without replacement.
+        # - If not, use all unique templates and create lightweight "variants"
+        #   so the frontend sees distinct question IDs/texts even when the bank
+        #   is smaller than the requested count.
+        if not question_list:
+            return questions
+
+        selected_templates = []
+        available = len(question_list)
+
+        if available >= count:
+            # Pick `count` unique templates
+            selected_templates = random.sample(question_list, count)
+        else:
+            # Use all available templates first
+            selected_templates = [json.loads(json.dumps(q)) for q in question_list]
+            # Create simple variants for the remainder to ensure uniqueness
+            need = count - available
+            for v in range(need):
+                base = question_list[v % available]
+                # deep copy and add a small variant marker to the text
+                variant = json.loads(json.dumps(base))
+                variant_suffix = f" (variant {v+1})"
+                # Avoid duplicating suffix if it already exists
+                if variant_suffix not in variant.get("question_text", ""):
+                    variant["question_text"] = variant.get("question_text", "") + variant_suffix
+                selected_templates.append(variant)
+
+        # Build question objects with unique IDs and required fields
+        for i, template in enumerate(selected_templates):
+            question = {
+                "question_id": f"q_{skill_area}_{level}_{i+1}",
+                "question_text": template.get("question_text", ""),
+                "options": template.get("options", []),
+                "correct_answer": template.get("correct_answer", ""),
+                "points": points_map.get(level, 2),
+                "skill_area": skill_area,
+                "difficulty_level": level,
+                "telugu_hint": template.get("telugu_hint", "సూచన అందుబాటులో లేదు"),
+                "explanation": template.get("explanation", "Standard assessment question"),
+                "question_type": template.get("question_type", "multiple_choice"),
+            }
+            questions.append(question)
 
         return questions
 
