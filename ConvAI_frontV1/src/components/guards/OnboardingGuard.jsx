@@ -17,9 +17,13 @@ const OnboardingGuard = ({ children }) => {
   const { isAuthenticated, user } = useAuth();
 
   useEffect(() => {
+    // Only check user status if authenticated
+    // This prevents unnecessary API calls that would fail with 401
     if (isAuthenticated) {
       checkUserStatus();
     } else {
+      // If not authenticated, immediately stop loading
+      // The ProtectedRoute will handle redirecting to login
       setLoading(false);
     }
   }, [isAuthenticated, location.pathname]);

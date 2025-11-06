@@ -9,6 +9,9 @@ import AuthLayout from "./layouts/AuthLayout";
 // Guards
 import OnboardingGuard from "./components/guards/OnboardingGuard";
 
+// Debug
+import Debug from "./pages/Debug";
+
 // Pages
 import LandingPage from "./pages/LandingPage";
 import Login from "./pages/auth/NewLogin";
@@ -69,6 +72,9 @@ function App() {
 
   return (
     <Routes>
+      {/* Debug Route - Public */}
+      <Route path="/debug" element={<Debug />} />
+
       {/* Public Routes */}
       <Route path="/" element={<LandingPage />} />
 

@@ -87,11 +87,27 @@ axiosInstance.interceptors.response.use(
     }
     
     if (error.response?.status === 401) {
-      console.warn('🔒 401 Unauthorized - Clearing auth and redirecting to login');
-      // Unauthorized - clear token and redirect to login
+      console.warn('🔒 401 Unauthorized - Token invalid or expired');
+      
+      // Only redirect if:
+      // 1. We actually HAD a token (this was a real auth failure, not just missing token)
+      // 2. We're not already on the login page (prevent redirect loop)
+      const hadToken = localStorage.getItem('access_token');
+      const currentPath = window.location.pathname;
+      
+      // Clear auth data
       localStorage.removeItem('access_token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      
+      // Only redirect if we had a token and we're not already on login/register
+      if (hadToken && currentPath !== '/login' && currentPath !== '/register') {
+        console.warn('🔒 Redirecting to login due to expired/invalid token');
+        window.location.href = '/login';
+      } else if (!hadToken) {
+        console.log('ℹ️ No token present, skipping redirect (likely already logged out)');
+      } else {
+        console.log('ℹ️ Already on auth page, skipping redirect to prevent loop');
+      }
     } else if (error.response?.status === 422) {
       console.error('⚠️ 422 Unprocessable Entity - Likely JWT validation issue');
       console.error('Response data:', error.response?.data);
