@@ -9,6 +9,186 @@ import json
 learning_path_bp = Blueprint("learning_path", __name__)
 activity_service = ActivityGeneratorService()
 
+# ===== HELPER FUNCTIONS =====
+
+def _generate_rule_based_recommendations(english_level, learning_goals, interests, time_available):
+    """Generate learning path recommendations using rule-based logic when LLM is unavailable"""
+    
+    # Define path recommendations based on level and goals
+    recommendations = []
+    
+    # Map goals to paths
+    goal_path_mapping = {
+        "conversation": {
+            "beginner": {
+                "title": "Basic Conversation Skills",
+                "priority": "high",
+                "match_score": 90,
+                "estimated_weeks": 4,
+                "reasoning": "Perfect for beginners who want to start having simple conversations",
+                "telugu_reasoning": "సాధారణ సంభాషణలు ప్రారంభించాలనుకునే ప్రారంభకులకు సరైనది"
+            },
+            "intermediate": {
+                "title": "Advanced Conversation Mastery",
+                "priority": "high",
+                "match_score": 85,
+                "estimated_weeks": 6,
+                "reasoning": "Build on existing skills to master natural conversations",
+                "telugu_reasoning": "సహజ సంభాషణలలో ప్రావీణ్యం సాధించడానికి"
+            },
+            "advanced": {
+                "title": "Professional Communication",
+                "priority": "medium",
+                "match_score": 80,
+                "estimated_weeks": 8,
+                "reasoning": "Refine your conversation skills for professional settings",
+                "telugu_reasoning": "వృత్తిపరమైన సెట్టింగ్‌ల కోసం మీ సంభాషణ నైపుణ్యాలను మెరుగుపర్చండి"
+            }
+        },
+        "business": {
+            "beginner": {
+                "title": "Business English Basics",
+                "priority": "high",
+                "match_score": 85,
+                "estimated_weeks": 6,
+                "reasoning": "Foundation for professional English communication",
+                "telugu_reasoning": "వృత్తిపరమైన ఆంగ్ల సంభాషణకు పునాది"
+            },
+            "intermediate": {
+                "title": "Business English Fundamentals",
+                "priority": "high",
+                "match_score": 95,
+                "estimated_weeks": 8,
+                "reasoning": "Perfect match for business goals and intermediate level",
+                "telugu_reasoning": "వ్యాపార లక్ష్యాలకు మరియు మధ్యస్థ స్థాయికి సరైన సరిపోలిక"
+            },
+            "advanced": {
+                "title": "Professional Business English",
+                "priority": "high",
+                "match_score": 90,
+                "estimated_weeks": 10,
+                "reasoning": "Advanced business communication and negotiation skills",
+                "telugu_reasoning": "అధునాతన వ్యాపార సంభాషణ మరియు చర్చల నైపుణ్యాలు"
+            }
+        },
+        "academic": {
+            "beginner": {
+                "title": "Academic English Introduction",
+                "priority": "medium",
+                "match_score": 75,
+                "estimated_weeks": 8,
+                "reasoning": "Starting point for academic English learning",
+                "telugu_reasoning": "విద్యాసంబంధ ఆంగ్ల అభ్యాసానికి ప్రారంభ స్థానం"
+            },
+            "intermediate": {
+                "title": "Academic Writing & Research",
+                "priority": "high",
+                "match_score": 85,
+                "estimated_weeks": 10,
+                "reasoning": "Essential for academic success",
+                "telugu_reasoning": "విద్యాపరమైన విజయానికి అవసరం"
+            },
+            "advanced": {
+                "title": "Advanced Academic English",
+                "priority": "high",
+                "match_score": 90,
+                "estimated_weeks": 12,
+                "reasoning": "Master academic writing, presentations, and research",
+                "telugu_reasoning": "విద్యాపరమైన రచన, ప్రదర్శనలు మరియు పరిశోధనలో నైపుణ్యం"
+            }
+        },
+        "travel": {
+            "beginner": {
+                "title": "Travel English Essentials",
+                "priority": "high",
+                "match_score": 90,
+                "estimated_weeks": 3,
+                "reasoning": "Quick prep for travel situations",
+                "telugu_reasoning": "ప్రయాణ పరిస్థితులకు త్వరిత తయారీ"
+            },
+            "intermediate": {
+                "title": "Travel & Tourism English",
+                "priority": "medium",
+                "match_score": 80,
+                "estimated_weeks": 4,
+                "reasoning": "Comprehensive travel communication",
+                "telugu_reasoning": "సమగ్ర ప్రయాణ సంభాషణ"
+            },
+            "advanced": {
+                "title": "International Travel Mastery",
+                "priority": "low",
+                "match_score": 70,
+                "estimated_weeks": 4,
+                "reasoning": "Cultural nuances and advanced travel scenarios",
+                "telugu_reasoning": "సాంస్కృతిక సూక్ష్మతలు మరియు అధునాతన ప్రయాణ పరిస్థితులు"
+            }
+        }
+    }
+    
+    # Generate recommendations based on goals
+    path_id = 1
+    for goal in learning_goals[:3]:  # Top 3 goals
+        if goal in goal_path_mapping and english_level in goal_path_mapping[goal]:
+            path_info = goal_path_mapping[goal][english_level].copy()
+            path_info["path_id"] = path_id
+            recommendations.append(path_info)
+            path_id += 1
+    
+    # If no goals matched, add a general path
+    if not recommendations:
+        default_paths = {
+            "beginner": {
+                "path_id": 1,
+                "title": "General English - Beginner",
+                "priority": "high",
+                "match_score": 80,
+                "estimated_weeks": 6,
+                "reasoning": "Comprehensive beginner-friendly path",
+                "telugu_reasoning": "సమగ్ర ప్రారంభకుల కోసం మార్గం"
+            },
+            "intermediate": {
+                "path_id": 1,
+                "title": "General English - Intermediate",
+                "priority": "high",
+                "match_score": 80,
+                "estimated_weeks": 8,
+                "reasoning": "Build on your foundation",
+                "telugu_reasoning": "మీ పునాదిపై నిర్మించండి"
+            },
+            "advanced": {
+                "path_id": 1,
+                "title": "General English - Advanced",
+                "priority": "high",
+                "match_score": 80,
+                "estimated_weeks": 10,
+                "reasoning": "Master advanced English skills",
+                "telugu_reasoning": "అధునాతన ఆంగ్ల నైపుణ్యాలలో నైపుణ్యం"
+            }
+        }
+        recommendations.append(default_paths.get(english_level, default_paths["intermediate"]))
+    
+    # Calculate daily activities based on time available
+    activities_per_day = max(2, min(5, time_available // 10))
+    
+    return {
+        "recommended_paths": recommendations,
+        "learning_sequence": [
+            f"Start with {recommendations[0]['title']}" if recommendations else "Begin with fundamentals",
+            "Practice daily with focused activities",
+            "Track progress and adjust pace",
+            "Complete assessments to measure growth"
+        ],
+        "customizations": [
+            f"Focus on {', '.join(interests[:2])}" if interests else "Follow guided curriculum",
+            f"Optimized for {time_available} minutes daily practice"
+        ],
+        "daily_plan": {
+            "activities_per_day": activities_per_day,
+            "estimated_time_per_activity": time_available // activities_per_day,
+            "recommended_schedule": "Morning: Learn new concepts, Afternoon: Practice exercises, Evening: Review and reinforce"
+        }
+    }
+
 # ===== DYNAMIC LEARNING PATH SYSTEM =====
 
 
@@ -91,17 +271,26 @@ def get_personalized_learning_path_recommendation():
         ```
         """
 
-        from app.services.llm_config import LLMConfig
-        from app.services.activity_generator_service import _extract_json_from_response
+        # Try to use LLM for personalized recommendations, but fall back to rule-based if it fails
+        try:
+            from app.services.llm_config import LLMConfig
+            from app.services.activity_generator_service import _extract_json_from_response
 
-        result = LLMConfig.generate_text(recommendation_prompt, json_mode=True)
-        if not result['success']:
-            return jsonify({
-                "error": "Failed to generate recommendations",
-                "telugu_error": "సిఫార్సులను రూపొందించడంలో విఫలమైంది"
-            }), 500
+            result = LLMConfig.generate_text(recommendation_prompt, json_mode=True)
+            if result['success']:
+                recommendation_data = _extract_json_from_response(result['text'])
+            else:
+                print(f"⚠️ LLM unavailable, using rule-based recommendations")
+                recommendation_data = None
+        except Exception as llm_error:
+            print(f"⚠️ LLM error: {llm_error}. Using rule-based recommendations")
+            recommendation_data = None
         
-        recommendation_data = _extract_json_from_response(result['text'])
+        # Fallback to rule-based recommendations if LLM fails
+        if not recommendation_data:
+            recommendation_data = _generate_rule_based_recommendations(
+                english_level, learning_goals, interests, time_available
+            )
 
         # Get actual learning paths from database
         available_paths = LearningPath.query.all()
@@ -155,6 +344,9 @@ def get_personalized_learning_path_recommendation():
         )
 
     except Exception as e:
+        import traceback
+        print(f"❌ Exception in personalized recommendation: {str(e)}")
+        traceback.print_exc()
         return (
             jsonify(
                 {
