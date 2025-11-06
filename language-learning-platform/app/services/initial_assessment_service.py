@@ -635,6 +635,34 @@ class InitialAssessmentService:
                         "explanation": "A book (పుస్తకం) is something we read.",
                         "telugu_hint": "మనం చదివే వస్తువు"
                     },
+                    {
+                        "question_text": 'What is the meaning of "water"?',
+                        "options": ["నీరు", "ఆహారం", "గాలి", "నిప్పు"],
+                        "correct_answer": "A",
+                        "explanation": "Water (నీరు) is what we drink.",
+                        "telugu_hint": "మనం త్రాగేది"
+                    },
+                    {
+                        "question_text": 'Choose the correct meaning of "friend":',
+                        "options": ["స్నేహితుడు", "శత్రువు", "బంధువు", "అపరిచితుడు"],
+                        "correct_answer": "A",
+                        "explanation": "Friend means స్నేహితుడు in Telugu.",
+                        "telugu_hint": "మంచి సహచరుడు"
+                    },
+                    {
+                        "question_text": 'What does "eat" mean?',
+                        "options": ["త్రాగు", "తిను", "నడుచు", "మాట్లాడు"],
+                        "correct_answer": "B",
+                        "explanation": "Eat means to consume food (తినడం).",
+                        "telugu_hint": "ఆహారం తీసుకోవడం"
+                    },
+                    {
+                        "question_text": 'What is the meaning of "sleep"?',
+                        "options": ["నిద్ర", "ఆట", "పని", "చదువు"],
+                        "correct_answer": "A",
+                        "explanation": "Sleep means నిద్ర or rest.",
+                        "telugu_hint": "విశ్రాంతి తీసుకోవడం"
+                    },
                 ],
                 "intermediate": [
                     {
@@ -651,6 +679,34 @@ class InitialAssessmentService:
                         "explanation": "Purchase means to buy something.",
                         "telugu_hint": "కొనుగోలు చేయడం"
                     },
+                    {
+                        "question_text": 'Choose the antonym for "difficult":',
+                        "options": ["Hard", "Easy", "Complex", "Challenging"],
+                        "correct_answer": "B",
+                        "explanation": "Easy is the opposite of difficult.",
+                        "telugu_hint": "కష్టం యొక్క వ్యతిరేకం"
+                    },
+                    {
+                        "question_text": 'What does "accomplish" mean?',
+                        "options": ["Fail", "Complete", "Start", "Delay"],
+                        "correct_answer": "B",
+                        "explanation": "Accomplish means to successfully complete something.",
+                        "telugu_hint": "విజయవంతంగా పూర్తి చేయడం"
+                    },
+                    {
+                        "question_text": 'Choose the synonym for "begin":',
+                        "options": ["End", "Finish", "Start", "Stop"],
+                        "correct_answer": "C",
+                        "explanation": "Begin and start have the same meaning.",
+                        "telugu_hint": "ప్రారంభించడం"
+                    },
+                    {
+                        "question_text": 'What does "sufficient" mean?',
+                        "options": ["Not enough", "Too much", "Enough", "Excessive"],
+                        "correct_answer": "C",
+                        "explanation": "Sufficient means enough or adequate.",
+                        "telugu_hint": "సరిపడా"
+                    },
                 ],
                 "advanced": [
                     {
@@ -666,6 +722,34 @@ class InitialAssessmentService:
                         "correct_answer": "B",
                         "explanation": "Ephemeral means lasting for a very short time; temporary.",
                         "telugu_hint": "తాత్కాలికమైన"
+                    },
+                    {
+                        "question_text": 'What does "meticulous" mean?',
+                        "options": ["Careless", "Very careful", "Quick", "Lazy"],
+                        "correct_answer": "B",
+                        "explanation": "Meticulous means showing great attention to detail; very careful.",
+                        "telugu_hint": "చాలా జాగ్రత్తగా"
+                    },
+                    {
+                        "question_text": 'Choose the synonym for "eloquent":',
+                        "options": ["Silent", "Articulate", "Confused", "Shy"],
+                        "correct_answer": "B",
+                        "explanation": "Eloquent means fluent and persuasive in speaking or writing.",
+                        "telugu_hint": "చక్కగా మాట్లాడగల"
+                    },
+                    {
+                        "question_text": 'What does "pragmatic" mean?',
+                        "options": ["Idealistic", "Practical", "Theoretical", "Imaginative"],
+                        "correct_answer": "B",
+                        "explanation": "Pragmatic means dealing with things sensibly and realistically.",
+                        "telugu_hint": "ఆచరణాత్మక"
+                    },
+                    {
+                        "question_text": 'Choose the antonym for "benevolent":',
+                        "options": ["Kind", "Generous", "Malevolent", "Compassionate"],
+                        "correct_answer": "C",
+                        "explanation": "Benevolent means kind; malevolent means wishing harm to others.",
+                        "telugu_hint": "దయగల యొక్క వ్యతిరేకం"
                     },
                 ],
             },
@@ -684,6 +768,34 @@ class InitialAssessmentService:
                         "correct_answer": "B",
                         "explanation": "For third person singular (she/he/it), we add 's' to the verb.",
                         "telugu_hint": "ప్రతిదినం అనే అర్థం - ప్రస్తుత కాలం"
+                    },
+                    {
+                        "question_text": "Choose the correct article: ___ apple is red.",
+                        "options": ["A", "An", "The", "No article needed"],
+                        "correct_answer": "B",
+                        "explanation": "We use 'an' before words starting with vowel sounds.",
+                        "telugu_hint": "అచ్చు స్వరాల ముందు 'an' వాడాలి"
+                    },
+                    {
+                        "question_text": "Complete: They ___ playing cricket.",
+                        "options": ["is", "am", "are", "be"],
+                        "correct_answer": "C",
+                        "explanation": "For plural subjects (they), we use 'are'.",
+                        "telugu_hint": "బహువచనానికి 'are' వాడాలి"
+                    },
+                    {
+                        "question_text": "Which is correct: My name ___ John.",
+                        "options": ["am", "is", "are", "be"],
+                        "correct_answer": "B",
+                        "explanation": "For third person singular subjects (name), we use 'is'.",
+                        "telugu_hint": "ఏకవచన subject కి 'is'"
+                    },
+                    {
+                        "question_text": "Choose the correct form: I ___ a teacher.",
+                        "options": ["is", "am", "are", "be"],
+                        "correct_answer": "B",
+                        "explanation": "With 'I', we always use 'am'.",
+                        "telugu_hint": "'నేను' తో ఎల్లప్పుడూ 'am'"
                     },
                 ],
                 "intermediate": [
@@ -705,6 +817,34 @@ class InitialAssessmentService:
                         "correct_answer": "C",
                         "explanation": "After 'tell someone to', we use base form of verb.",
                         "telugu_hint": "ఉపదేశించడం - తర్వాత base form"
+                    },
+                    {
+                        "question_text": "Choose the correct conditional: If I ___ rich, I would travel the world.",
+                        "options": ["am", "was", "were", "will be"],
+                        "correct_answer": "C",
+                        "explanation": "In second conditional, we use 'were' for all subjects.",
+                        "telugu_hint": "ఊహాజనిత పరిస్థితి"
+                    },
+                    {
+                        "question_text": "Complete: She has ___ finished her homework.",
+                        "options": ["yet", "already", "still", "never"],
+                        "correct_answer": "B",
+                        "explanation": "'Already' is used in affirmative sentences for completed actions.",
+                        "telugu_hint": "ఇప్పటికే పూర్తి అయింది"
+                    },
+                    {
+                        "question_text": "Which is correct: I wish I ___ more time.",
+                        "options": ["have", "had", "has", "having"],
+                        "correct_answer": "B",
+                        "explanation": "After 'wish', we use past tense for present wishes.",
+                        "telugu_hint": "కోరిక - గత కాలం"
+                    },
+                    {
+                        "question_text": "Choose: The book ___ by many people.",
+                        "options": ["is reading", "was read", "has read", "reads"],
+                        "correct_answer": "B",
+                        "explanation": "Passive voice: be + past participle.",
+                        "telugu_hint": "పేసివ్ వాయిస్"
                     },
                 ],
                 "advanced": [
@@ -732,6 +872,34 @@ class InitialAssessmentService:
                         "explanation": "With 'neither...nor', the verb agrees with the nearest subject (teacher = singular).",
                         "telugu_hint": "దగ్గరగా ఉన్న subject తో agree అవాలి"
                     },
+                    {
+                        "question_text": "Identify the subjunctive mood: It's imperative that she ___ the meeting.",
+                        "options": ["attends", "attend", "attended", "will attend"],
+                        "correct_answer": "B",
+                        "explanation": "Subjunctive mood uses base form after expressions like 'imperative that'.",
+                        "telugu_hint": "ఆజ్ఞార్థక మూడ్ - base form"
+                    },
+                    {
+                        "question_text": "Choose the correct form: Scarcely ___ the door when it started raining.",
+                        "options": ["I had closed", "had I closed", "I closed", "did I close"],
+                        "correct_answer": "B",
+                        "explanation": "Negative adverbs at the beginning require subject-verb inversion.",
+                        "telugu_hint": "నెగటివ్ పదం మొదట - inversion"
+                    },
+                    {
+                        "question_text": "Which is correct: The data ___ analyzed carefully.",
+                        "options": ["was", "were", "is", "are"],
+                        "correct_answer": "A",
+                        "explanation": "'Data' can be singular or plural; in formal writing, often treated as singular.",
+                        "telugu_hint": "డేటా - ఏకవచనం లేదా బహువచనం"
+                    },
+                    {
+                        "question_text": "Complete: Not only ___ late, but he also forgot the documents.",
+                        "options": ["he was", "was he", "he is", "is he"],
+                        "correct_answer": "B",
+                        "explanation": "After 'not only' at the beginning, we use inversion.",
+                        "telugu_hint": "'not only' మొదట - inversion అవసరం"
+                    },
                 ],
             },
             "reading": {
@@ -743,6 +911,41 @@ class InitialAssessmentService:
                         "explanation": "The sentence clearly states 'on the mat'.",
                         "telugu_hint": "పై అనే అర్థం"
                     },
+                    {
+                        "question_text": 'Read: "Tom has a red car." What color is Tom\'s car?',
+                        "options": ["Blue", "Red", "Green", "Yellow"],
+                        "correct_answer": "B",
+                        "explanation": "The text says 'red car'.",
+                        "telugu_hint": "రంగు గురించి"
+                    },
+                    {
+                        "question_text": 'Read: "Mary goes to school at 8 AM." When does Mary go to school?',
+                        "options": ["7 AM", "8 AM", "9 AM", "10 AM"],
+                        "correct_answer": "B",
+                        "explanation": "The sentence states '8 AM'.",
+                        "telugu_hint": "సమయం గురించి"
+                    },
+                    {
+                        "question_text": 'Read: "The dog is big." What is big?',
+                        "options": ["The cat", "The dog", "The house", "The car"],
+                        "correct_answer": "B",
+                        "explanation": "The sentence says 'the dog is big'.",
+                        "telugu_hint": "ఏది పెద్దది"
+                    },
+                    {
+                        "question_text": 'Read: "I like apples and oranges." What do I like?',
+                        "options": ["Vegetables", "Fruits", "Meat", "Bread"],
+                        "correct_answer": "B",
+                        "explanation": "Apples and oranges are fruits.",
+                        "telugu_hint": "పండ్లు"
+                    },
+                    {
+                        "question_text": 'Read: "She has two brothers." How many brothers?',
+                        "options": ["One", "Two", "Three", "Four"],
+                        "correct_answer": "B",
+                        "explanation": "The text clearly says 'two brothers'.",
+                        "telugu_hint": "సంఖ్య గురించి"
+                    },
                 ],
                 "intermediate": [
                     {
@@ -751,6 +954,41 @@ class InitialAssessmentService:
                         "correct_answer": "B",
                         "explanation": "The sentence states she enjoys reading books.",
                         "telugu_hint": "ఖాళీ సమయంలో చేసే పని"
+                    },
+                    {
+                        "question_text": 'Read: "Although it was raining, they went hiking." What did they do?',
+                        "options": ["Stayed home", "Went hiking", "Cancelled plans", "Waited for sun"],
+                        "correct_answer": "B",
+                        "explanation": "'Although' shows contrast - they went despite the rain.",
+                        "telugu_hint": "వ్యతిరేకత చూపిస్తుంది"
+                    },
+                    {
+                        "question_text": 'Read: "The conference will be held in Mumbai next month." Where is the conference?',
+                        "options": ["Delhi", "Mumbai", "Kolkata", "Chennai"],
+                        "correct_answer": "B",
+                        "explanation": "The text clearly mentions Mumbai.",
+                        "telugu_hint": "స్థలం గురించి"
+                    },
+                    {
+                        "question_text": 'Read: "Due to traffic, he arrived late for the meeting." Why was he late?',
+                        "options": ["Overslept", "Traffic", "Forgot time", "Car broke"],
+                        "correct_answer": "B",
+                        "explanation": "'Due to traffic' is the reason given.",
+                        "telugu_hint": "కారణం గురించి"
+                    },
+                    {
+                        "question_text": 'Read: "The company announced a new policy to improve work-life balance." What did they announce?',
+                        "options": ["Salary increase", "New policy", "Holiday schedule", "Office closure"],
+                        "correct_answer": "B",
+                        "explanation": "They announced a new policy.",
+                        "telugu_hint": "ప్రకటన గురించి"
+                    },
+                    {
+                        "question_text": 'Read: "Despite feeling tired, she completed all her tasks." What did she do?',
+                        "options": ["Took a break", "Gave up", "Completed tasks", "Asked for help"],
+                        "correct_answer": "C",
+                        "explanation": "She completed all tasks despite being tired.",
+                        "telugu_hint": "అలసిపోయినా పూర్తి చేసింది"
                     },
                 ],
                 "advanced": [
@@ -766,6 +1004,66 @@ class InitialAssessmentService:
                         "explanation": "'Despite' indicates contrast; 'unabated' means without stopping.",
                         "telugu_hint": "ఆగకుండా కొనసాగింది"
                     },
+                    {
+                        "question_text": "Read: \"The committee's decision was met with unanimous approval.\" How did people react?",
+                        "options": [
+                            "Mixed reactions",
+                            "Everyone approved",
+                            "Some disagreed",
+                            "No one cared"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "'Unanimous' means everyone agreed.",
+                        "telugu_hint": "అందరూ ఏకగ్రీవంగా"
+                    },
+                    {
+                        "question_text": "Read: \"The paradigm shift in education necessitates adaptive pedagogical strategies.\" What is needed?",
+                        "options": [
+                            "Traditional methods",
+                            "Adaptive strategies",
+                            "More funding",
+                            "Better facilities"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "'Necessitates' means requires; adaptive strategies are needed.",
+                        "telugu_hint": "అవసరం - అనుకూల వ్యూహాలు"
+                    },
+                    {
+                        "question_text": "Read: \"The protagonist's internal conflict epitomizes the broader societal tensions.\" What does it represent?",
+                        "options": [
+                            "Personal problems",
+                            "Societal tensions",
+                            "Family issues",
+                            "Career struggles"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "'Epitomizes' means perfectly represents or exemplifies.",
+                        "telugu_hint": "సమాజ ఉద్రిక్తతలను ప్రతిబింబిస్తుంది"
+                    },
+                    {
+                        "question_text": "Read: \"The research findings corroborate the hypothesis posited earlier.\" What do the findings do?",
+                        "options": [
+                            "Contradict it",
+                            "Support it",
+                            "Question it",
+                            "Ignore it"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "'Corroborate' means to confirm or support.",
+                        "telugu_hint": "ధృవీకరిస్తుంది"
+                    },
+                    {
+                        "question_text": "Read: \"The nuanced interpretation of the text reveals layers of meaning often overlooked.\" What does it show?",
+                        "options": [
+                            "Surface meaning",
+                            "Hidden meanings",
+                            "Common understanding",
+                            "Simple ideas"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "'Nuanced' and 'layers' suggest deeper, subtle meanings.",
+                        "telugu_hint": "సూక్ష్మ అర్థాలు"
+                    },
                 ],
             },
             "listening": {
@@ -777,6 +1075,41 @@ class InitialAssessmentService:
                         "explanation": "'How are you?' asks about your well-being.",
                         "telugu_hint": "మీ పరిస్థితి గురించి అడుగుతున్నారు"
                     },
+                    {
+                        "question_text": "Listen: 'What is your name?' Best response?",
+                        "options": ["I am fine", "My name is...", "Yes, please", "Thank you"],
+                        "correct_answer": "B",
+                        "explanation": "Tell your name when asked.",
+                        "telugu_hint": "పేరు అడుగుతున్నారు"
+                    },
+                    {
+                        "question_text": "Listen: 'Where do you live?' What are they asking?",
+                        "options": ["Your job", "Your location", "Your age", "Your hobby"],
+                        "correct_answer": "B",
+                        "explanation": "'Where' asks about location.",
+                        "telugu_hint": "ఎక్కడ నివసిస్తున్నారు"
+                    },
+                    {
+                        "question_text": "Listen: 'Thank you very much.' Best response?",
+                        "options": ["You're welcome", "Goodbye", "Yes", "No"],
+                        "correct_answer": "A",
+                        "explanation": "Respond to thanks with 'You're welcome'.",
+                        "telugu_hint": "ధన్యవాదాలకు స్పందన"
+                    },
+                    {
+                        "question_text": "Listen: 'Can you help me?' What are they asking?",
+                        "options": ["Your name", "For assistance", "The time", "Directions"],
+                        "correct_answer": "B",
+                        "explanation": "They are asking for help.",
+                        "telugu_hint": "సహాయం అడుగుతున్నారు"
+                    },
+                    {
+                        "question_text": "Listen: 'Nice to meet you.' When do you say this?",
+                        "options": ["Leaving", "First meeting", "Eating", "Sleeping"],
+                        "correct_answer": "B",
+                        "explanation": "Say this when meeting someone for the first time.",
+                        "telugu_hint": "మొదటి సారి కలిసినప్పుడు"
+                    },
                 ],
                 "intermediate": [
                     {
@@ -785,6 +1118,41 @@ class InitialAssessmentService:
                         "correct_answer": "B",
                         "explanation": "'Pass' means to hand over or give something to someone.",
                         "telugu_hint": "ఇవ్వమని అడుగుతున్నారు"
+                    },
+                    {
+                        "question_text": "Listen: 'Would you mind opening the window?' What's the request?",
+                        "options": ["Close window", "Open window", "Clean window", "Break window"],
+                        "correct_answer": "B",
+                        "explanation": "'Would you mind' is a polite way to request something.",
+                        "telugu_hint": "మర్యాదగా అడుగుతున్నారు"
+                    },
+                    {
+                        "question_text": "Listen: 'I'd rather stay home tonight.' What does this mean?",
+                        "options": ["Must go out", "Prefers staying home", "Will definitely go", "Hates home"],
+                        "correct_answer": "B",
+                        "explanation": "'I'd rather' expresses preference.",
+                        "telugu_hint": "ప్రాధాన్యత - ఇంట్లో ఉండటం"
+                    },
+                    {
+                        "question_text": "Listen: 'I'm afraid the meeting has been postponed.' What happened?",
+                        "options": ["Meeting cancelled", "Meeting delayed", "Meeting started", "Meeting ended"],
+                        "correct_answer": "B",
+                        "explanation": "Postponed means delayed or rescheduled.",
+                        "telugu_hint": "వాయిదా వేశారు"
+                    },
+                    {
+                        "question_text": "Listen: 'Could I have a word with you?' What do they want?",
+                        "options": ["A dictionary", "To talk privately", "To argue", "To leave"],
+                        "correct_answer": "B",
+                        "explanation": "'Have a word' means to speak privately.",
+                        "telugu_hint": "ఏకాంతంగా మాట్లాడాలి"
+                    },
+                    {
+                        "question_text": "Listen: 'It's on the tip of my tongue.' What does this mean?",
+                        "options": ["Tasting food", "Almost remembering", "Speaking clearly", "Tongue hurts"],
+                        "correct_answer": "B",
+                        "explanation": "This idiom means almost remembering something.",
+                        "telugu_hint": "దాదాపు గుర్తుకు వస్తోంది"
                     },
                 ],
                 "advanced": [
@@ -799,6 +1167,66 @@ class InitialAssessmentService:
                         "correct_answer": "C",
                         "explanation": "'Expedite' means to make something happen more quickly.",
                         "telugu_hint": "త్వరగా చేయమని అడుగుతున్నారు"
+                    },
+                    {
+                        "question_text": "Listen: 'The proposal was met with considerable skepticism.' How was it received?",
+                        "options": [
+                            "With enthusiasm",
+                            "With doubt",
+                            "With approval",
+                            "With indifference"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Skepticism means doubt or disbelief.",
+                        "telugu_hint": "సందేహంతో"
+                    },
+                    {
+                        "question_text": "Listen: 'The implications of this decision are far-reaching.' What does this mean?",
+                        "options": [
+                            "Limited impact",
+                            "No consequences",
+                            "Widespread effects",
+                            "Temporary results"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Far-reaching means having widespread or extensive effects.",
+                        "telugu_hint": "విస్తృత ప్రभావం"
+                    },
+                    {
+                        "question_text": "Listen: 'We need to address this issue judiciously.' How should it be handled?",
+                        "options": [
+                            "Quickly",
+                            "Carefully and wisely",
+                            "Aggressively",
+                            "Carelessly"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Judiciously means with good judgment and wisdom.",
+                        "telugu_hint": "తెలివిగా మరియు జాగ్రత్తగా"
+                    },
+                    {
+                        "question_text": "Listen: 'The discourse surrounding this topic is highly contentious.' What is it?",
+                        "options": [
+                            "Peaceful",
+                            "Controversial",
+                            "Boring",
+                            "Simple"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Contentious means causing or likely to cause controversy.",
+                        "telugu_hint": "వివాదాస్పదమైన"
+                    },
+                    {
+                        "question_text": "Listen: 'The data corroborates our initial hypothesis.' What does the data do?",
+                        "options": [
+                            "Contradicts it",
+                            "Confirms it",
+                            "Questions it",
+                            "Ignores it"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Corroborates means confirms or supports.",
+                        "telugu_hint": "నిర్ధారిస్తుంది"
                     },
                 ],
             },
@@ -816,6 +1244,51 @@ class InitialAssessmentService:
                         "explanation": "Sentences start with capital letter. 'I' is always capitalized.",
                         "telugu_hint": "వాక్యం మొదలు పెద్ద అక్షరం"
                     },
+                    {
+                        "question_text": "Choose the correct punctuation: I like apples_",
+                        "options": ["?", "!", ".", ","],
+                        "correct_answer": "C",
+                        "explanation": "Statements end with a period (.).",
+                        "telugu_hint": "వాక్యం చివర పూర్ణ విరామం"
+                    },
+                    {
+                        "question_text": "Which is correct?",
+                        "options": [
+                            "she is my friend",
+                            "She is my friend.",
+                            "she is my friend.",
+                            "She Is My Friend."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Start with capital, end with period.",
+                        "telugu_hint": "పెద్ద అక్షరం & పూర్ణ విరామం"
+                    },
+                    {
+                        "question_text": "Complete: Do you like tea_",
+                        "options": [".", "?", "!", ","],
+                        "correct_answer": "B",
+                        "explanation": "Questions end with question mark (?).",
+                        "telugu_hint": "ప్రశ్నలు - ప్రశ్న గుర్తు"
+                    },
+                    {
+                        "question_text": "Which sentence is correct?",
+                        "options": [
+                            "My name is ram",
+                            "my name is Ram",
+                            "My name is Ram.",
+                            "my Name is ram."
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Names are always capitalized. Sentence ends with period.",
+                        "telugu_hint": "పేర్లు పెద్ద అక్షరంతో"
+                    },
+                    {
+                        "question_text": "Choose correct: I have ___ apple",
+                        "options": ["a", "an", "the", "no article"],
+                        "correct_answer": "B",
+                        "explanation": "Use 'an' before vowel sounds.",
+                        "telugu_hint": "అచ్చు స్వరాల ముందు 'an'"
+                    },
                 ],
                 "intermediate": [
                     {
@@ -830,6 +1303,61 @@ class InitialAssessmentService:
                         "explanation": "Direct quotes need quotation marks and comma before the quote.",
                         "telugu_hint": "ప్రత్యక్ష మాటలు కొటేషన్ లో"
                     },
+                    {
+                        "question_text": "Which sentence uses commas correctly?",
+                        "options": [
+                            "I bought apples oranges and bananas.",
+                            "I bought apples, oranges and bananas.",
+                            "I bought, apples oranges, and bananas.",
+                            "I bought apples oranges, and, bananas."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Use commas to separate items in a list.",
+                        "telugu_hint": "జాబితాలో కామాలు"
+                    },
+                    {
+                        "question_text": "Choose the correct sentence:",
+                        "options": [
+                            "Its a beautiful day",
+                            "It's a beautiful day.",
+                            "Its' a beautiful day.",
+                            "Its a beautiful day."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "It's = It is (contraction with apostrophe).",
+                        "telugu_hint": "సంకోచం - ఆపోస్ట్రఫీ"
+                    },
+                    {
+                        "question_text": "Which is correctly written?",
+                        "options": [
+                            "The books cover is torn",
+                            "The book's cover is torn.",
+                            "The books' cover is torn.",
+                            "The books cover is torn."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Use apostrophe for possession (book's = belonging to the book).",
+                        "telugu_hint": "స్వాధీనత - ఆపోస్ట్రఫీ"
+                    },
+                    {
+                        "question_text": "Choose correct: Dear Sir_ I am writing to apply for the position.",
+                        "options": [".", ",", ":", ";"],
+                        "correct_answer": "B",
+                        "explanation": "Use comma after salutation in letters.",
+                        "telugu_hint": "లేఖల శుభాకాంక్షలు - కామా"
+                    },
+                    {
+                        "question_text": "Which sentence is correct?",
+                        "options": [
+                            "However the plan failed.",
+                            "However, the plan failed.",
+                            "However; the plan failed.",
+                            "However: the plan failed."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Use comma after transitional words like 'however'.",
+                        "telugu_hint": "పరివర్తన పదాల తర్వాత కామా"
+                    },
                 ],
                 "advanced": [
                     {
@@ -843,6 +1371,66 @@ class InitialAssessmentService:
                         "correct_answer": "C",
                         "explanation": "Parallel structure means using the same grammatical form (all -ing forms).",
                         "telugu_hint": "ఒకే రూపంలో రాయాలి"
+                    },
+                    {
+                        "question_text": "Choose the sentence with correct semicolon usage:",
+                        "options": [
+                            "I went to the store, I bought apples.",
+                            "I went to the store; I bought apples.",
+                            "I went to the store: I bought apples.",
+                            "I went to the store - I bought apples."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Semicolon joins two independent clauses.",
+                        "telugu_hint": "సెమికోలన్ - రెండు స్వతంత్ర వాక్యాలు"
+                    },
+                    {
+                        "question_text": "Which demonstrates correct use of the colon?",
+                        "options": [
+                            "The ingredients are: flour, sugar, and eggs.",
+                            "The ingredients are flour: sugar, and eggs.",
+                            "The ingredients: are flour, sugar, and eggs.",
+                            "The: ingredients are flour, sugar, and eggs."
+                        ],
+                        "correct_answer": "A",
+                        "explanation": "Colon introduces a list after a complete sentence.",
+                        "telugu_hint": "కోలన్ - జాబితాకు ముందు"
+                    },
+                    {
+                        "question_text": "Identify correct usage of em dash:",
+                        "options": [
+                            "The weather-was perfect for a picnic.",
+                            "The weather was perfect—sunny and warm—for a picnic.",
+                            "The weather—was perfect for a picnic.",
+                            "The—weather was perfect for a picnic."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Em dashes set off parenthetical information.",
+                        "telugu_hint": "ఎమ్ డాష్ - అదనపు సమాచారం"
+                    },
+                    {
+                        "question_text": "Choose the sentence with correct subordination:",
+                        "options": [
+                            "Although tired, but she continued working.",
+                            "Although she was tired, she continued working.",
+                            "She was tired, although she continued working.",
+                            "Although she was tired, but she continued working."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Don't use 'but' with 'although' - they're redundant.",
+                        "telugu_hint": "అనవసర పదాలు వద్దు"
+                    },
+                    {
+                        "question_text": "Which shows correct use of restrictive clause?",
+                        "options": [
+                            "The students, who studied hard, passed the exam.",
+                            "The students who studied hard passed the exam.",
+                            "The students who studied hard, passed the exam.",
+                            "The students, who studied hard passed the exam."
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Restrictive clauses (essential information) don't use commas.",
+                        "telugu_hint": "అవసరమైన సమాచారం - కామాలు వద్దు"
                     },
                 ],
             },
@@ -860,6 +1448,66 @@ class InitialAssessmentService:
                         "explanation": "When asked about your name, you respond with 'My name is...'",
                         "telugu_hint": "పేరు చెప్పాలి"
                     },
+                    {
+                        "question_text": "How do you greet someone in the morning?",
+                        "options": [
+                            "Good night",
+                            "Good morning",
+                            "Goodbye",
+                            "See you later"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "In the morning, we say 'Good morning'.",
+                        "telugu_hint": "ఉదయాన శుభోదయం"
+                    },
+                    {
+                        "question_text": "What do you say when someone says 'Thank you'?",
+                        "options": [
+                            "Hello",
+                            "You're welcome",
+                            "Please",
+                            "Sorry"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Respond to thanks with 'You're welcome'.",
+                        "telugu_hint": "ధన్యవాదాలకు స్పందన"
+                    },
+                    {
+                        "question_text": "How do you politely ask for something?",
+                        "options": [
+                            "Give me water",
+                            "Water now",
+                            "Can I have water, please?",
+                            "I want water"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Use 'Can I have' and 'please' for polite requests.",
+                        "telugu_hint": "మర్యాదగా అడగడం"
+                    },
+                    {
+                        "question_text": "What do you say when leaving?",
+                        "options": [
+                            "Hello",
+                            "Goodbye",
+                            "Thank you",
+                            "Sorry"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Say 'Goodbye' when leaving.",
+                        "telugu_hint": "వెళ్ళేటప్పుడు వీడ్కోలు"
+                    },
+                    {
+                        "question_text": "How do you introduce yourself?",
+                        "options": [
+                            "How are you?",
+                            "I am [name]",
+                            "Goodbye",
+                            "Thank you"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Say 'I am' followed by your name.",
+                        "telugu_hint": "పరిచయం చేసుకోవడం"
+                    },
                 ],
                 "intermediate": [
                     {
@@ -874,6 +1522,66 @@ class InitialAssessmentService:
                         "explanation": "Polite disagreement acknowledges the other person's view first.",
                         "telugu_hint": "మర్యాదగా భిన్నాభిప్రాయం"
                     },
+                    {
+                        "question_text": "How do you make a suggestion in a group?",
+                        "options": [
+                            "We must do this",
+                            "Do this now",
+                            "Why don't we try this approach?",
+                            "This is what we'll do"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "'Why don't we' is a polite way to make suggestions.",
+                        "telugu_hint": "సూచన ఇవ్వడం"
+                    },
+                    {
+                        "question_text": "How would you interrupt politely?",
+                        "options": [
+                            "Stop talking",
+                            "Excuse me, may I add something?",
+                            "Be quiet",
+                            "I'm talking now"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Use 'Excuse me' and ask permission to interrupt.",
+                        "telugu_hint": "మర్యాదగా అడ్డుకోవడం"
+                    },
+                    {
+                        "question_text": "How do you ask for clarification?",
+                        "options": [
+                            "What?",
+                            "I don't understand",
+                            "Could you please explain that again?",
+                            "Say it again"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Politely ask for clarification with 'Could you please'.",
+                        "telugu_hint": "స్పష్టత అడగడం"
+                    },
+                    {
+                        "question_text": "How would you express uncertainty?",
+                        "options": [
+                            "I don't know anything",
+                            "I'm not entirely sure, but I think...",
+                            "Maybe",
+                            "I have no idea"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Express uncertainty while still contributing.",
+                        "telugu_hint": "అనిశ్చితి వ్యక్తం చేయడం"
+                    },
+                    {
+                        "question_text": "How do you give an opinion formally?",
+                        "options": [
+                            "I think this",
+                            "In my opinion, we should consider...",
+                            "This is right",
+                            "Do this"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "'In my opinion' is a formal way to express views.",
+                        "telugu_hint": "అభిప్రాయం వ్యక్తం చేయడం"
+                    },
                 ],
                 "advanced": [
                     {
@@ -887,6 +1595,66 @@ class InitialAssessmentService:
                         "correct_answer": "C",
                         "explanation": "Formal presentations require sophisticated transitional phrases.",
                         "telugu_hint": "అధికారిక ప్రసంగం - సంక్లిష్ట భాష"
+                    },
+                    {
+                        "question_text": "How do you diplomatically reject a proposal in a business meeting?",
+                        "options": [
+                            "No, that won't work",
+                            "Bad idea",
+                            "While I appreciate the thought, I have some concerns about feasibility",
+                            "That's wrong"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Diplomatic language acknowledges effort while expressing concerns.",
+                        "telugu_hint": "దౌత్యపరంగా తిరస్కరించడం"
+                    },
+                    {
+                        "question_text": "How would you introduce a counterargument in academic discourse?",
+                        "options": [
+                            "But this is wrong",
+                            "However, one might argue conversely that...",
+                            "I disagree",
+                            "This doesn't make sense"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Academic discourse requires formal, objective language.",
+                        "telugu_hint": "అకడమిక్ చర్చ - వస్తునిష్ఠ భాష"
+                    },
+                    {
+                        "question_text": "How do you express nuanced agreement?",
+                        "options": [
+                            "Yes",
+                            "I agree",
+                            "I concur with the general premise, though I'd qualify that by noting...",
+                            "That's right"
+                        ],
+                        "correct_answer": "C",
+                        "explanation": "Nuanced agreement shows partial support with reservations.",
+                        "telugu_hint": "సూక్ష్మ ఒప్పందం"
+                    },
+                    {
+                        "question_text": "How would you hedge a statement in professional communication?",
+                        "options": [
+                            "This is true",
+                            "It appears that the data suggests a potential correlation",
+                            "The data shows this",
+                            "This is how it is"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Hedging uses cautious language to avoid absolute claims.",
+                        "telugu_hint": "జాగ్రత్తగా వ్యక్తం చేయడం"
+                    },
+                    {
+                        "question_text": "How do you signal synthesis of multiple viewpoints?",
+                        "options": [
+                            "Everyone thinks",
+                            "Integrating these perspectives, we can discern a comprehensive framework",
+                            "So basically",
+                            "In conclusion"
+                        ],
+                        "correct_answer": "B",
+                        "explanation": "Synthesis requires formal language showing integration of ideas.",
+                        "telugu_hint": "బహుళ దృక్కోణాల సంశ్లేషణ"
                     },
                 ],
             },

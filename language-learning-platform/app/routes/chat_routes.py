@@ -13,8 +13,8 @@ from app.services.vector_db_service import vector_db_service
 from app.models import db, ChatConversation, ChatMessage, User
 from datetime import datetime
 
-# Create blueprint
-chat_bp = Blueprint("chat_v2", __name__, url_prefix="/chat-v2")
+# Create blueprint (url_prefix will be set during registration in __init__.py)
+chat_bp = Blueprint("chat_v2", __name__)
 
 
 def get_user_id_from_token():
