@@ -13,6 +13,7 @@ from app.models.curriculum import (
     NodeCompletion
 )
 from app.models.activity import Activity, UserActivityLog
+from app.models.course import LearningPath
 from app.services.activity_generator_service import ActivityGeneratorService
 
 
@@ -45,11 +46,27 @@ class LearningPathOrchestrator:
         """
         try:
             # Get curriculum level info
-            level = CurriculumLevel.query.get(node.curriculum_level_id)
+            level = db.session.get(CurriculumLevel, node.curriculum_level_id)
+            
+            # Get or create learning path for user
+            learning_path = LearningPath.query.filter_by(title='English for Telugu Speakers').first()
+            if not learning_path:
+                # Create default learning path if it doesn't exist
+                learning_path = LearningPath(
+                    title='English for Telugu Speakers',
+                    description='Comprehensive English learning path tailored for Telugu native speakers',
+                    category='general',
+                    difficulty_level='beginner',
+                    estimated_duration_hours=200,
+                    is_active=True,
+                    learning_objectives=['Master basic English communication', 'Build vocabulary', 'Understand grammar']
+                )
+                db.session.add(learning_path)
+                db.session.flush()  # Get the ID
             
             # Create Activity record
             activity_record = Activity(
-                learning_path_id=progress.id if progress else None,
+                learning_path_id=learning_path.id,
                 activity_type=generated_content.get('activity_type', 'unknown'),
                 title=generated_content.get('title', 'Untitled Activity'),
                 description=generated_content.get('instructions', generated_content.get('description', '')),
@@ -108,7 +125,7 @@ class LearningPathOrchestrator:
             dict: Contains activity data and metadata about why this activity was chosen
         """
         # Fetch user data
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user:
             return {"error": "User not found"}
         
