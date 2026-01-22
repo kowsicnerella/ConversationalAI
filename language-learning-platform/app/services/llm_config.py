@@ -12,6 +12,7 @@ import requests
 from typing import Optional, Dict, List, Any, Union
 from enum import Enum
 from PIL import Image
+import importlib
 try:
     import google.generativeai as genai
 except Exception:
