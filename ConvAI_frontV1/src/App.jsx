@@ -28,6 +28,7 @@ import VocabularyMastery from "./pages/VocabularyMastery"; // Phase 5: SM-2 Voca
 import ImageLearning from "./pages/ImageLearning";
 import Chat from "./pages/Chat";
 import ChatTutor from "./pages/ChatTutor";
+import { ChatProvider } from "./context/ChatContext";
 import Analytics from "./pages/Analytics";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";  // NEW Phase 2 Analytics
 import Profile from "./pages/Profile";
@@ -230,7 +231,9 @@ function App() {
           path="/chat"
           element={
             <OnboardingGuard requireOnboarding>
-              <Chat />
+              <ChatProvider>
+                <Chat />
+              </ChatProvider>
             </OnboardingGuard>
           }
         />
@@ -238,7 +241,9 @@ function App() {
           path="/chat-tutor"
           element={
             <OnboardingGuard requireOnboarding>
-              <ChatTutor />
+              <ChatProvider>
+                <ChatTutor />
+              </ChatProvider>
             </OnboardingGuard>
           }
         />

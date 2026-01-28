@@ -12,6 +12,7 @@ import requests
 from typing import Optional, Dict, List, Any, Union
 from enum import Enum
 from PIL import Image
+import importlib
 try:
     import google.generativeai as genai
 except Exception:
@@ -266,7 +267,7 @@ class LLMConfig:
                 endpoint,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=60,
+                timeout=120,
                 verify=False
             )
             response.raise_for_status()
@@ -432,7 +433,7 @@ class LLMConfig:
                 endpoint,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=60,
+                timeout=120,
                 verify=False,
                stream=True)
             client = sseclient.SSEClient(response)
@@ -448,7 +449,7 @@ class LLMConfig:
                 endpoint,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=60,
+                timeout=120,
                 verify=False
             )
             response.raise_for_status()
@@ -608,7 +609,7 @@ class LLMConfig:
             endpoint,
             json=payload,
             headers={"Content-Type": "application/json"},
-            timeout=60,
+            timeout=120,
         )
         response.raise_for_status()
 
@@ -754,7 +755,7 @@ class LLMConfig:
             endpoint,
             json=payload,
             headers={"Content-Type": "application/json"},
-            timeout=60,
+            timeout=120,
         )
         response.raise_for_status()
 

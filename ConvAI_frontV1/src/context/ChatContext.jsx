@@ -1,9 +1,15 @@
 import React, { createContext, useState, useCallback, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import axiosInstance from "../config/api";
+import { useAuth } from "./AuthContext";
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+  const isChatRoute = location.pathname.startsWith("/chat");
   const [conversations, setConversations] = useState([]);
   const [currentConversation, setCurrentConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -245,39 +251,14 @@ export const ChatProvider = ({ children }) => {
     }
   }, []);
 
-  // Initialize chat data - only when user is authenticated
-  const initializeChatData = useCallback(async () => {
-    // Check if user is authenticated before making API calls
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      console.log("ChatContext: Skipping initialization - user not authenticated");
-      return;
-    }
-    
-    if (isInitialized) {
-      console.log("ChatContext: Already initialized");
-      return;
-    }
-    
-    console.log("ChatContext: Initializing chat data...");
-    setIsInitialized(true);
-    
-    try {
-      await Promise.all([
-        loadConversations(),
-        loadLearningContext(),
-        loadMemories(),
-        loadStatistics()
-      ]);
-    } catch (err) {
-      console.error("Error initializing chat data:", err);
-      // Reset initialization flag on error so it can retry
-      setIsInitialized(false);
-    }
-  }, [isInitialized, loadConversations, loadLearningContext, loadMemories, loadStatistics]);
-
-  // Don't auto-initialize on mount - wait for explicit call from authenticated pages
-  // This prevents 401 errors on the landing page
+  // Initialize only when authenticated and on chat routes
+  useEffect(() => {
+    if (!isAuthenticated || !isChatRoute) return;
+    loadConversations();
+    loadLearningContext();
+    loadMemories();
+    loadStatistics();
+  }, [isAuthenticated, isChatRoute]);
 
   const value = {
     // State

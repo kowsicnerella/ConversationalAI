@@ -18,7 +18,7 @@ def get_user_status():
     """
     try:
         user_id = int(get_jwt_identity())
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
 
         if not user:
             return jsonify({"error": "User not found"}), 404
@@ -29,7 +29,7 @@ def get_user_status():
         assessment = None
         assessment_completed = False
         if user.initial_assessment_id:
-            assessment = ProficiencyAssessment.query.get(user.initial_assessment_id)
+            assessment = db.session.get(ProficiencyAssessment, user.initial_assessment_id)
             if assessment:
                 assessment_completed = assessment.completed_at is not None
 

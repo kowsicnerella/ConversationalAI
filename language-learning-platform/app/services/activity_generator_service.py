@@ -8,7 +8,7 @@ from app.models.curriculum import LearningNode, UserLearningPathProgress, NodeCo
 
 def _extract_json_from_response(text):
     """
-    Extracts a JSON object from a string response, handling markdown code blocks.
+    Extracts a JSON object from a string response, handling markdown code blocks and partial responses.
     """
     # Use the centralized JSON cleaning method
     text = LLMConfig._clean_json_response(text)
@@ -16,7 +16,18 @@ def _extract_json_from_response(text):
     try:
         return json.loads(text)
     except json.JSONDecodeError:
-        # Handle cases where the JSON is malformed or the response is not JSON
+        # Try to extract JSON from partial responses or fix common issues
+        try:
+            # Look for JSON-like content between curly braces
+            start_idx = text.find('{')
+            end_idx = text.rfind('}')
+            if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+                json_candidate = text[start_idx:end_idx+1]
+                return json.loads(json_candidate)
+        except json.JSONDecodeError:
+            pass
+        
+        # If all else fails, return error with raw response
         return {"error": "Failed to parse JSON from response.", "raw_response": text}
 
 
@@ -44,7 +55,7 @@ class ActivityGeneratorService:
             dict: Generated activity with personalized content
         """
         # Fetch user data
-        user = User.query.get(user_id)
+        user = db.session.get(User, user_id)
         if not user:
             return {"error": "User not found"}
         
@@ -153,7 +164,7 @@ class ActivityGeneratorService:
             from app.models.curriculum import CurriculumLevel
             
             if node.curriculum_level_id:
-                level = CurriculumLevel.query.get(node.curriculum_level_id)
+                level = db.session.get(CurriculumLevel, node.curriculum_level_id)
                 if level:
                     return level.cefr_level
             
