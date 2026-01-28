@@ -42,70 +42,52 @@ const FlashcardsActivity = () => {
   const [studyComplete, setStudyComplete] = useState(false);
   const [nextActivityId, setNextActivityId] = useState(null);
   const [learningPathId, setLearningPathId] = useState(null);
+  const [activityTitle, setActivityTitle] = useState("Flashcard Practice");
+  const [activityData, setActivityData] = useState(null);
 
   useEffect(() => {
-    fetchFlashcards();
+    loadActivityData();
   }, [activityId]);
 
-  const fetchFlashcards = async () => {
+  const loadActivityData = () => {
     try {
-      const response = await axiosInstance.get(
-        API_ENDPOINTS.ACTIVITIES.GENERATE.replace(":type", "flashcard"),
-        {
-          params: { activityId },
+      // First, try to get from sessionStorage (set by Activities page)
+      const storedActivity = sessionStorage.getItem('currentActivity');
+      
+      if (storedActivity) {
+        const activity = JSON.parse(storedActivity);
+        console.log("📚 Loaded activity from sessionStorage:", activity);
+        
+        setActivityData(activity);
+        setActivityTitle(activity.title || "Flashcard Practice");
+        
+        // Extract flashcards from the activity
+        if (activity.flashcards && Array.isArray(activity.flashcards)) {
+          // Transform flashcards to the expected format
+          const transformedCards = activity.flashcards.map((card, index) => ({
+            id: index + 1,
+            word: card.front || card.word,
+            pronunciation: card.pronunciation || "",
+            translation: card.back || card.translation,
+            definition: card.definition || "",
+            example: card.example_sentence || card.example || "",
+            example_telugu: card.example_sentence_telugu,
+            audioUrl: null,
+          }));
+          
+          console.log("✅ Loaded flashcards:", transformedCards);
+          setFlashcards(transformedCards);
+        } else {
+          console.warn("⚠️ No flashcards found in activity data");
+          setFlashcards([]);
         }
-      );
-      setFlashcards(response.data.flashcards || []);
+      } else {
+        console.warn("⚠️ No activity data in sessionStorage");
+        setFlashcards([]);
+      }
     } catch (error) {
-      console.error("Error fetching flashcards:", error);
-      // Mock data
-      setFlashcards([
-        {
-          id: 1,
-          word: "Hello",
-          pronunciation: "హలో (halō)",
-          translation: "నమస్కారం (namaskāraṁ)",
-          definition: "A greeting used when meeting someone",
-          example: "Hello! How are you today?",
-          audioUrl: null,
-        },
-        {
-          id: 2,
-          word: "Thank you",
-          pronunciation: "థ్యాంక్ యూ (thyānk yū)",
-          translation: "ధన్యవాదాలు (dhanyavādālu)",
-          definition: "An expression of gratitude",
-          example: "Thank you for your help!",
-          audioUrl: null,
-        },
-        {
-          id: 3,
-          word: "Beautiful",
-          pronunciation: "బ్యూటిఫుల్ (byūṭiphul)",
-          translation: "అందమైన (andamaina)",
-          definition: "Pleasing to the senses or mind aesthetically",
-          example: "The sunset is beautiful tonight.",
-          audioUrl: null,
-        },
-        {
-          id: 4,
-          word: "Friend",
-          pronunciation: "ఫ్రెండ్ (phreṇḍ)",
-          translation: "స్నేహితుడు (snēhituḍu)",
-          definition: "A person whom one knows and with whom one has a bond",
-          example: "She is my best friend.",
-          audioUrl: null,
-        },
-        {
-          id: 5,
-          word: "Learn",
-          pronunciation: "లర్న్ (larn)",
-          translation: "నేర్చుకొను (nērcukonu)",
-          definition: "To acquire knowledge or skill by study",
-          example: "I want to learn English.",
-          audioUrl: null,
-        },
-      ]);
+      console.error("Error loading activity data:", error);
+      setFlashcards([]);
     }
   };
 
@@ -187,31 +169,13 @@ const FlashcardsActivity = () => {
       
       // Save results to backend
       try {
-        // Get activity data from sessionStorage to extract learning_node_id
-        const activityData = JSON.parse(sessionStorage.getItem('currentActivity') || '{}');
-        
-        // Use multiple fallbacks to find learning_node_id
-        let learningNodeId = activityData.nodeId;
-        
-        // If nodeId is not available, try to construct one from available data
-        if (!learningNodeId) {
-          // Try to use _node_info if available
-          const nodeInfo = activityData._node_info;
-          if (nodeInfo) {
-            learningNodeId = nodeInfo.id 
-              || nodeInfo.node_id 
-              || `node_${activityData.nodeName?.replace(/\s+/g, '_').toLowerCase() || 'unknown'}`;
-          }
-        }
-        
-        // Final fallback: use activity ID as a reference
-        if (!learningNodeId) {
-          learningNodeId = `node_from_activity_${activityId}`;
-          console.warn("⚠️ Using fallback learning_node_id:", learningNodeId);
-        }
+        // Get the correct activity_id from the stored activity data
+        const storedActivity = JSON.parse(sessionStorage.getItem('currentActivity') || '{}');
+        const dbActivityId = storedActivity.activity_id || storedActivity.id;
+        const learningNodeId = storedActivity.nodeId || storedActivity.learning_node_id;
         
         console.log("Saving flashcard activity results:", {
-          activityId,
+          activityId: dbActivityId,
           learningNodeId,
           score: percentage,
           knownCount,
@@ -222,11 +186,10 @@ const FlashcardsActivity = () => {
           API_ENDPOINTS.LEARNING_PATH.COMPLETE_ACTIVITY,
           {
             learning_node_id: learningNodeId,
-            activity_id: activityId,
-            score: percentage,
-            time_spent: 0, // You can track actual time if needed
-            activity_type: "flashcards",
-            activity_results: {
+            activity_id: dbActivityId,
+            performance_score: percentage / 100, // Convert to 0.0-1.0 range
+            time_spent_seconds: 0, // You can track actual time if needed
+            user_responses: {
               cardsStudied: totalCount,
               cardsKnown: knownCount,
             },
@@ -370,12 +333,12 @@ const FlashcardsActivity = () => {
           <Box>
             <Stack direction="row" alignItems="center" spacing={2}>
               <GradientText variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
-                Flashcards Study
+                {activityTitle}
               </GradientText>
               <AIGeneratedBadge size="medium" />
             </Stack>
             <Typography variant="body1" color="text.secondary">
-              Review and memorize vocabulary
+              {activityData?.description || "Review and memorize vocabulary"}
             </Typography>
           </Box>
           <IconButton onClick={handleShuffle} color="primary">

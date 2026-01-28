@@ -15,7 +15,7 @@ const getCacheKey = (config) => {
 // Create axios instance
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 30000,
+  timeout: 60000, // Increased to 60 seconds for AI content generation
   headers: {
     'Content-Type': 'application/json',
   },

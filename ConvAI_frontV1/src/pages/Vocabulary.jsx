@@ -44,73 +44,121 @@ const Vocabulary = () => {
   const fetchVocabulary = async () => {
     try {
       const response = await axiosInstance.get(API_ENDPOINTS.VOCABULARY.WORDS);
-      setWords(response.data.words || response.data || []);
+      const fetchedWords = response.data.words || response.data || [];
+      
+      // If no words found in backend, use mock data for demo/onboarding
+      if (fetchedWords.length === 0) {
+        console.log("No vocabulary words found, showing demo data");
+        setWords(getMockWords());
+      } else {
+        setWords(fetchedWords);
+      }
     } catch (error) {
       console.error("Error fetching vocabulary:", error);
-      // Mock data for demo
-      setWords([
-        {
-          id: 1,
-          word: "Hello",
-          translation: "హలో",
-          pronunciation: "hə-ˈlō",
-          partOfSpeech: "Interjection",
-          definition: "Used as a greeting or to begin a conversation",
-          example: "Hello, how are you today?",
-          difficulty: "Beginner",
-          category: "Greetings",
-        },
-        {
-          id: 2,
-          word: "Beautiful",
-          translation: "అందమైన",
-          pronunciation: "ˈbyü-tə-fəl",
-          partOfSpeech: "Adjective",
-          definition: "Pleasing the senses or mind aesthetically",
-          example: "The sunset was beautiful.",
-          difficulty: "Beginner",
-          category: "Adjectives",
-        },
-        {
-          id: 3,
-          word: "Accomplish",
-          translation: "సాధించు",
-          pronunciation: "ə-ˈkäm-plish",
-          partOfSpeech: "Verb",
-          definition: "To complete successfully; achieve",
-          example: "She accomplished all her goals this year.",
-          difficulty: "Intermediate",
-          category: "Verbs",
-        },
-        {
-          id: 4,
-          word: "Knowledge",
-          translation: "జ్ఞానం",
-          pronunciation: "ˈnä-lij",
-          partOfSpeech: "Noun",
-          definition:
-            "Facts, information, and skills acquired through experience or education",
-          example: "Knowledge is power.",
-          difficulty: "Intermediate",
-          category: "Nouns",
-        },
-        {
-          id: 5,
-          word: "Serendipity",
-          translation: "అనుకోకుండా కనుగొనడం",
-          pronunciation: "ˌser-ən-ˈdi-pə-tē",
-          partOfSpeech: "Noun",
-          definition:
-            "The occurrence of events by chance in a happy or beneficial way",
-          example: "Meeting my best friend was pure serendipity.",
-          difficulty: "Advanced",
-          category: "Abstract",
-        },
-      ]);
+      // Show mock data on error
+      setWords(getMockWords());
     } finally {
       setLoading(false);
     }
   };
+
+  const getMockWords = () => [
+    {
+      id: 1,
+      english_word: "Hello",
+      word: "Hello",
+      telugu_translation: "హలో",
+      translation: "హలో",
+      phonetic_spelling: "hə-ˈlō",
+      pronunciation: "hə-ˈlō",
+      partOfSpeech: "Interjection",
+      definition: "Used as a greeting or to begin a conversation",
+      example_sentence: "Hello, how are you today?",
+      example: "Hello, how are you today?",
+      difficulty_level: "beginner",
+      difficulty: "Beginner",
+      mastery_level: "learning",
+      category: "Greetings",
+      practice_count: 0,
+      correct_count: 0,
+    },
+    {
+      id: 2,
+      english_word: "Beautiful",
+      word: "Beautiful",
+      telugu_translation: "అందమైన",
+      translation: "అందమైన",
+      phonetic_spelling: "ˈbyü-tə-fəl",
+      pronunciation: "ˈbyü-tə-fəl",
+      partOfSpeech: "Adjective",
+      definition: "Pleasing the senses or mind aesthetically",
+      example_sentence: "The sunset was beautiful.",
+      example: "The sunset was beautiful.",
+      difficulty_level: "beginner",
+      difficulty: "Beginner",
+      mastery_level: "learning",
+      category: "Adjectives",
+      practice_count: 0,
+      correct_count: 0,
+    },
+    {
+      id: 3,
+      english_word: "Accomplish",
+      word: "Accomplish",
+      telugu_translation: "సాధించు",
+      translation: "సాధించు",
+      phonetic_spelling: "ə-ˈkäm-plish",
+      pronunciation: "ə-ˈkäm-plish",
+      partOfSpeech: "Verb",
+      definition: "To complete successfully; achieve",
+      example_sentence: "She accomplished all her goals this year.",
+      example: "She accomplished all her goals this year.",
+      difficulty_level: "intermediate",
+      difficulty: "Intermediate",
+      mastery_level: "learning",
+      category: "Verbs",
+      practice_count: 0,
+      correct_count: 0,
+    },
+    {
+      id: 4,
+      english_word: "Knowledge",
+      word: "Knowledge",
+      telugu_translation: "జ్ఞానం",
+      translation: "జ్ఞానం",
+      phonetic_spelling: "ˈnä-lij",
+      pronunciation: "ˈnä-lij",
+      partOfSpeech: "Noun",
+      definition: "Facts, information, and skills acquired through experience or education",
+      example_sentence: "Knowledge is power.",
+      example: "Knowledge is power.",
+      difficulty_level: "intermediate",
+      difficulty: "Intermediate",
+      mastery_level: "learning",
+      category: "Nouns",
+      practice_count: 0,
+      correct_count: 0,
+    },
+    {
+      id: 5,
+      english_word: "Serendipity",
+      word: "Serendipity",
+      telugu_translation: "అనుకోకుండా కనుగొనడం",
+      translation: "అనుకోకుండా కనుగొనడం",
+      phonetic_spelling: "ˌser-ən-ˈdi-pə-tē",
+      pronunciation: "ˌser-ən-ˈdi-pə-tē",
+      partOfSpeech: "Noun",
+      definition: "The occurrence of events by chance in a happy way",
+      example_sentence: "Meeting you was pure serendipity.",
+      example: "Meeting you was pure serendipity.",
+      difficulty_level: "advanced",
+      difficulty: "Advanced",
+      mastery_level: "learning",
+      category: "Nouns",
+      practice_count: 0,
+      correct_count: 0,
+    },
+  ];
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
