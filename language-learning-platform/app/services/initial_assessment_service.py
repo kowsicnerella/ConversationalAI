@@ -579,13 +579,27 @@ class InitialAssessmentService:
         }
 
     def _generate_skill_level_questions(
-        self, skill_area: str, level: str, count: int
+        self, skill_area: str, level: str, count: int, use_ai: bool = False
     ) -> List[Dict]:
-        """Generate questions for a specific skill area and level."""
-        # For comprehensive assessments, use pre-generated questions to avoid multiple LLM calls
-        # This prevents timeout issues when generating many questions at once
+        """Generate questions for a specific skill area and level.
         
-        print(f"Generating {count} questions for {skill_area} - {level}")
+        Args:
+            skill_area: The skill area (vocabulary, grammar, etc.)
+            level: Difficulty level (beginner, intermediate, advanced)
+            count: Number of questions to generate
+            use_ai: If True, attempt AI generation with HPC inference; falls back to static questions
+        """
+        print(f"Generating {count} questions for {skill_area} - {level} (AI: {use_ai})")
+        
+        if use_ai:
+            try:
+                ai_questions = self._generate_ai_bilingual_questions(skill_area, level, count)
+                if ai_questions and len(ai_questions) >= count:
+                    print(f"✅ Generated {len(ai_questions)} AI questions for {skill_area} - {level}")
+                    return ai_questions[:count]
+            except Exception as e:
+                print(f"⚠️ AI question generation failed for {skill_area}-{level}: {e}")
+                print("Falling back to static questions...")
         
         # Use fallback questions directly for faster, more reliable generation
         processed_questions = self._generate_fallback_questions(
@@ -606,6 +620,114 @@ class InitialAssessmentService:
                 question["question_type"] = "multiple_choice"
 
         return processed_questions
+
+    def _generate_ai_bilingual_questions(
+        self, skill_area: str, level: str, count: int
+    ) -> List[Dict]:
+        """
+        Generate bilingual (Telugu + English) assessment questions using AI.
+        Uses HPC inference endpoint with Gemini fallback.
+        
+        Args:
+            skill_area: The skill area (vocabulary, grammar, etc.)
+            level: Difficulty level (beginner, intermediate, advanced)
+            count: Number of questions to generate
+            
+        Returns:
+            List of question dictionaries with bilingual content
+        """
+        import json
+        
+        system_prompt = """You are an expert language assessment creator specializing in Telugu-English bilingual education.
+Generate assessment questions that help Telugu speakers learn English.
+Always provide content in both Telugu and English for better understanding.
+
+Important guidelines:
+1. Questions should be culturally relevant to Telugu speakers
+2. Include Telugu translations/hints for all key terms
+3. Explanations should be in English with Telugu context
+4. Options should be clear and distinct
+5. Output must be valid JSON only"""
+
+        user_prompt = f"""Generate {count} multiple-choice questions for assessing {skill_area} skills at {level} level.
+
+Target audience: Telugu native speakers learning English.
+
+For each question, provide:
+- question_text: The question in English
+- question_telugu: The same question translated to Telugu (తెలుగు)
+- options: Array of 4 options (A, B, C, D)
+- correct_answer: Letter of correct option (A, B, C, or D)
+- explanation: Why the answer is correct (English)
+- explanation_telugu: Explanation in Telugu (తెలుగు)
+- telugu_hint: A helpful hint in Telugu
+
+Level guidelines:
+- beginner: Basic everyday words, simple sentences
+- intermediate: Common vocabulary, basic grammar rules  
+- advanced: Complex vocabulary, nuanced grammar
+
+Return ONLY a JSON array of question objects, no additional text:
+[
+  {{
+    "question_text": "What does 'apple' mean?",
+    "question_telugu": "'apple' అంటే ఏమిటి?",
+    "options": ["ఆపిల్ పండు", "అరటిపండు", "మామిడి", "ద్రాక్ష"],
+    "correct_answer": "A",
+    "explanation": "Apple is a red or green fruit that is commonly eaten.",
+    "explanation_telugu": "ఆపిల్ ఒక ఎరుపు లేదా ఆకుపచ్చ రంగు పండు.",
+    "telugu_hint": "ఎరుపు రంగు గల తీపి పండు"
+  }}
+]"""
+
+        try:
+            result = LLMConfig.generate_text(
+                prompt=user_prompt,
+                system_prompt=system_prompt,
+                temperature=0.7,
+                max_tokens=2000,
+                json_mode=True
+            )
+            
+            if not result.get("success"):
+                raise ValueError(f"LLM generation failed: {result.get('error')}")
+            
+            response_text = result.get("text", "")
+            
+            # Parse JSON response
+            questions = json.loads(response_text)
+            
+            # Validate and enhance questions
+            validated_questions = []
+            for i, q in enumerate(questions):
+                if not all(key in q for key in ["question_text", "options", "correct_answer"]):
+                    continue
+                    
+                validated_q = {
+                    "question_id": f"ai_{skill_area}_{level}_{i+1}",
+                    "question_text": q.get("question_text", ""),
+                    "question_telugu": q.get("question_telugu", ""),
+                    "options": q.get("options", []),
+                    "correct_answer": q.get("correct_answer", "A"),
+                    "explanation": q.get("explanation", ""),
+                    "explanation_telugu": q.get("explanation_telugu", ""),
+                    "telugu_hint": q.get("telugu_hint", ""),
+                    "skill_area": skill_area,
+                    "difficulty_level": level,
+                    "question_type": "multiple_choice",
+                    "points": self._get_points_for_level(level),
+                    "is_ai_generated": True
+                }
+                validated_questions.append(validated_q)
+            
+            return validated_questions
+            
+        except json.JSONDecodeError as e:
+            print(f"Failed to parse AI response as JSON: {e}")
+            raise
+        except Exception as e:
+            print(f"AI question generation error: {e}")
+            raise
 
     def _get_points_for_level(self, level: str) -> int:
         """Get points value for difficulty level."""

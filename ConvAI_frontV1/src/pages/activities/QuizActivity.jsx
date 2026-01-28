@@ -12,6 +12,7 @@ import {
   LinearProgress,
   Chip,
   Grid,
+  Stack,
 } from "@mui/material";
 import {
   CheckCircle,
@@ -27,6 +28,8 @@ import GradientText from "../../components/common/GradientText";
 import AnimatedButton from "../../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../../config/api";
 import gamificationService from "../../services/gamificationService";
+import AIGeneratingLoader from "../../components/common/AIGeneratingLoader";
+import AIGeneratedBadge from "../../components/common/AIGeneratedBadge";
 
 const QuizActivity = () => {
   const { activityId } = useParams();
@@ -280,16 +283,10 @@ const QuizActivity = () => {
 
   if (!quiz) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: 400,
-        }}
-      >
-        <Typography>Loading quiz...</Typography>
-      </Box>
+      <AIGeneratingLoader 
+        message="AI is creating your quiz..."
+        subMessage="Preparing personalized questions for you"
+      />
     );
   }
 
@@ -394,9 +391,12 @@ const QuizActivity = () => {
       <Box sx={{ maxWidth: 900, margin: "0 auto" }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
-          <GradientText variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
-            {quiz.title}
-          </GradientText>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <GradientText variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
+              {quiz.title}
+            </GradientText>
+            <AIGeneratedBadge size="medium" />
+          </Stack>
           <Typography variant="body1" color="text.secondary">
             {quiz.description}
           </Typography>

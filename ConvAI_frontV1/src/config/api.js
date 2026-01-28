@@ -423,6 +423,8 @@ export const API_ENDPOINTS = {
     COMPLETE: (id) => `/assessment/${id}/complete`,
     RESULTS: (id) => `/assessment/${id}/results`,
     SUBMIT: '/assessment/submit',
+    GENERATE_AI_QUESTIONS: '/assessment/generate-ai-questions',
+    REGENERATE: (id) => `/assessment/${id}/regenerate`,
   },
   
   // Media

@@ -13,10 +13,13 @@ import {
   Chip,
   Alert,
   CircularProgress,
+  Stack,
 } from '@mui/material';
 import { CheckCircle, Cancel, Lightbulb } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { vocabularyService } from '../../services/vocabularyService';
+import AIGeneratingLoader from '../common/AIGeneratingLoader';
+import AIGeneratedBadge from '../common/AIGeneratedBadge';
 
 /**
  * VocabularyPracticeActivity Component
@@ -259,9 +262,12 @@ const VocabularyPracticeActivity = ({ word, onComplete, onClose }) => {
         <CardContent>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box>
-              <Typography variant="h5" sx={{ fontWeight: 600 }}>
-                Practice: {word.word}
-              </Typography>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                  Practice: {word.word}
+                </Typography>
+                {activity && <AIGeneratedBadge size="small" />}
+              </Stack>
               {activity && (
                 <Chip
                   label={activityTypes.find((t) => t.value === activityType)?.label}
@@ -274,9 +280,10 @@ const VocabularyPracticeActivity = ({ word, onComplete, onClose }) => {
           </Box>
 
           {loading ? (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
-              <CircularProgress />
-            </Box>
+            <AIGeneratingLoader 
+              variant="inline"
+              message="AI is creating your practice activity..."
+            />
           ) : (
             <motion.div
               key={activityType}

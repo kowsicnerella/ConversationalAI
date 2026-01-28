@@ -25,6 +25,7 @@ import {
   CheckCircle,
   VideogameAsset,
   EmojiEventsOutlined,
+  ArrowBack,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 import {
@@ -115,6 +116,18 @@ const Dashboard = () => {
   return (
     <PageTransition>
       <Box sx={{ p: { xs: 2, md: 4 } }}>
+        {/* Back Button */}
+        <Box sx={{ mb: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<ArrowBack />}
+            onClick={() => navigate(-1)}
+            size="small"
+          >
+            Back
+          </Button>
+        </Box>
+
         {/* Welcome Section */}
         <Box sx={{ mb: 4 }}>
           <motion.div
@@ -461,8 +474,8 @@ const Dashboard = () => {
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {/* Weekly Activity Chart */}
           <Grid item xs={12} md={7}>
-            <Card>
-              <CardContent>
+            <Card sx={{ height: '100%', minHeight: 380 }}>
+              <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="h6" fontWeight={700} gutterBottom>
                   Weekly Activity
                 </Typography>
@@ -470,22 +483,24 @@ const Dashboard = () => {
                   Your learning time over the past 7 days
                 </Typography>
                 {data.weekly_activity && data.weekly_activity.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={250}>
-                    <LineChart data={data.weekly_activity}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="day" />
-                      <YAxis label={{ value: "Minutes", angle: -90, position: "insideLeft" }} />
-                      <Tooltip />
-                      <Line
-                        type="monotone"
-                        dataKey="minutes"
-                        stroke="#667eea"
-                        strokeWidth={3}
-                        dot={{ r: 5 }}
-                        activeDot={{ r: 8 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
+                  <Box sx={{ flexGrow: 1, minHeight: 250, width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={data.weekly_activity}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="day" />
+                        <YAxis label={{ value: "Minutes", angle: -90, position: "insideLeft" }} />
+                        <Tooltip />
+                        <Line
+                          type="monotone"
+                          dataKey="minutes"
+                          stroke="#667eea"
+                          strokeWidth={3}
+                          dot={{ r: 5 }}
+                          activeDot={{ r: 8 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </Box>
                 ) : (
                   <Alert severity="info">Start learning to see your activity!</Alert>
                 )}
@@ -495,8 +510,8 @@ const Dashboard = () => {
 
           {/* Skill Breakdown Chart */}
           <Grid item xs={12} md={5}>
-            <Card>
-              <CardContent>
+            <Card sx={{ height: '100%', minHeight: 380 }}>
+              <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Typography variant="h6" fontWeight={700} gutterBottom>
                   Skill Breakdown
                 </Typography>
@@ -504,15 +519,17 @@ const Dashboard = () => {
                   Your proficiency in different areas
                 </Typography>
                 {data.skill_breakdown && data.skill_breakdown.length > 0 ? (
-                  <ResponsiveContainer width="100%" height={250}>
-                    <BarChart data={data.skill_breakdown} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" domain={[0, 100]} />
-                      <YAxis dataKey="skill" type="category" width={100} />
-                      <Tooltip />
-                      <Bar dataKey="progress" fill="#22c55e" radius={[0, 8, 8, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
+                  <Box sx={{ flexGrow: 1, minHeight: 250, width: '100%' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={data.skill_breakdown} layout="vertical">
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis type="number" domain={[0, 100]} />
+                        <YAxis dataKey="skill" type="category" width={100} />
+                        <Tooltip />
+                        <Bar dataKey="progress" fill="#22c55e" radius={[0, 8, 8, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </Box>
                 ) : (
                   <Alert severity="info">Take an assessment to see your skills!</Alert>
                 )}

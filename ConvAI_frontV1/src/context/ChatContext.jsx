@@ -12,6 +12,7 @@ export const ChatProvider = ({ children }) => {
   const [statistics, setStatistics] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Load all chat data
   const loadConversations = useCallback(async () => {
@@ -244,13 +245,39 @@ export const ChatProvider = ({ children }) => {
     }
   }, []);
 
-  // Initialize on mount
-  useEffect(() => {
-    loadConversations();
-    loadLearningContext();
-    loadMemories();
-    loadStatistics();
-  }, []);
+  // Initialize chat data - only when user is authenticated
+  const initializeChatData = useCallback(async () => {
+    // Check if user is authenticated before making API calls
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      console.log("ChatContext: Skipping initialization - user not authenticated");
+      return;
+    }
+    
+    if (isInitialized) {
+      console.log("ChatContext: Already initialized");
+      return;
+    }
+    
+    console.log("ChatContext: Initializing chat data...");
+    setIsInitialized(true);
+    
+    try {
+      await Promise.all([
+        loadConversations(),
+        loadLearningContext(),
+        loadMemories(),
+        loadStatistics()
+      ]);
+    } catch (err) {
+      console.error("Error initializing chat data:", err);
+      // Reset initialization flag on error so it can retry
+      setIsInitialized(false);
+    }
+  }, [isInitialized, loadConversations, loadLearningContext, loadMemories, loadStatistics]);
+
+  // Don't auto-initialize on mount - wait for explicit call from authenticated pages
+  // This prevents 401 errors on the landing page
 
   const value = {
     // State
@@ -262,8 +289,10 @@ export const ChatProvider = ({ children }) => {
     statistics,
     loading,
     error,
+    isInitialized,
 
     // Methods
+    initializeChatData,
     loadConversations,
     loadConversation,
     createConversation,

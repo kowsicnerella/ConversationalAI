@@ -107,19 +107,30 @@ class LearningPathOrchestrator:
         Returns:
             dict: Contains activity data and metadata about why this activity was chosen
         """
+        print(f"\n[ORCHESTRATOR] determine_next_activity called for user_id={user_id}")
+        
         # Fetch user data
         user = User.query.get(user_id)
         if not user:
+            print(f"[ORCHESTRATOR ERROR] User not found: {user_id}")
             return {"error": "User not found"}
+        
+        print(f"[ORCHESTRATOR] User found: {user.username}")
         
         profile = Profile.query.filter_by(user_id=user_id).first()
         if not profile:
+            print(f"[ORCHESTRATOR ERROR] Profile not found for user_id={user_id}")
             return {"error": "User profile not found"}
+        
+        print(f"[ORCHESTRATOR] Profile found: proficiency_level={profile.proficiency_level}")
         
         # Get or create user's learning path progress
         progress = UserLearningPathProgress.query.filter_by(user_id=user_id).first()
         if not progress:
+            print(f"[ORCHESTRATOR] No progress found, initializing...")
             progress = self._initialize_user_progress(user_id, profile)
+        else:
+            print(f"[ORCHESTRATOR] Progress found: current_level={progress.current_level}, nodes_completed={progress.nodes_completed}")
         
         # PRIORITY 1: Vocabulary Review (Spaced Repetition)
         # Note: vocab_due_for_review will be tracked in future update
@@ -127,22 +138,31 @@ class LearningPathOrchestrator:
         
         # PRIORITY 2: Weak Area Reinforcement
         weak_areas = self._identify_weak_areas(profile)
+        print(f"[ORCHESTRATOR] Weak areas identified: {weak_areas}")
         if weak_areas:
+            print(f"[ORCHESTRATOR] Generating weak area activity for: {weak_areas[0]}")
             return self._generate_weak_area_activity(user_id, weak_areas, progress, profile)
         
         # PRIORITY 3: Next Learning Node (Curriculum Progression)
+        print(f"[ORCHESTRATOR] No weak areas, determining next node...")
         next_node = self._determine_next_node(user_id, progress, profile)
         if next_node:
+            print(f"[ORCHESTRATOR] Next node found: {next_node.node_id} - {next_node.concept_name}")
             return self._generate_node_activity(user_id, next_node, progress)
         
         # PRIORITY 4: Mixed Review (Keep skills sharp)
+        print(f"[ORCHESTRATOR] No next node, generating mixed review...")
         return self._generate_mixed_review_activity(user_id, progress, profile)
     
     def _initialize_user_progress(self, user_id, profile):
         """
         Initialize a new UserLearningPathProgress for a user starting their journey.
         Handles the case where progress already exists (idempotent).
+        Uses proper upsert logic to avoid duplicate key errors.
         """
+        from app.models.user import db
+        from sqlalchemy.exc import IntegrityError
+        
         # Check if progress already exists for this user
         existing_progress = UserLearningPathProgress.query.filter_by(user_id=user_id).first()
         if existing_progress:
@@ -160,29 +180,37 @@ class LearningPathOrchestrator:
         
         cefr_level = proficiency_to_cefr.get(profile.proficiency_level, 'A1')
         
-        # Create progress with only fields that exist in the model
-        progress = UserLearningPathProgress(
-            user_id=user_id,
-            current_level=cefr_level,
-            target_level='B2',
-            learning_style='mixed',
-            preferred_pace='medium',
-            preferred_session_length=20,
-            weak_areas=[],
-            strong_areas=[],
-            nodes_completed=0,
-            nodes_in_progress=0,
-            nodes_mastered=0,
-            time_invested_hours=0.0,
-            longest_streak_days=0,
-            current_streak_days=0
-        )
-        
-        from app.models.user import db
-        db.session.add(progress)
-        db.session.commit()
-        
-        return progress
+        try:
+            # Create progress with only fields that exist in the model
+            progress = UserLearningPathProgress(
+                user_id=user_id,
+                current_level=cefr_level,
+                target_level='B2',
+                learning_style='mixed',
+                preferred_pace='medium',
+                preferred_session_length=20,
+                weak_areas=[],
+                strong_areas=[],
+                nodes_completed=0,
+                nodes_in_progress=0,
+                nodes_mastered=0,
+                time_invested_hours=0.0,
+                longest_streak_days=0,
+                current_streak_days=0
+            )
+            
+            db.session.add(progress)
+            db.session.commit()
+            
+            return progress
+        except IntegrityError:
+            # Race condition: another process created the record
+            db.session.rollback()
+            # Fetch and return the existing record
+            existing_progress = UserLearningPathProgress.query.filter_by(user_id=user_id).first()
+            if existing_progress:
+                return existing_progress
+            raise  # Re-raise if still not found (unexpected)
     
     def _identify_weak_areas(self, profile):
         """
@@ -435,25 +463,43 @@ class LearningPathOrchestrator:
         """
         Generate a mixed review activity from previously completed nodes.
         """
+        print(f"[ORCHESTRATOR] _generate_mixed_review_activity called")
+        
         # Get completed nodes
         completed_nodes = NodeCompletion.query.filter_by(user_id=user_id).all()
+        print(f"[ORCHESTRATOR] Found {len(completed_nodes)} completed nodes")
         
         if not completed_nodes:
             # No completed nodes, start with first node
+            print(f"[ORCHESTRATOR] No completed nodes, finding first node...")
             current_level_id = self._get_level_id_from_progress(progress)
+            print(f"[ORCHESTRATOR] Current level ID: {current_level_id}")
+            
             first_node = LearningNode.query.filter_by(
                 curriculum_level_id=current_level_id
             ).order_by(LearningNode.difficulty_range_min).first()
             
             if not first_node:
                 # Fallback to any A1 node
+                print(f"[ORCHESTRATOR] No nodes found for level, trying A1_VOCAB_GREETINGS fallback...")
                 first_node = LearningNode.query.filter_by(node_id='A1_VOCAB_GREETINGS').first()
             
             if first_node:
-                activity = self.activity_generator.generate_personalized_activity(
-                    user_id=user_id,
-                    learning_node_id=first_node.node_id
-                )
+                print(f"[ORCHESTRATOR] First node found: {first_node.node_id} - {first_node.concept_name}")
+                print(f"[ORCHESTRATOR] Generating activity for first node...")
+                
+                try:
+                    activity = self.activity_generator.generate_personalized_activity(
+                        user_id=user_id,
+                        learning_node_id=first_node.node_id
+                    )
+                    print(f"[ORCHESTRATOR] Activity generated successfully")
+                except Exception as e:
+                    print(f"[ORCHESTRATOR ERROR] Failed to generate activity: {str(e)}")
+                    import traceback
+                    traceback.print_exc()
+                    return {"error": f"Failed to generate activity: {str(e)}"}
+                
                 activity['orchestration_reason'] = 'first_activity'
                 activity['orchestration_message'] = "Welcome! Let's start your learning journey!"
                 activity['priority_level'] = 4
@@ -474,6 +520,7 @@ class LearningPathOrchestrator:
                 
                 return activity
             else:
+                print(f"[ORCHESTRATOR ERROR] No learning nodes available in database!")
                 return {"error": "No learning nodes available"}
         
         # Select a random completed node with lower mastery for review

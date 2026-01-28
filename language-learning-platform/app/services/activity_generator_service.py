@@ -373,10 +373,18 @@ class ActivityGeneratorService:
         if result['success']:
             activity_data = _extract_json_from_response(result['text'])
             
-            # Add metadata
+            # Add AI generation metadata
             activity_data['learning_node_id'] = node.node_id
             activity_data['personalized_for_user'] = context['user_name']
             activity_data['generated_at'] = datetime.now().isoformat()
+            activity_data['is_ai_generated'] = True
+            activity_data['ai_model'] = result.get('model', 'unknown')
+            activity_data['generation_metadata'] = {
+                'provider': 'HPC_inference' if 'sarvam' in result.get('model', '').lower() else 'gemini_fallback',
+                'model': result.get('model'),
+                'tokens_used': result.get('usage', {}).get('total_tokens', 0),
+                'generated_at': datetime.now().isoformat()
+            }
             
             # Enhance with vocabulary tracking
             try:
@@ -440,7 +448,14 @@ class ActivityGeneratorService:
         """
         result = LLMConfig.generate_text(prompt, json_mode=True)
         if result['success']:
-            return _extract_json_from_response(result['text'])
+            quiz_data = _extract_json_from_response(result['text'])
+            # Add AI generation metadata
+            quiz_data['is_ai_generated'] = True
+            quiz_data['ai_model'] = result.get('model', 'unknown')
+            quiz_data['generated_at'] = datetime.now().isoformat()
+            quiz_data['topic'] = topic
+            quiz_data['level'] = level
+            return quiz_data
         else:
             return {"error": result.get('error', 'Failed to generate quiz')}
 
@@ -472,7 +487,14 @@ class ActivityGeneratorService:
         """
         result = LLMConfig.generate_text(prompt, json_mode=True)
         if result['success']:
-            return _extract_json_from_response(result['text'])
+            flashcard_data = _extract_json_from_response(result['text'])
+            # Add AI generation metadata
+            flashcard_data['is_ai_generated'] = True
+            flashcard_data['ai_model'] = result.get('model', 'unknown')
+            flashcard_data['generated_at'] = datetime.now().isoformat()
+            flashcard_data['topic'] = topic
+            flashcard_data['level'] = level
+            return flashcard_data
         else:
             return {"error": result.get('error', 'Failed to generate flashcards')}
 
@@ -520,7 +542,15 @@ class ActivityGeneratorService:
         """
         result = LLMConfig.generate_text(prompt, json_mode=True)
         if result['success']:
-            return _extract_json_from_response(result['text'])
+            reading_data = _extract_json_from_response(result['text'])
+            # Add AI generation metadata
+            reading_data['is_ai_generated'] = True
+            reading_data['ai_model'] = result.get('model', 'unknown')
+            reading_data['generated_at'] = datetime.now().isoformat()
+            reading_data['topic'] = topic
+            reading_data['level'] = level
+            reading_data['activity_type'] = 'reading'
+            return reading_data
         else:
             return {"error": result.get('error', 'Failed to generate reading text')}
 
@@ -546,7 +576,15 @@ class ActivityGeneratorService:
         """
         result = LLMConfig.generate_text(prompt, json_mode=True)
         if result['success']:
-            return _extract_json_from_response(result['text'])
+            writing_data = _extract_json_from_response(result['text'])
+            # Add AI generation metadata
+            writing_data['is_ai_generated'] = True
+            writing_data['ai_model'] = result.get('model', 'unknown')
+            writing_data['generated_at'] = datetime.now().isoformat()
+            writing_data['topic'] = topic
+            writing_data['level'] = level
+            writing_data['activity_type'] = 'writing'
+            return writing_data
         else:
             return {"error": result.get('error', 'Failed to generate writing prompt')}
 
@@ -577,7 +615,15 @@ class ActivityGeneratorService:
         """
         result = LLMConfig.generate_text(prompt, json_mode=True)
         if result['success']:
-            return _extract_json_from_response(result['text'])
+            roleplay_data = _extract_json_from_response(result['text'])
+            # Add AI generation metadata
+            roleplay_data['is_ai_generated'] = True
+            roleplay_data['ai_model'] = result.get('model', 'unknown')
+            roleplay_data['generated_at'] = datetime.now().isoformat()
+            roleplay_data['topic'] = topic
+            roleplay_data['level'] = level
+            roleplay_data['activity_type'] = 'role_play'
+            return roleplay_data
         else:
             return {"error": result.get('error', 'Failed to generate role-playing scenario')}
 

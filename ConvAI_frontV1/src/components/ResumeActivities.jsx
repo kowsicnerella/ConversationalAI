@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../config/api';
 import { 
   PlayArrow, 
   Schedule, 
   School, 
   Error as ErrorIcon,
   ArrowForward,
-  PauseCircle
+  PauseCircle,
+  Refresh
 } from '@mui/icons-material';
 import {
   Box,
@@ -19,63 +20,82 @@ import {
   Alert,
   Stack,
   Paper,
-  Chip
+  Chip,
+  Skeleton
 } from '@mui/material';
 
 const ResumeActivities = () => {
   const [incompleteActivities, setIncompleteActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [retryCount, setRetryCount] = useState(0);
   const navigate = useNavigate();
 
-  const token = localStorage.getItem('token');
+  const MAX_RETRIES = 3;
 
   const fetchIncompleteActivities = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        'http://localhost:5000/api/learning-path/activities/incomplete',
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
+      setError(null);
+      
+      const response = await axiosInstance.get('/learning-path/activities/incomplete');
 
       if (response.data.success) {
-        setIncompleteActivities(response.data.data.activities);
+        setIncompleteActivities(response.data.data?.activities || []);
+        setRetryCount(0);
+      } else {
+        // Handle API returning success: false
+        setIncompleteActivities([]);
       }
     } catch (err) {
       console.error('Error fetching incomplete activities:', err);
-      setError('Failed to load incomplete activities');
+      
+      // Handle different error types gracefully
+      if (err.response?.status === 401) {
+        // User not authenticated - don't show error, just hide component
+        setIncompleteActivities([]);
+        setError(null);
+      } else if (err.response?.status === 404) {
+        // Endpoint doesn't exist or no activities - graceful handling
+        setIncompleteActivities([]);
+        setError(null);
+      } else if (err.response?.status >= 500) {
+        // Server error - show retry option
+        setError('Server is temporarily unavailable. Please try again.');
+      } else {
+        // Network or other error
+        setError('Unable to load activities. Check your connection.');
+      }
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
+    const token = localStorage.getItem('access_token');
     if (token) {
       fetchIncompleteActivities();
+    } else {
+      setLoading(false);
+      setIncompleteActivities([]);
     }
-  }, [token, fetchIncompleteActivities]);
+  }, [fetchIncompleteActivities]);
+
+  const handleRetry = () => {
+    if (retryCount < MAX_RETRIES) {
+      setRetryCount(prev => prev + 1);
+      fetchIncompleteActivities();
+    }
+  };
 
   const handleResume = async (activity) => {
     try {
-      // Mark activity as resumed
-      const response = await axios.put(
-        `http://localhost:5000/api/learning-path/activities/${activity.id}/resume`,
-        {},
-        {
-          headers: { 
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+      const response = await axiosInstance.put(
+        `/learning-path/activities/${activity.id}/resume`
       );
 
       if (response.data.success) {
-        // Store activity in sessionStorage
         sessionStorage.setItem('currentActivity', JSON.stringify(response.data.data));
-        
-        // Navigate to activities page
         navigate('/activities', {
           state: {
             activityData: response.data.data,
@@ -85,7 +105,14 @@ const ResumeActivities = () => {
       }
     } catch (err) {
       console.error('Error resuming activity:', err);
-      alert('Failed to resume activity. Please try again.');
+      // Try navigating anyway with existing data
+      sessionStorage.setItem('currentActivity', JSON.stringify(activity));
+      navigate('/activities', {
+        state: {
+          activityData: activity,
+          isResume: true
+        }
+      });
     }
   };
 
@@ -103,26 +130,46 @@ const ResumeActivities = () => {
   if (loading) {
     return (
       <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2 }}>
-          <CircularProgress size={24} />
-          <Typography>Loading incomplete activities...</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+          <Skeleton variant="circular" width={28} height={28} />
+          <Skeleton variant="text" width={150} height={28} />
         </Box>
+        <Stack spacing={2}>
+          {[1, 2].map((i) => (
+            <Skeleton key={i} variant="rounded" height={80} />
+          ))}
+        </Stack>
       </Paper>
     );
   }
 
   if (error) {
     return (
-      <Alert 
-        severity="error" 
-        sx={{ borderRadius: 2 }}
-        icon={<ErrorIcon />}
-      >
-        {error}
-      </Alert>
+      <Paper elevation={2} sx={{ p: 3, borderRadius: 2 }}>
+        <Alert 
+          severity="warning" 
+          sx={{ borderRadius: 2 }}
+          icon={<ErrorIcon />}
+          action={
+            retryCount < MAX_RETRIES ? (
+              <Button 
+                color="inherit" 
+                size="small" 
+                startIcon={<Refresh />}
+                onClick={handleRetry}
+              >
+                Retry
+              </Button>
+            ) : null
+          }
+        >
+          {error}
+        </Alert>
+      </Paper>
     );
   }
 
+  // Don't render anything if no incomplete activities
   if (incompleteActivities.length === 0) {
     return null;
   }

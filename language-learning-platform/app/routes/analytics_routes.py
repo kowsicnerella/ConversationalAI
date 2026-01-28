@@ -13,7 +13,6 @@ from collections import defaultdict
 
 analytics_bp = Blueprint('analytics_v2', __name__)  # NEW unique name to avoid conflicts
 
-
 @analytics_bp.route('/performance-trends', methods=['GET'])
 @jwt_required()
 def get_performance_trends():

@@ -32,6 +32,8 @@ import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-mo
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../config/api';
 import { API_ENDPOINTS } from '../config/api';
+import AIGeneratingLoader from '../common/AIGeneratingLoader';
+import AIGeneratedBadge from '../common/AIGeneratedBadge';
 
 const FlashcardActivity = ({ topic, level, onComplete }) => {
   const navigate = useNavigate();
@@ -220,12 +222,10 @@ const FlashcardActivity = ({ topic, level, onComplete }) => {
 
   if (loading && !flashcardData) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ ml: 2 }}>
-          Loading Flashcards...
-        </Typography>
-      </Box>
+      <AIGeneratingLoader 
+        message="AI is creating your flashcards..."
+        subMessage="Building personalized vocabulary cards for you"
+      />
     );
   }
 

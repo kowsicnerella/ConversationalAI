@@ -1,0 +1,164 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "confirm": "Confirm",
+    "retry": "Retry",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out"
+  },
+  "nav": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "activities": "Activities",
+    "profile": "Profile",
+    "settings": "Settings",
+    "gamification": "Achievements",
+    "conversations": "Conversations",
+    "assessment": "Assessment"
+  },
+  "landing": {
+    "title": "Learn Languages Naturally",
+    "subtitle": "AI-powered conversational learning",
+    "getStarted": "Get Started",
+    "learnMore": "Learn More",
+    "features": {
+      "ai": "AI-Powered Learning",
+      "personalized": "Personalized Path",
+      "gamified": "Gamified Experience",
+      "bilingual": "Bilingual Support"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back!",
+      "subtitle": "Sign in to continue your learning journey",
+      "username": "Username",
+      "password": "Password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?",
+      "signingIn": "Signing in..."
+    },
+    "register": {
+      "title": "Join ConvAI Learn",
+      "subtitle": "Start your language learning journey today",
+      "username": "Username",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "nativeLanguage": "Native Language",
+      "targetLanguage": "Target Language",
+      "learningGoals": "Learning Goals",
+      "hasAccount": "Already have an account?",
+      "creating": "Creating account...",
+      "createAccount": "Create Account",
+      "passwordRequirements": {
+        "title": "Password Requirements:",
+        "minLength": "At least 6 characters",
+        "betterLength": "10+ characters for better security",
+        "mixCase": "Mix of uppercase & lowercase letters",
+        "number": "At least one number",
+        "special": "Special character (optional, recommended)"
+      },
+      "strength": {
+        "weak": "Weak",
+        "fair": "Fair",
+        "good": "Good",
+        "strong": "Strong"
+      }
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back",
+    "weeklyActivity": "Weekly Activity",
+    "weeklyActivityDesc": "Your learning time over the past 7 days",
+    "skillBreakdown": "Skill Breakdown",
+    "skillBreakdownDesc": "Your proficiency in different areas",
+    "startLearning": "Start learning to see your activity!",
+    "takeAssessment": "Take an assessment to see your skills!",
+    "dailyChallenge": "Today's Challenge",
+    "resume": "Resume",
+    "start": "Start",
+    "minutes": "Minutes",
+    "incompleteActivities": "Continue Learning",
+    "noIncomplete": "No incomplete activities"
+  },
+  "assessment": {
+    "title": "Initial Assessment",
+    "subtitle": "Let's evaluate your current skill level",
+    "instructions": "Answer the following questions to help us personalize your learning path",
+    "question": "Question",
+    "of": "of",
+    "correct": "Correct!",
+    "incorrect": "Incorrect",
+    "explanation": "Explanation",
+    "noHint": "Think carefully about your answer",
+    "submit": "Submit Answer",
+    "loading": "Loading questions...",
+    "results": {
+      "title": "Assessment Complete!",
+      "yourLevel": "Your Level",
+      "score": "Score",
+      "breakdown": "Skill Breakdown",
+      "viewPath": "View Your Learning Path",
+      "retake": "Retake Assessment"
+    }
+  },
+  "activities": {
+    "title": "Learning Activities",
+    "subtitle": "Choose an activity to practice",
+    "vocabulary": "Vocabulary",
+    "grammar": "Grammar",
+    "listening": "Listening",
+    "speaking": "Speaking",
+    "reading": "Reading",
+    "writing": "Writing",
+    "conversation": "Conversation",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "notStarted": "Not Started",
+    "duration": "Duration",
+    "difficulty": "Difficulty"
+  },
+  "gamification": {
+    "title": "Achievements & Progress",
+    "points": "Points",
+    "level": "Level",
+    "streak": "Day Streak",
+    "badges": "Badges",
+    "leaderboard": "Leaderboard",
+    "dailyGoal": "Daily Goal",
+    "weeklyGoal": "Weekly Goal",
+    "achievements": "Achievements",
+    "unlocked": "Unlocked",
+    "locked": "Locked"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Interface Language",
+    "selectLanguage": "Select Language",
+    "theme": "Theme",
+    "notifications": "Notifications",
+    "privacy": "Privacy",
+    "account": "Account Settings"
+  },
+  "languages": {
+    "en": "English",
+    "te": "Telugu"
+  }
+}

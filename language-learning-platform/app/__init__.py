@@ -114,26 +114,14 @@ def create_app(config_name="development"):
             401,
         )
 
-    # Configure CORS to allow frontend requests
+    # Configure CORS to allow all origins (development)
     # Must be configured BEFORE registering blueprints
-    # NOTE: Cannot use wildcard (*) with supports_credentials=True
-    # For development with credentials, specify explicit origins
-    allowed_origins = [
-        "http://localhost:3000",
-        "http://localhost:8080",
-        "http://localhost:5173",
-        "http://127.0.0.1:3000",
-        "http://127.0.0.1:8080",
-        "http://127.0.0.1:5173",
-    ]
-    
     CORS(
         app,
         resources={r"/api/*": {
-            "origins": allowed_origins,
+            "origins": "*",
             "allow_headers": ["Content-Type", "Authorization"],
             "methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-            "supports_credentials": True,
             "max_age": 3600
         }},
         automatic_options=True,

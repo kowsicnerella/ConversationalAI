@@ -27,6 +27,8 @@ import {
   EmojiEvents,
   ArrowForward,
   Star,
+  ArrowBack,
+  Home,
 } from "@mui/icons-material";
 import axiosInstance, { API_ENDPOINTS } from "../config/api";
 
@@ -144,6 +146,26 @@ const AssessmentResults = () => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Navigation Buttons */}
+      <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBack />}
+          onClick={() => navigate(-1)}
+          size="small"
+        >
+          Back
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<Home />}
+          onClick={() => navigate('/dashboard')}
+          size="small"
+        >
+          Dashboard
+        </Button>
+      </Box>
+
       {/* Header */}
       <Box sx={{ textAlign: "center", mb: 4 }}>
         <Typography variant="h3" fontWeight={700} gutterBottom>

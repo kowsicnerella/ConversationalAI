@@ -38,6 +38,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../config/api';
 import { API_ENDPOINTS } from '../config/api';
+import AIGeneratingLoader from '../common/AIGeneratingLoader';
+import AIGeneratedBadge from '../common/AIGeneratedBadge';
 
 const WritingActivity = ({ topic, level, onComplete }) => {
   const navigate = useNavigate();
@@ -171,12 +173,10 @@ const WritingActivity = ({ topic, level, onComplete }) => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ ml: 2 }}>
-          Loading Writing Prompt...
-        </Typography>
-      </Box>
+      <AIGeneratingLoader 
+        message="AI is creating your writing prompt..."
+        subMessage="Preparing a personalized writing exercise for you"
+      />
     );
   }
 
@@ -428,9 +428,12 @@ const WritingActivity = ({ topic, level, onComplete }) => {
       {/* Prompt Section */}
       <Card elevation={3} sx={{ mb: 3 }}>
         <CardContent>
-          <Typography variant="h6" fontWeight="bold" gutterBottom color="primary">
-            Your Writing Task:
-          </Typography>
+          <Stack direction="row" alignItems="center" spacing={1} mb={1}>
+            <Typography variant="h6" fontWeight="bold" color="primary">
+              Your Writing Task:
+            </Typography>
+            <AIGeneratedBadge size="small" />
+          </Stack>
           <Typography variant="body1" paragraph>
             {promptData.prompt}
           </Typography>

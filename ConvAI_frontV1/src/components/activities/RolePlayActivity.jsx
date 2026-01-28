@@ -37,6 +37,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../config/api';
 import { API_ENDPOINTS } from '../config/api';
+import AIGeneratingLoader from '../common/AIGeneratingLoader';
+import AIGeneratedBadge from '../common/AIGeneratedBadge';
 
 const RolePlayActivity = ({ topic, level, onComplete }) => {
   const navigate = useNavigate();
@@ -170,10 +172,10 @@ const RolePlayActivity = ({ topic, level, onComplete }) => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="60vh">
-        <CircularProgress size={60} />
-        <Typography variant="h6" ml={2}>Loading scenario...</Typography>
-      </Box>
+      <AIGeneratingLoader 
+        message="AI is creating your role-play scenario..."
+        subMessage="Setting up your conversation practice"
+      />
     );
   }
 
@@ -207,9 +209,12 @@ const RolePlayActivity = ({ topic, level, onComplete }) => {
           <Stack direction="row" alignItems="center" spacing={2} mb={2}>
             <RolePlayIcon sx={{ fontSize: 40 }} />
             <Box>
-              <Typography variant="h4" fontWeight="bold">
-                {scenarioData.title}
-              </Typography>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <Typography variant="h4" fontWeight="bold">
+                  {scenarioData.title}
+                </Typography>
+                <AIGeneratedBadge size="small" />
+              </Stack>
               <Typography variant="body2" sx={{ opacity: 0.9 }}>
                 {scenarioData.title_telugu}
               </Typography>

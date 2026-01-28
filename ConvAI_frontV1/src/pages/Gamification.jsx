@@ -22,6 +22,8 @@ import StarIcon from '@mui/icons-material/Star';
 import GroupIcon from '@mui/icons-material/Group';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import VideogameAssetIcon from '@mui/icons-material/VideogameAsset';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import HomeIcon from '@mui/icons-material/Home';
 
 // Components
 import GamificationSummary from '../components/gamification/GamificationSummary';
@@ -148,6 +150,26 @@ function Gamification() {
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Navigation Buttons */}
+      <Box sx={{ mb: 3, display: 'flex', gap: 2 }}>
+        <Button
+          variant="outlined"
+          startIcon={<ArrowBackIcon />}
+          onClick={() => navigate(-1)}
+          size="small"
+        >
+          Back
+        </Button>
+        <Button
+          variant="outlined"
+          startIcon={<HomeIcon />}
+          onClick={() => navigate('/dashboard')}
+          size="small"
+        >
+          Dashboard
+        </Button>
+      </Box>
+
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>

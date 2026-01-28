@@ -61,6 +61,8 @@ const Chat = () => {
     createConversation,
     loadConversation,
     webSearchResults,
+    initializeChatData,
+    isInitialized,
   } = useChat();
 
   const [inputMessage, setInputMessage] = useState("");
@@ -71,13 +73,20 @@ const Chat = () => {
   const [anchorEl, setAnchorEl] = useState(null);
   const messagesEndRef = useRef(null);
 
+  // Initialize chat data when component mounts (user is authenticated)
+  useEffect(() => {
+    if (!isInitialized) {
+      initializeChatData();
+    }
+  }, [initializeChatData, isInitialized]);
+
   useEffect(() => {
     // Initialize chat
-    if (!currentConversation) {
+    if (isInitialized && !currentConversation) {
       createConversation(`Chat - ${new Date().toLocaleTimeString()}`, topic);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isInitialized]);
 
   useEffect(() => {
     scrollToBottom();

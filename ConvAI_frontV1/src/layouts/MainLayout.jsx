@@ -3,6 +3,8 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import NotificationBell from "../components/NotificationBell";
+import LanguageSwitcher from "../components/common/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Drawer,
@@ -246,6 +248,9 @@ const MainLayout = () => {
             <IconButton onClick={toggleTheme} color="inherit">
               {mode === "dark" ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
+
+            {/* Language Switcher */}
+            <LanguageSwitcher />
 
             {/* Notifications */}
             <NotificationBell />

@@ -43,7 +43,15 @@ const StatCard = ({ title, value, icon, color, loading, subtitle }) => {
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 {title}
               </Typography>
-              <Typography variant="h4" fontWeight={700} sx={{ color, my: 1 }}>
+              <Typography 
+                variant="h4" 
+                fontWeight={700} 
+                sx={{ 
+                  color, 
+                  my: 1,
+                  fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' }
+                }}
+              >
                 {value}
               </Typography>
               {subtitle && (

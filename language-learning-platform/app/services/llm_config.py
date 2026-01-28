@@ -769,7 +769,9 @@ class LLMConfig:
 
     @classmethod
     def _clean_json_response(cls, text: str) -> str:
-        """Clean JSON response from markdown formatting"""
+        """Clean JSON response from markdown formatting and whitespace corruption"""
+        import re
+        
         # Remove markdown code blocks
         if text.startswith("```json"):
             text = text[7:]
@@ -779,7 +781,41 @@ class LLMConfig:
         if text.endswith("```"):
             text = text[:-3]
 
-        return text.strip()
+        text = text.strip()
+        
+        # First pass: Fix known corrupted keys with spaces inserted in them
+        # Map common corrupted patterns to correct keys
+        known_keys = [
+            'activity_type', 'title', 'description', 'instructions', 
+            'instructions_telugu', 'estimated_time', 'flashcards',
+            'front', 'back', 'example_sentence', 'example_sentence_telugu',
+            'questions', 'question', 'options', 'correct_answer',
+            'explanation', 'hint', 'note'
+        ]
+        
+        # For each known key, find and fix corrupted versions
+        for key in known_keys:
+            # Create regex to match the key with spaces inserted anywhere
+            # e.g., "fr ont" or "f r o n t" should match "front"
+            chars = list(key)
+            pattern = '"' + r'\s*'.join(re.escape(c) for c in chars) + r'\s*":'
+            text = re.sub(pattern, f'"{key}":', text, flags=re.IGNORECASE)
+        
+        # Second pass: Fix any remaining keys with whitespace
+        def fix_key(match):
+            key = match.group(1)
+            # Remove all whitespace characters from the key
+            cleaned_key = ''.join(key.split())
+            return f'"{cleaned_key}":'
+        
+        # Match any quoted string with spaces before a colon
+        text = re.sub(r'"([^"]*\s+[^"]*)":\s*', fix_key, text)
+        
+        # Third pass: Remove standalone backslashes and excessive whitespace in values
+        text = re.sub(r'\\\s+', ' ', text)  # Replace "\ " with just space
+        text = re.sub(r'\s{2,}', ' ', text)  # Replace multiple spaces with single space in values
+        
+        return text
 
     @classmethod
     def set_provider(cls, provider: LLMProvider):

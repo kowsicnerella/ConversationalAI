@@ -1579,3 +1579,82 @@ def get_assessment_statistics():
             ),
             500,
         )
+
+
+@assessment_routes.route("/api/assessment/generate-ai-questions", methods=["POST"])
+@jwt_required()
+def generate_ai_questions():
+    """
+    Generate bilingual (Telugu + English) assessment questions using AI.
+    Uses HPC inference endpoint with Gemini fallback.
+    
+    Expected JSON body:
+    {
+        "skill_area": "vocabulary" | "grammar" | "reading" | "listening" | "writing",
+        "level": "beginner" | "intermediate" | "advanced",
+        "count": 5  // number of questions (1-10)
+    }
+    
+    Returns:
+    {
+        "success": true,
+        "questions": [...],
+        "is_ai_generated": true,
+        "message": "AI questions generated successfully"
+    }
+    """
+    try:
+        data = request.get_json() or {}
+        
+        skill_area = data.get("skill_area", "vocabulary")
+        level = data.get("level", "intermediate")
+        count = min(max(int(data.get("count", 5)), 1), 10)  # Clamp between 1-10
+        
+        # Validate skill area
+        valid_skills = ["vocabulary", "grammar", "reading", "listening", "writing", "speaking"]
+        if skill_area not in valid_skills:
+            return jsonify({
+                "error": f"Invalid skill area. Must be one of: {', '.join(valid_skills)}",
+                "telugu_error": "చెల్లని నైపుణ్య రంగం"
+            }), 400
+        
+        # Validate level
+        valid_levels = ["beginner", "intermediate", "advanced"]
+        if level not in valid_levels:
+            return jsonify({
+                "error": f"Invalid level. Must be one of: {', '.join(valid_levels)}",
+                "telugu_error": "చెల్లని స్థాయి"
+            }), 400
+        
+        # Generate AI questions
+        questions = assessment_service._generate_ai_bilingual_questions(
+            skill_area, level, count
+        )
+        
+        if not questions:
+            # Fallback to static questions
+            questions = assessment_service._generate_fallback_questions(
+                skill_area, level, count
+            )
+            is_ai = False
+        else:
+            is_ai = True
+        
+        return jsonify({
+            "success": True,
+            "questions": questions,
+            "is_ai_generated": is_ai,
+            "skill_area": skill_area,
+            "level": level,
+            "message": "Questions generated successfully" if is_ai else "Using fallback questions",
+            "telugu_message": "ప్రశ్నలు విజయవంతంగా రూపొందించబడ్డాయి" if is_ai else "స్థిర ప్రశ్నలను ఉపయోగిస్తోంది"
+        }), 200
+        
+    except Exception as e:
+        print(f"Error generating AI questions: {str(e)}")
+        traceback.print_exc()
+        return jsonify({
+            "error": "Failed to generate questions",
+            "telugu_error": "ప్రశ్నలను రూపొందించడంలో వైఫల్యం",
+            "details": str(e)
+        }), 500

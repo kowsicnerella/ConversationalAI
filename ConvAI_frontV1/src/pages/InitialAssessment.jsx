@@ -14,10 +14,13 @@ import {
   Alert,
   CircularProgress,
   Chip,
+  Dialog,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { useNavigate, useLocation } from "react-router-dom";
 import axiosInstance, { API_ENDPOINTS } from "../config/api";
-import { ArrowForward, CheckCircle, Timer } from "@mui/icons-material";
+import { ArrowForward, CheckCircle, Timer, Close, Check } from "@mui/icons-material";
 
 const InitialAssessment = () => {
   const navigate = useNavigate();
@@ -146,6 +149,37 @@ const InitialAssessment = () => {
     setCurrentAnswer(answer);
   };
 
+  // Auto-advance timer ref
+  const autoAdvanceTimerRef = useRef(null);
+
+  // Auto-advance to next question after showing feedback
+  const autoAdvanceToNext = () => {
+    // Clear any existing timer
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+    }
+    
+    // Wait 2.5 seconds then advance
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      setShowFeedback(false);
+      
+      if (nextQuestionData?.is_complete || progress.answered >= progress.total) {
+        handleComplete();
+      } else if (nextQuestionData?.next_question) {
+        handleContinue();
+      }
+    }, 2500);
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+      }
+    };
+  }, []);
+
   const handleNext = async () => {
     console.log("📤 Submitting answer:", currentAnswer, "for question:", currentQuestion?.question_id);
 
@@ -183,20 +217,21 @@ const InitialAssessment = () => {
         setProgress(result.progress);
       }
 
-      // Show feedback
+      // Show feedback in dialog popup
       if (result.evaluation) {
         setFeedback(result.evaluation);
         setShowFeedback(true);
+        // Auto-advance after showing feedback
+        autoAdvanceToNext();
       }
 
-      // Store the complete result for when user clicks Continue
+      // Store the complete result for auto-advance
       setNextQuestionData(result);
       
       if (result.is_complete) {
         console.log("🎉 Assessment complete!");
       } else if (result.next_question) {
         console.log("➡️ Next question ready:", result.next_question.question_id);
-        console.log("Will display after user clicks Continue");
       }
 
       setIsAnswered(true);
@@ -399,9 +434,9 @@ const InitialAssessment = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Container maxWidth="md" sx={{ py: 4, minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 3 }}>
         <Typography variant="h4" fontWeight={700} gutterBottom>
           📝 Initial Assessment
         </Typography>
@@ -411,14 +446,14 @@ const InitialAssessment = () => {
       </Box>
 
       {/* Progress Bar */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
+      <Card sx={{ mb: 2 }}>
+        <CardContent sx={{ py: 2 }}>
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              mb: 2,
+              mb: 1,
             }}
           >
             <Typography variant="body2" fontWeight={600}>
@@ -441,63 +476,25 @@ const InitialAssessment = () => {
 
       {/* Error Alert */}
       {error && (
-        <Alert severity="error" sx={{ mb: 3 }} onClose={() => setError("")}>
+        <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError("")}>
           {error}
         </Alert>
       )}
 
-      {/* Feedback Alert - Shows after each answer */}
-      {showFeedback && feedback && (
-        <Alert 
-          severity={feedback.correct ? "success" : "warning"}
-          sx={{ 
-            mb: 3,
-            animation: "slideInDown 0.3s ease-out",
-            "@keyframes slideInDown": {
-              from: {
-                opacity: 0,
-                transform: "translateY(-20px)"
-              },
-              to: {
-                opacity: 1,
-                transform: "translateY(0)"
-              }
-            }
-          }}
-          icon={feedback.correct ? "✅" : "❌"}
-        >
-          <Typography variant="h6" fontWeight={600} gutterBottom>
-            {feedback.correct ? "Correct! Well done!" : "Not quite right"}
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 1 }}>
-            {feedback.explanation}
-          </Typography>
-          {!feedback.correct && (
-            <Typography variant="body2" color="text.secondary">
-              Correct answer: <strong>{feedback.correct_answer}</strong>
-            </Typography>
-          )}
-          <Typography variant="body1" fontWeight="bold" color="primary" sx={{ mt: 1 }}>
-            Points earned: +{feedback.points_earned} / {feedback.points_possible}
-          </Typography>
-          {feedback.feedback_telugu && (
-            <Typography variant="body2" sx={{ mt: 1, fontStyle: "italic" }}>
-              {feedback.feedback_telugu}
-            </Typography>
-          )}
-        </Alert>
-      )}
-
-      {/* Question Card */}
+      {/* Question Card - Fixed height for consistency */}
       <Card
         sx={{
-          mb: 3,
+          mb: 2,
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
+          minHeight: "180px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
         }}
       >
-        <CardContent sx={{ p: 4 }}>
-          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2 }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 2, mb: 2 }}>
             <Chip
               label={currentQuestion.skill_area || "General"}
               sx={{
@@ -515,14 +512,36 @@ const InitialAssessment = () => {
             />
           </Box>
 
-          <Typography variant="h5" fontWeight={600} sx={{ mt: 3, mb: 2 }}>
+          <Typography variant="h5" fontWeight={600}>
             {currentQuestion.question_text}
           </Typography>
-
+          {/* Telugu translation of the question */}
+          {currentQuestion.question_telugu && (
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                mt: 1, 
+                color: 'rgba(255,255,255,0.8)', 
+                fontStyle: 'italic',
+                fontSize: '1.1rem'
+              }}
+            >
+              {currentQuestion.question_telugu}
+            </Typography>
+          )}
+          {/* Telugu hint for additional context */}
           {currentQuestion.telugu_hint && (
-            <Typography
-              variant="body1"
-              sx={{ opacity: 0.9, fontStyle: "italic" }}
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                mt: 1, 
+                color: 'rgba(255,255,255,0.7)',
+                backgroundColor: 'rgba(255,255,255,0.1)',
+                px: 2,
+                py: 0.5,
+                borderRadius: 1,
+                display: 'inline-block'
+              }}
             >
               💡 {currentQuestion.telugu_hint}
             </Typography>
@@ -530,9 +549,9 @@ const InitialAssessment = () => {
         </CardContent>
       </Card>
 
-      {/* Answer Input */}
-      <Card>
-        <CardContent sx={{ p: 4 }}>
+      {/* Answer Input - Fixed height area */}
+      <Card sx={{ flexGrow: 1, display: "flex", flexDirection: "column" }}>
+        <CardContent sx={{ p: 3, flexGrow: 1 }}>
           {currentQuestion.question_type === "multiple_choice" ? (
             <RadioGroup
               value={currentAnswer}
@@ -591,77 +610,140 @@ const InitialAssessment = () => {
             />
           )}
 
-          {/* Navigation Buttons */}
+          {/* Submit Button - Single action, auto-advances after feedback */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: "space-between",
+              justifyContent: "center",
               alignItems: "center",
-              mt: 4,
+              mt: 3,
             }}
           >
-            {!isAnswered ? (
-              // Submit Answer Button
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth
-                endIcon={<ArrowForward />}
-                onClick={handleNext}
-                disabled={!currentAnswer || submitting}
-              >
-                {submitting ? "Submitting..." : "Submit Answer"}
-              </Button>
-            ) : (
-              // Continue Button (after answer submitted)
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth
-                color="primary"
-                endIcon={<ArrowForward />}
-                onClick={() => {
-                  console.log("🖱️ Continue button clicked!");
-                  console.log("Progress:", progress.answered, "/", progress.total);
-                  console.log("Next question data:", nextQuestionData);
-                  console.log("Is complete?", nextQuestionData?.is_complete || progress.answered >= progress.total);
-                  
-                  // Check if assessment is complete (either from backend flag or progress count)
-                  if (nextQuestionData?.is_complete || progress.answered >= progress.total) {
-                    // All questions answered
-                    console.log("✅ Calling handleComplete - Assessment finished!");
-                    handleComplete();
-                  } else {
-                    // Continue to next question
-                    console.log("➡️ Calling handleContinue - More questions remaining");
-                    handleContinue();
-                  }
-                }}
-                disabled={submitting}
-                sx={{
-                  animation: "pulse 1.5s infinite",
-                  "@keyframes pulse": {
-                    "0%, 100%": { transform: "scale(1)" },
-                    "50%": { transform: "scale(1.03)" }
-                  }
-                }}
-              >
-                {progress.answered >= progress.total
-                  ? "View Results"
-                  : "Continue to Next Question"}
-              </Button>
-            )}
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
+              endIcon={submitting ? null : <ArrowForward />}
+              onClick={handleNext}
+              disabled={!currentAnswer || submitting || isAnswered}
+              sx={{
+                py: 1.5,
+                fontSize: "1.1rem",
+              }}
+            >
+              {submitting ? (
+                <>
+                  <CircularProgress size={20} color="inherit" sx={{ mr: 1 }} />
+                  Submitting...
+                </>
+              ) : (
+                "Submit Answer"
+              )}
+            </Button>
           </Box>
         </CardContent>
       </Card>
 
-      {/* Help Text */}
-      <Alert severity="info" sx={{ mt: 3 }}>
-        <Typography variant="body2">
-          💡 <strong>Tip:</strong> Take your time and answer honestly. This
-          assessment helps us create a personalized learning path just for you!
-        </Typography>
-      </Alert>
+      {/* Feedback Dialog - Shows after each answer with auto-advance */}
+      <Dialog
+        open={showFeedback && feedback !== null}
+        onClose={() => {}}  // Prevent closing by clicking outside
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            overflow: "hidden",
+          }
+        }}
+      >
+        <Box
+          sx={{
+            background: feedback?.correct 
+              ? "linear-gradient(135deg, #10b981 0%, #059669 100%)" 
+              : "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)",
+            color: "white",
+            py: 3,
+            px: 3,
+            textAlign: "center",
+          }}
+        >
+          <Box sx={{ fontSize: 48, mb: 1 }}>
+            {feedback?.correct ? <Check sx={{ fontSize: 64 }} /> : <Close sx={{ fontSize: 64 }} />}
+          </Box>
+          <Typography variant="h5" fontWeight={700}>
+            {feedback?.correct ? "Correct! 🎉" : "Not Quite Right"}
+          </Typography>
+        </Box>
+        <DialogContent sx={{ py: 3, px: 3 }}>
+          <Typography variant="body1" sx={{ mb: 1 }}>
+            {feedback?.explanation}
+          </Typography>
+          {/* Telugu explanation */}
+          {feedback?.explanation_telugu && (
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                mb: 2, 
+                color: 'text.secondary',
+                fontStyle: 'italic',
+                pl: 2,
+                borderLeft: '3px solid',
+                borderColor: 'primary.main'
+              }}
+            >
+              {feedback.explanation_telugu}
+            </Typography>
+          )}
+          {!feedback?.correct && feedback?.correct_answer && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              <Typography variant="body2">
+                <strong>Correct Answer:</strong> {feedback.correct_answer}
+              </Typography>
+            </Alert>
+          )}
+          <Box sx={{ 
+            display: "flex", 
+            justifyContent: "center", 
+            alignItems: "center",
+            gap: 1,
+            mt: 2,
+            p: 2,
+            bgcolor: "grey.100",
+            borderRadius: 2,
+          }}>
+            <Typography variant="h6" fontWeight={700} color="primary">
+              +{feedback?.points_earned || 0}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              / {feedback?.points_possible || 0} points
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ flex: 1 }}>
+            Auto-advancing in a moment...
+          </Typography>
+          <Button 
+            variant="contained" 
+            onClick={() => {
+              // Clear auto-advance timer and manually advance
+              if (autoAdvanceTimerRef.current) {
+                clearTimeout(autoAdvanceTimerRef.current);
+              }
+              setShowFeedback(false);
+              if (nextQuestionData?.is_complete || progress.answered >= progress.total) {
+                handleComplete();
+              } else if (nextQuestionData?.next_question) {
+                handleContinue();
+              }
+            }}
+            endIcon={<ArrowForward />}
+          >
+            {progress.answered >= progress.total ? "View Results" : "Next Question"}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

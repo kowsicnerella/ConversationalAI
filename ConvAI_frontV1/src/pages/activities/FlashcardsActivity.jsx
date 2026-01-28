@@ -9,6 +9,7 @@ import {
   LinearProgress,
   Chip,
   ButtonGroup,
+  Stack,
 } from "@mui/material";
 import {
   NavigateBefore,
@@ -28,6 +29,8 @@ import GradientText from "../../components/common/GradientText";
 import AnimatedButton from "../../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../../config/api";
 import gamificationService from "../../services/gamificationService";
+import AIGeneratingLoader from "../../components/common/AIGeneratingLoader";
+import AIGeneratedBadge from "../../components/common/AIGeneratedBadge";
 
 const FlashcardsActivity = () => {
   const { activityId } = useParams();
@@ -263,16 +266,10 @@ const FlashcardsActivity = () => {
 
   if (flashcards.length === 0) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: 400,
-        }}
-      >
-        <Typography>Loading flashcards...</Typography>
-      </Box>
+      <AIGeneratingLoader 
+        message="AI is creating your flashcards..."
+        subMessage="Preparing vocabulary cards for you"
+      />
     );
   }
 
@@ -371,9 +368,12 @@ const FlashcardsActivity = () => {
           }}
         >
           <Box>
-            <GradientText variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
-              Flashcards Study
-            </GradientText>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <GradientText variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
+                Flashcards Study
+              </GradientText>
+              <AIGeneratedBadge size="medium" />
+            </Stack>
             <Typography variant="body1" color="text.secondary">
               Review and memorize vocabulary
             </Typography>

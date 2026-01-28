@@ -11,6 +11,7 @@ import {
   Chip,
   Divider,
   LinearProgress,
+  Stack,
 } from "@mui/material";
 import {
   AccessTime,
@@ -27,6 +28,8 @@ import GradientText from "../../components/common/GradientText";
 import AnimatedButton from "../../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../../config/api";
 import gamificationService from "../../services/gamificationService";
+import AIGeneratingLoader from "../../components/common/AIGeneratingLoader";
+import AIGeneratedBadge from "../../components/common/AIGeneratedBadge";
 
 const ReadingActivity = () => {
   const { activityId } = useParams();
@@ -257,16 +260,10 @@ Technology has revolutionized language learning in recent years. Mobile apps, on
 
   if (!reading) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: 400,
-        }}
-      >
-        <Typography>Loading reading activity...</Typography>
-      </Box>
+      <AIGeneratingLoader 
+        message="AI is preparing your reading passage..."
+        subMessage="Creating a personalized reading exercise for you"
+      />
     );
   }
 
@@ -279,9 +276,12 @@ Technology has revolutionized language learning in recent years. Mobile apps, on
       <Box sx={{ maxWidth: 1000, margin: "0 auto" }}>
         {/* Header */}
         <Box sx={{ mb: 4 }}>
-          <GradientText variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
-            {reading.title}
-          </GradientText>
+          <Stack direction="row" alignItems="center" spacing={2}>
+            <GradientText variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
+              {reading.title}
+            </GradientText>
+            <AIGeneratedBadge size="medium" />
+          </Stack>
           <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
             <Chip icon={<MenuBook />} label={reading.level} color="primary" />
             <Chip

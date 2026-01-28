@@ -28,6 +28,8 @@ import { motion } from "framer-motion";
 import PageTransition from "../components/common/PageTransition";
 import GradientText from "../components/common/GradientText";
 import AnimatedButton from "../components/common/AnimatedButton";
+import AIGeneratingLoader from "../components/common/AIGeneratingLoader";
+import AIGeneratedBadge from "../components/common/AIGeneratedBadge";
 import axiosInstance, { API_ENDPOINTS } from "../config/api";
 
 const Activities = () => {
@@ -297,17 +299,20 @@ const Activities = () => {
               />
             </Stack>
 
-            {/* Title */}
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 700,
-                mb: 1,
-                color: theme.palette.text.primary,
-              }}
-            >
-              {activity.title}
-            </Typography>
+            {/* Title with AI badge */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: 700,
+                  color: theme.palette.text.primary,
+                  flex: 1,
+                }}
+              >
+                {activity.title}
+              </Typography>
+              <AIGeneratedBadge size="small" />
+            </Box>
 
             {/* Description */}
             <Typography
@@ -422,14 +427,20 @@ const Activities = () => {
   if (loading) {
     return (
       <PageTransition>
-        <Box
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-          minHeight="60vh"
-        >
-          <CircularProgress size={60} />
-        </Box>
+        <Container maxWidth="xl">
+          <Box mb={4}>
+            <GradientText
+              variant={isMobile ? "h4" : "h3"}
+              sx={{ mb: 2, fontWeight: 700 }}
+            >
+              AI-Personalized Learning
+            </GradientText>
+          </Box>
+          <AIGeneratingLoader 
+            message="AI is selecting your next optimal activity..."
+            subMessage="Analyzing your progress and learning patterns"
+          />
+        </Container>
       </PageTransition>
     );
   }

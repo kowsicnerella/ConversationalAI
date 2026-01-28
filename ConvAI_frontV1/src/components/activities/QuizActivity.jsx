@@ -34,6 +34,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../config/api';
 import { API_ENDPOINTS } from '../config/api';
+import AIGeneratingLoader from '../common/AIGeneratingLoader';
+import AIGeneratedBadge from '../common/AIGeneratedBadge';
 
 const QuizActivity = ({ topic, level, onComplete }) => {
   const navigate = useNavigate();
@@ -165,12 +167,10 @@ const QuizActivity = ({ topic, level, onComplete }) => {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress size={60} />
-        <Typography variant="h6" sx={{ ml: 2 }}>
-          Loading Quiz...
-        </Typography>
-      </Box>
+      <AIGeneratingLoader 
+        message="AI is creating your personalized quiz..."
+        subMessage="Generating questions tailored to your learning level"
+      />
     );
   }
 
@@ -351,9 +351,12 @@ const QuizActivity = ({ topic, level, onComplete }) => {
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 3 }}>
       {/* Header */}
       <Paper elevation={3} sx={{ p: 3, mb: 3, background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
-        <Typography variant="h5" fontWeight="bold" gutterBottom>
-          {quizData.quiz_title}
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Typography variant="h5" fontWeight="bold" gutterBottom>
+            {quizData.quiz_title}
+          </Typography>
+          <AIGeneratedBadge size="medium" />
+        </Box>
         <Typography variant="body2">
           {quizData.quiz_title_telugu}
         </Typography>

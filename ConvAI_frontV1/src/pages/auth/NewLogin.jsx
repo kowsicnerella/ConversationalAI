@@ -3,8 +3,6 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
   Box,
-  Card,
-  CardContent,
   TextField,
   Typography,
   Alert,
@@ -15,17 +13,21 @@ import {
   Container,
   Stack,
   Paper,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import {
   Visibility,
   VisibilityOff,
-  Login as LoginIcon,
+  Language as LanguageIcon,
 } from "@mui/icons-material";
 import { motion } from "framer-motion";
 
 const NewLogin = () => {
   const navigate = useNavigate();
   const { login, getOnboardingRedirectPath } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const [formData, setFormData] = useState({
     username: "",
@@ -65,155 +67,291 @@ const NewLogin = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+        width: "100%",
         display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 2,
+        flexDirection: { xs: "column", md: "row" },
+        background: "#f8fafc",
       }}
     >
-      <Container maxWidth="sm">
+      {/* Left Side - Branding (Hidden on mobile) */}
+      <Box
+        sx={{
+          display: { xs: "none", md: "flex" },
+          flex: 1,
+          background: "linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: { md: 4, lg: 6 },
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Background Pattern */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.1,
+            backgroundImage: `
+              radial-gradient(circle at 25% 25%, white 2px, transparent 2px),
+              radial-gradient(circle at 75% 75%, white 2px, transparent 2px)
+            `,
+            backgroundSize: "50px 50px",
+          }}
+        />
+        
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
+          style={{ textAlign: "center", zIndex: 1, maxWidth: 450 }}
         >
-          <Paper
-            elevation={24}
+          <Box
             sx={{
-              borderRadius: 4,
-              overflow: "hidden",
-              background: "linear-gradient(to bottom, #ffffff, #f8f9fa)",
+              width: 80,
+              height: 80,
+              borderRadius: "20px",
+              background: "rgba(255, 255, 255, 0.2)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              margin: "0 auto 24px",
+              backdropFilter: "blur(10px)",
             }}
           >
-            <Box
+            <LanguageIcon sx={{ fontSize: 40, color: "white" }} />
+          </Box>
+          <Typography
+            variant="h3"
+            sx={{
+              color: "white",
+              fontWeight: 800,
+              mb: 2,
+              fontSize: { md: "2rem", lg: "2.5rem" },
+            }}
+          >
+            ConvAI Learn
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              color: "rgba(255, 255, 255, 0.9)",
+              maxWidth: 400,
+              lineHeight: 1.6,
+              fontWeight: 400,
+              mx: "auto",
+            }}
+          >
+            Master languages through AI-powered conversations and personalized learning paths
+          </Typography>
+          
+          {/* Features List */}
+          <Stack spacing={2} sx={{ mt: 6, textAlign: "left", px: 2 }}>
+            {[
+              "Personalized learning paths",
+              "AI-powered conversations",
+              "Track your progress",
+              "Gamified experience",
+            ].map((feature, index) => (
+              <motion.div
+                key={feature}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 + index * 0.1 }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                  <Box
+                    sx={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: "white",
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Typography sx={{ color: "rgba(255, 255, 255, 0.9)" }}>
+                    {feature}
+                  </Typography>
+                </Box>
+              </motion.div>
+            ))}
+          </Stack>
+        </motion.div>
+      </Box>
+
+      {/* Right Side - Login Form */}
+      <Box
+        sx={{
+          flex: { xs: 1, md: "0 0 50%" },
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: { xs: 2, sm: 4, md: 6 },
+          minHeight: { xs: "100vh", md: "auto" },
+          overflowY: "auto",
+        }}
+      >
+        {/* Mobile Header */}
+        <Box
+          sx={{
+            display: { xs: "flex", md: "none" },
+            alignItems: "center",
+            gap: 2,
+            mb: 4,
+          }}
+        >
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: "12px",
+              background: "linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <LanguageIcon sx={{ fontSize: 28, color: "white" }} />
+          </Box>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: "#1e293b" }}>
+            ConvAI Learn
+          </Typography>
+        </Box>
+
+        <Box sx={{ width: "100%", maxWidth: 440, px: { xs: 1, sm: 0 } }}>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Paper
+              elevation={0}
               sx={{
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                padding: 4,
-                textAlign: "center",
-                color: "white",
+                p: { xs: 3, sm: 4 },
+                borderRadius: 3,
+                background: "white",
+                boxShadow: "0 4px 24px rgba(0, 0, 0, 0.06)",
+                border: "1px solid #e2e8f0",
               }}
             >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: 0.2, type: "spring" }}
-              >
-                <LoginIcon sx={{ fontSize: 60, mb: 2 }} />
-              </motion.div>
-              <Typography variant="h4" fontWeight="bold" gutterBottom>
-                Welcome Back!
-              </Typography>
-              <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                Sign in to continue your learning journey
-              </Typography>
-            </Box>
-
-            <CardContent sx={{ padding: 4 }}>
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    fontWeight: 700,
+                    color: "#1e293b",
+                    mb: 1,
+                    fontSize: { xs: "1.5rem", sm: "1.75rem" },
+                  }}
                 >
-                  <Alert severity="error" sx={{ mb: 3 }}>
-                    {error}
-                  </Alert>
-                </motion.div>
+                  Welcome back
+                </Typography>
+                <Typography sx={{ color: "#64748b", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
+                  Sign in to continue your learning journey
+                </Typography>
+              </Box>
+
+              {error && (
+                <Alert
+                  severity="error"
+                  sx={{
+                    mb: 3,
+                    borderRadius: 2,
+                    border: "1px solid #fecaca",
+                  }}
+                >
+                  {error}
+                </Alert>
               )}
 
               <form onSubmit={handleSubmit}>
-                <Stack spacing={3}>
-                  <TextField
-                    fullWidth
-                    label="Username"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleChange}
-                    required
-                    autoFocus
-                    variant="outlined"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: "white",
-                        "& fieldset": {
-                          borderColor: "rgba(0, 0, 0, 0.23)",
-                          borderWidth: 2,
+                <Stack spacing={2.5}>
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      sx={{ mb: 1, fontWeight: 600, color: "#374151" }}
+                    >
+                      Username
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      placeholder="Enter your username"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleChange}
+                      required
+                      autoFocus={!isMobile}
+                      size={isMobile ? "small" : "medium"}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          backgroundColor: "#f8fafc",
+                          "& fieldset": { borderColor: "#e2e8f0" },
+                          "&:hover fieldset": { borderColor: "#cbd5e1" },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#0ea5e9",
+                            borderWidth: 2,
+                          },
+                          "&.Mui-focused": { backgroundColor: "white" },
                         },
-                        "&:hover fieldset": {
-                          borderColor: "#667eea",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#667eea",
-                        },
-                      },
-                      "& .MuiInputLabel-root": {
-                        color: "rgba(0, 0, 0, 0.7)",
-                        fontWeight: 600,
-                      },
-                      "& .MuiInputLabel-root.Mui-focused": {
-                        color: "#667eea",
-                      },
-                      "& input": {
-                        color: "black",
-                        fontSize: "1rem",
-                      },
-                    }}
-                  />
+                      }}
+                    />
+                  </Box>
 
-                  <TextField
-                    fullWidth
-                    label="Password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                    variant="outlined"
-                    sx={{
-                      "& .MuiOutlinedInput-root": {
-                        backgroundColor: "white",
-                        "& fieldset": {
-                          borderColor: "rgba(0, 0, 0, 0.23)",
-                          borderWidth: 2,
+                  <Box>
+                    <Typography
+                      variant="body2"
+                      sx={{ mb: 1, fontWeight: 600, color: "#374151" }}
+                    >
+                      Password
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      placeholder="Enter your password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      size={isMobile ? "small" : "medium"}
+                      sx={{
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: 2,
+                          backgroundColor: "#f8fafc",
+                          "& fieldset": { borderColor: "#e2e8f0" },
+                          "&:hover fieldset": { borderColor: "#cbd5e1" },
+                          "&.Mui-focused fieldset": {
+                            borderColor: "#0ea5e9",
+                            borderWidth: 2,
+                          },
+                          "&.Mui-focused": { backgroundColor: "white" },
                         },
-                        "&:hover fieldset": {
-                          borderColor: "#667eea",
-                        },
-                        "&.Mui-focused fieldset": {
-                          borderColor: "#667eea",
-                        },
-                      },
-                      "& .MuiInputLabel-root": {
-                        color: "rgba(0, 0, 0, 0.7)",
-                        fontWeight: 600,
-                      },
-                      "& .MuiInputLabel-root.Mui-focused": {
-                        color: "#667eea",
-                      },
-                      "& input": {
-                        color: "black",
-                        fontSize: "1rem",
-                      },
-                    }}
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                          >
-                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
+                      }}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Box>
 
                   <Box
                     sx={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      flexWrap: "wrap",
+                      gap: 1,
                     }}
                   >
                     <FormControlLabel
@@ -221,16 +359,15 @@ const NewLogin = () => {
                         <Checkbox
                           checked={rememberMe}
                           onChange={(e) => setRememberMe(e.target.checked)}
+                          size="small"
                           sx={{
-                            color: "#667eea",
-                            "&.Mui-checked": {
-                              color: "#667eea",
-                            },
+                            color: "#94a3b8",
+                            "&.Mui-checked": { color: "#0ea5e9" },
                           }}
                         />
                       }
                       label={
-                        <Typography sx={{ color: "rgba(0, 0, 0, 0.8)" }}>
+                        <Typography variant="body2" sx={{ color: "#64748b" }}>
                           Remember me
                         </Typography>
                       }
@@ -238,70 +375,66 @@ const NewLogin = () => {
                     <Link
                       to="/forgot-password"
                       style={{
-                        color: "#667eea",
+                        color: "#0ea5e9",
                         textDecoration: "none",
                         fontWeight: 600,
+                        fontSize: "0.875rem",
                       }}
                     >
                       Forgot password?
                     </Link>
                   </Box>
 
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
+                  <Box
+                    component="button"
+                    type="submit"
+                    disabled={loading}
+                    sx={{
+                      width: "100%",
+                      padding: { xs: "12px 20px", sm: "14px 24px" },
+                      border: "none",
+                      borderRadius: "12px",
+                      background: "linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%)",
+                      color: "white",
+                      fontSize: { xs: "0.938rem", sm: "1rem" },
+                      fontWeight: 600,
+                      cursor: loading ? "not-allowed" : "pointer",
+                      opacity: loading ? 0.7 : 1,
+                      boxShadow: "0 4px 12px rgba(14, 165, 233, 0.3)",
+                      transition: "all 0.2s ease",
+                      "&:hover": {
+                        boxShadow: loading ? "none" : "0 6px 20px rgba(14, 165, 233, 0.4)",
+                        transform: loading ? "none" : "translateY(-1px)",
+                      },
+                      "&:active": {
+                        transform: "translateY(0)",
+                      },
+                    }}
                   >
-                    <Box
-                      component="button"
-                      type="submit"
-                      disabled={loading}
-                      sx={{
-                        width: "100%",
-                        padding: "16px",
-                        border: "none",
-                        borderRadius: "12px",
-                        background:
-                          "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                        color: "white",
-                        fontSize: "1.1rem",
-                        fontWeight: "bold",
-                        cursor: loading ? "not-allowed" : "pointer",
-                        opacity: loading ? 0.7 : 1,
-                        boxShadow: "0 4px 15px rgba(102, 126, 234, 0.4)",
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          boxShadow: loading
-                            ? "0 4px 15px rgba(102, 126, 234, 0.4)"
-                            : "0 6px 20px rgba(102, 126, 234, 0.6)",
-                          transform: loading ? "none" : "translateY(-2px)",
-                        },
-                      }}
-                    >
-                      {loading ? "Signing in..." : "Sign In"}
-                    </Box>
-                  </motion.div>
+                    {loading ? "Signing in..." : "Sign In"}
+                  </Box>
                 </Stack>
               </form>
 
-              <Box sx={{ textAlign: "center", mt: 3 }}>
-                <Typography sx={{ color: "rgba(0, 0, 0, 0.7)" }}>
+              <Box sx={{ textAlign: "center", mt: 3, pt: 3, borderTop: "1px solid #e2e8f0" }}>
+                <Typography sx={{ color: "#64748b", fontSize: { xs: "0.875rem", sm: "1rem" } }}>
                   Don't have an account?{" "}
                   <Link
                     to="/register"
                     style={{
-                      color: "#667eea",
+                      color: "#0ea5e9",
                       textDecoration: "none",
-                      fontWeight: 700,
+                      fontWeight: 600,
                     }}
                   >
-                    Sign up
+                    Create account
                   </Link>
                 </Typography>
               </Box>
-            </CardContent>
-          </Paper>
-        </motion.div>
-      </Container>
+            </Paper>
+          </motion.div>
+        </Box>
+      </Box>
     </Box>
   );
 };

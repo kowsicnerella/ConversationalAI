@@ -51,13 +51,18 @@ def get_next_activity():
         # Get current user from JWT token
         current_user_id = get_jwt_identity()
         
+        print(f"[DEBUG] get_next_activity called for user_id: {current_user_id}")
+        
         # Determine and generate next activity
         activity_data = orchestrator.determine_next_activity(current_user_id)
         
         if "error" in activity_data:
+            error_msg = activity_data["error"]
+            print(f"[ERROR] Orchestrator returned error: {error_msg}")
+            print(f"[DEBUG] Full activity_data: {activity_data}")
             return jsonify({
                 "success": False,
-                "error": activity_data["error"]
+                "error": error_msg
             }), 404
         
         # Extract components for frontend
