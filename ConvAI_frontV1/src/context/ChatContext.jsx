@@ -273,7 +273,7 @@ export const ChatProvider = ({ children }) => {
     isInitialized,
 
     // Methods
-    initializeChatData,
+    // initializeChatData,
     loadConversations,
     loadConversation,
     createConversation,
