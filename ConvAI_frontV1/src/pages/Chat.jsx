@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Paper,
@@ -51,6 +52,7 @@ const suggestedPrompts = [
 ];
 
 const Chat = () => {
+  const { t } = useTranslation();
   useAuth();
   const {
     currentConversation,

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -36,6 +37,7 @@ import AnimatedButton from "../components/common/AnimatedButton";
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
+  const { t } = useTranslation();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editedUser, setEditedUser] = useState({
     username: user?.username || "",

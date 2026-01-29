@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -20,10 +21,12 @@ import { motion } from "framer-motion";
 import AnimatedButton from "../../components/common/AnimatedButton";
 import GradientText from "../../components/common/GradientText";
 import FloatingParticles from "../../components/common/FloatingParticles";
+import LanguageSwitcher from "../../components/common/LanguageSwitcher";
 
 const Login = () => {
   const navigate = useNavigate();
   const { login, getOnboardingRedirectPath } = useAuth();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -65,6 +68,11 @@ const Login = () => {
     <Container maxWidth="sm">
       <Box sx={{ position: "relative", width: "100%", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", py: 4 }}>
         <FloatingParticles />
+        
+        {/* Language Switcher - Top Right */}
+        <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: 10 }}>
+          <LanguageSwitcher />
+        </Box>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -110,13 +118,13 @@ const Login = () => {
                 variant="h4"
                 sx={{ color: "white", fontWeight: 700, mb: 0.5 }}
               >
-                Welcome Back
+                {t('auth.login.title')}
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: "rgba(255, 255, 255, 0.9)" }}
               >
-                Sign in to continue your learning journey
+                {t('auth.login.subtitle')}
               </Typography>
             </Box>
 
@@ -150,7 +158,7 @@ const Login = () => {
                       fontSize: "0.875rem",
                     }}
                   >
-                    Username
+                    {t('auth.login.username')}
                   </Typography>
                   <TextField
                     fullWidth
@@ -202,7 +210,7 @@ const Login = () => {
                       fontSize: "0.875rem",
                     }}
                   >
-                    Password
+                    {t('auth.login.password')}
                   </Typography>
                   <TextField
                     fullWidth
@@ -282,7 +290,7 @@ const Login = () => {
                         variant="body2"
                         sx={{ color: "text.secondary", fontSize: "0.875rem" }}
                       >
-                        Remember me
+                        {t('auth.login.rememberMe')}
                       </Typography>
                     }
                   />
@@ -295,7 +303,7 @@ const Login = () => {
                       fontWeight: 600,
                     }}
                   >
-                    Forgot password?
+                    {t('auth.login.forgotPassword')}
                   </Link>
                 </Box>
 
@@ -323,7 +331,7 @@ const Login = () => {
                     },
                   }}
                 >
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? t('auth.login.signingIn') : t('auth.login.signIn')}
                 </AnimatedButton>
 
                 <Divider sx={{ mb: 3, borderColor: "#e2e8f0" }}>
@@ -331,7 +339,7 @@ const Login = () => {
                     variant="body2"
                     sx={{ color: "text.secondary", px: 2, fontSize: "0.813rem" }}
                   >
-                    New to ConvAI Learn?
+                    {t('auth.login.noAccount')}
                   </Typography>
                 </Divider>
 
@@ -340,7 +348,7 @@ const Login = () => {
                     variant="body2"
                     sx={{ color: "text.secondary", mb: 1 }}
                   >
-                    Don&apos;t have an account?
+                    {t('auth.login.noAccount')}
                   </Typography>
                   <Link
                     to="/register"
@@ -365,7 +373,7 @@ const Login = () => {
                       e.target.style.borderColor = "#0ea5e9";
                     }}
                   >
-                    Create Account
+                    {t('auth.register.createAccount')}
                   </Link>
                 </Box>
               </form>

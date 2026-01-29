@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Container,
@@ -35,6 +36,7 @@ import CertificateGallery from '../components/goals/CertificateGallery';
 import goalsService from '../services/goalsService';
 
 const Goals = () => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState(0);
   const [goals, setGoals] = useState([]);
   const [activeGoals, setActiveGoals] = useState([]);

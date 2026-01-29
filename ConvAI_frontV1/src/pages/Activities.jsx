@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import PropTypes from "prop-types";
 import {
   Box,
@@ -35,6 +36,7 @@ import axiosInstance, { API_ENDPOINTS } from "../config/api";
 const Activities = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  const { t } = useTranslation();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   // State

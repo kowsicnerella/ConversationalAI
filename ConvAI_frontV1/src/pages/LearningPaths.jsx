@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Grid,
@@ -35,6 +36,7 @@ import learningPathService from "../services/learningPathService";
 
 const LearningPaths = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [learningPaths, setLearningPaths] = useState([]);
   const [myPaths, setMyPaths] = useState([]);
   const [enrolledPathIds, setEnrolledPathIds] = useState(new Set()); // Track enrolled path IDs

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -25,6 +26,7 @@ import axiosInstance, { API_ENDPOINTS } from "../config/api";
 
 const Leaderboard = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);

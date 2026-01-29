@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -44,6 +45,7 @@ import GradientText from "../components/common/GradientText";
 import StatCard from "../components/common/StatCard";
 
 const Analytics = () => {
+  const { t } = useTranslation();
   const [timeRange, setTimeRange] = useState("week");
   const [activeTab, setActiveTab] = useState(0);
 

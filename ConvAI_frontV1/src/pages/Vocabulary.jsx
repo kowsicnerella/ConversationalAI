@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Grid,
@@ -29,6 +30,7 @@ import AnimatedButton from "../components/common/AnimatedButton";
 import axiosInstance, { API_ENDPOINTS } from "../config/api";
 
 const Vocabulary = () => {
+  const { t } = useTranslation();
   const [words, setWords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
