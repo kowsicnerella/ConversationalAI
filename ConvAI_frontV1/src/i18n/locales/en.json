@@ -18,7 +18,14 @@
     "retry": "Retry",
     "signIn": "Sign In",
     "signUp": "Sign Up",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "goToDashboard": "Go to Dashboard",
+    "getStarted": "Get Started",
+    "startLearningFree": "Start Learning Free",
+    "learnMore": "Learn More",
+    "profile": "Profile",
+    "logout": "Logout",
+    "level": "Level"
   },
   "nav": {
     "home": "Home",
@@ -28,18 +35,47 @@
     "settings": "Settings",
     "gamification": "Achievements",
     "conversations": "Conversations",
-    "assessment": "Assessment"
+    "assessment": "Assessment",
+    "learningPaths": "Learning Paths",
+    "vocabulary": "Vocabulary",
+    "goals": "Goals",
+    "practice": "Practice",
+    "aiChat": "AI Chat",
+    "analytics": "Analytics",
+    "leaderboard": "Leaderboard"
   },
   "landing": {
     "title": "Learn Languages Naturally",
     "subtitle": "AI-powered conversational learning",
+    "heroTitle": "Master English with AI-Powered Learning",
+    "heroSubtitle": "Join thousands of Telugu speakers learning English through interactive lessons, AI conversations, and personalized learning paths.",
     "getStarted": "Get Started",
     "learnMore": "Learn More",
     "features": {
       "ai": "AI-Powered Learning",
       "personalized": "Personalized Path",
       "gamified": "Gamified Experience",
-      "bilingual": "Bilingual Support"
+      "bilingual": "Bilingual Support",
+      "structuredLearning": "Structured Learning Paths",
+      "structuredLearningDesc": "Follow curated courses designed for Telugu speakers learning English",
+      "aiConversations": "AI-Powered Conversations",
+      "aiConversationsDesc": "Practice with our AI chatbot for real-time language conversations",
+      "adaptiveLearning": "Adaptive Learning",
+      "adaptiveLearningDesc": "Personalized content that adapts to your learning pace and style",
+      "gamification": "Gamification",
+      "gamificationDesc": "Earn points, unlock achievements, and compete with learners worldwide",
+      "richVocabulary": "Rich Vocabulary",
+      "richVocabularyDesc": "Build your vocabulary with interactive flashcards and spaced repetition",
+      "smartAnalytics": "Smart Analytics",
+      "smartAnalyticsDesc": "Track your progress with detailed insights and performance metrics"
+    },
+    "whyChoose": "Why Choose ConvAI Learn?",
+    "readyToStart": "Ready to Start Your Journey?",
+    "readyToStartDesc": "Join thousands of learners who are already improving their English skills",
+    "createFreeAccount": "Create Free Account",
+    "footer": {
+      "madeWith": "Made with ❤️ for Telugu speakers learning English",
+      "copyright": "© 2024 ConvAI Learn. All rights reserved."
     }
   },
   "auth": {
@@ -155,10 +191,90 @@
     "theme": "Theme",
     "notifications": "Notifications",
     "privacy": "Privacy",
-    "account": "Account Settings"
+    "account": "Account Settings",
+    "dark": "Dark",
+    "light": "Light",
+    "system": "System"
+  },
+  "profile": {
+    "title": "Profile",
+    "editProfile": "Edit Profile",
+    "memberSince": "Member Since",
+    "learningStreak": "Learning Streak",
+    "totalXP": "Total XP",
+    "lessonsCompleted": "Lessons Completed"
+  },
+  "vocabulary": {
+    "title": "Vocabulary",
+    "subtitle": "Build your word power",
+    "wordsLearned": "Words Learned",
+    "wordsToReview": "Words to Review",
+    "mastered": "Mastered",
+    "learning": "Learning",
+    "new": "New",
+    "practice": "Practice",
+    "addWord": "Add Word",
+    "word": "Word",
+    "meaning": "Meaning",
+    "example": "Example",
+    "pronunciation": "Pronunciation"
+  },
+  "goals": {
+    "title": "Your Goals",
+    "subtitle": "Set and track your learning objectives",
+    "daily": "Daily Goals",
+    "weekly": "Weekly Goals",
+    "monthly": "Monthly Goals",
+    "addGoal": "Add Goal",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "notStarted": "Not Started",
+    "progress": "Progress"
+  },
+  "practice": {
+    "title": "Practice",
+    "subtitle": "Practice makes perfect",
+    "startPractice": "Start Practice",
+    "topics": "Topics",
+    "exercises": "Exercises",
+    "quizzes": "Quizzes"
+  },
+  "chat": {
+    "title": "AI Chat",
+    "subtitle": "Practice English with our AI tutor",
+    "sendMessage": "Send message",
+    "typeMessage": "Type your message...",
+    "suggestions": "Suggested topics",
+    "newConversation": "New Conversation"
+  },
+  "analytics": {
+    "title": "Analytics",
+    "subtitle": "Track your learning progress",
+    "overview": "Overview",
+    "performance": "Performance",
+    "timeSpent": "Time Spent",
+    "accuracy": "Accuracy",
+    "improvement": "Improvement"
+  },
+  "learningPaths": {
+    "title": "Learning Paths",
+    "subtitle": "Choose your learning journey",
+    "beginner": "Beginner",
+    "intermediate": "Intermediate",
+    "advanced": "Advanced",
+    "enrolled": "Enrolled",
+    "lessons": "Lessons",
+    "hours": "Hours",
+    "startPath": "Start This Path",
+    "continuePath": "Continue Learning"
   },
   "languages": {
     "en": "English",
     "te": "Telugu"
+  },
+  "languageSwitcher": {
+    "title": "Language",
+    "english": "English",
+    "telugu": "తెలుగు"
   }
 }

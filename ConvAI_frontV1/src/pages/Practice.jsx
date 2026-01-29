@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   Container,
@@ -44,6 +45,7 @@ import practiceService, {
 } from '../services/practiceService';
 
 const Practice = () => {
+  const { t } = useTranslation();
   // State for tab selection
   const [activeTab, setActiveTab] = useState(0);
 

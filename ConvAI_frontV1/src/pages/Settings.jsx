@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useTheme as useMuiTheme } from "@mui/material";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -32,11 +33,13 @@ import { motion } from "framer-motion";
 import PageTransition from "../components/common/PageTransition";
 import GradientText from "../components/common/GradientText";
 import AnimatedButton from "../components/common/AnimatedButton";
+import LanguageSwitcher from "../components/common/LanguageSwitcher";
 
 const Settings = () => {
   const muiTheme = useMuiTheme();
   const { mode, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
+  const { t, i18n } = useTranslation();
 
   const [settings, setSettings] = useState({
     notifications: {
@@ -304,11 +307,19 @@ const Settings = () => {
         {/* Header */}
         <Box sx={{ mb: 4 }}>
           <GradientText variant="h4" sx={{ mb: 1, fontWeight: 700 }}>
-            Settings
+            {t('settings.title')}
           </GradientText>
           <Typography variant="body1" color="text.secondary">
-            Customize your learning experience
+            {t('settings.language')}
           </Typography>
+          
+          {/* Prominent Language Switcher */}
+          <Box sx={{ mt: 2, mb: 2, p: 2, bgcolor: 'background.paper', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+            <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 1.5 }}>
+              {t('settings.selectLanguage')}
+            </Typography>
+            <LanguageSwitcher variant="button" />
+          </Box>
         </Box>
 
         {saved && (

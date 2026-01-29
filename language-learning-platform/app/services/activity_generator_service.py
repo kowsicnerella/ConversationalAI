@@ -2,6 +2,7 @@ import json
 import re
 from datetime import datetime
 from app.services.llm_config import LLMConfig
+from app.models import db
 from app.models.user import User, Profile
 from app.models.curriculum import LearningNode, UserLearningPathProgress, NodeCompletion
 

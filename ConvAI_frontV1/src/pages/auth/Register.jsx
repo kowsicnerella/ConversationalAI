@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Card,
@@ -29,6 +30,7 @@ import {
 import { motion } from "framer-motion";
 import AnimatedButton from "../../components/common/AnimatedButton";
 import FloatingParticles from "../../components/common/FloatingParticles";
+import LanguageSwitcher from "../../components/common/LanguageSwitcher";
 
 const learningGoals = [
   "Conversation",
@@ -42,6 +44,7 @@ const learningGoals = [
 const Register = () => {
   const navigate = useNavigate();
   const { register } = useAuth();
+  const { t } = useTranslation();
 
   const [formData, setFormData] = useState({
     username: "",
@@ -77,10 +80,10 @@ const Register = () => {
   };
 
   const getPasswordStrengthLabel = (strength) => {
-    if (strength < 30) return "Weak";
-    if (strength < 60) return "Fair";
-    if (strength < 80) return "Good";
-    return "Strong";
+    if (strength < 30) return t('auth.register.strength.weak');
+    if (strength < 60) return t('auth.register.strength.fair');
+    if (strength < 80) return t('auth.register.strength.good');
+    return t('auth.register.strength.strong');
   };
 
   const handleChange = (e) => {
@@ -144,6 +147,11 @@ const Register = () => {
     <Container maxWidth="md">
       <Box sx={{ position: "relative", width: "100%", minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", py: 4 }}>
         <FloatingParticles />
+        
+        {/* Language Switcher - Top Right */}
+        <Box sx={{ position: "absolute", top: 16, right: 16, zIndex: 10 }}>
+          <LanguageSwitcher />
+        </Box>
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -189,13 +197,13 @@ const Register = () => {
                 variant="h4"
                 sx={{ color: "white", fontWeight: 700, mb: 0.5 }}
               >
-                Create Your Account
+                {t('auth.register.title')}
               </Typography>
               <Typography
                 variant="body2"
                 sx={{ color: "rgba(255, 255, 255, 0.9)" }}
               >
-                Join thousands of learners achieving fluency
+                {t('auth.register.subtitle')}
               </Typography>
             </Box>
 

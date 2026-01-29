@@ -46,16 +46,17 @@ import {
 
 const drawerWidth = 260;
 
-const menuItems = [
-  { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
-  { text: "Learning Paths", icon: <SchoolIcon />, path: "/learning-paths" },
-  { text: "Activities", icon: <QuizIcon />, path: "/activities" },
-  { text: "Vocabulary", icon: <BookIcon />, path: "/vocabulary" },
-  { text: "Goals", icon: <GoalsIcon />, path: "/goals" },
-  { text: "Practice", icon: <PracticeIcon />, path: "/practice" },
-  { text: "AI Chat", icon: <ChatIcon />, path: "/chat" },
-  { text: "Analytics", icon: <AnalyticsIcon />, path: "/analytics" },
-  { text: "Leaderboard", icon: <LeaderboardIcon />, path: "/leaderboard" },
+// Menu items with translation keys
+const getMenuItems = (t) => [
+  { text: t('nav.dashboard'), icon: <DashboardIcon />, path: "/dashboard", key: "dashboard" },
+  { text: t('nav.learningPaths'), icon: <SchoolIcon />, path: "/learning-paths", key: "learningPaths" },
+  { text: t('nav.activities'), icon: <QuizIcon />, path: "/activities", key: "activities" },
+  { text: t('nav.vocabulary'), icon: <BookIcon />, path: "/vocabulary", key: "vocabulary" },
+  { text: t('nav.goals'), icon: <GoalsIcon />, path: "/goals", key: "goals" },
+  { text: t('nav.practice'), icon: <PracticeIcon />, path: "/practice", key: "practice" },
+  { text: t('nav.aiChat'), icon: <ChatIcon />, path: "/chat", key: "aiChat" },
+  { text: t('nav.analytics'), icon: <AnalyticsIcon />, path: "/analytics", key: "analytics" },
+  { text: t('nav.leaderboard'), icon: <LeaderboardIcon />, path: "/leaderboard", key: "leaderboard" },
 ];
 
 const MainLayout = () => {
@@ -63,7 +64,11 @@ const MainLayout = () => {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { mode, toggleTheme } = useTheme();
+  const { t } = useTranslation();
   const isMobile = useMediaQuery("(max-width:900px)");
+  
+  // Get menu items with translations
+  const menuItems = getMenuItems(t);
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
@@ -152,7 +157,7 @@ const MainLayout = () => {
               {user?.username}
             </Typography>
             <Typography variant="caption" color="text.secondary" noWrap>
-              Level {user?.level || 1}
+              {t('common.level')} {user?.level || 1}
             </Typography>
           </Box>
         </Box>
@@ -276,7 +281,7 @@ const MainLayout = () => {
                 <ListItemIcon>
                   <AccountCircle />
                 </ListItemIcon>
-                Profile
+                {t('common.profile')}
               </MenuItem>
               <MenuItem
                 onClick={() => {
@@ -287,14 +292,14 @@ const MainLayout = () => {
                 <ListItemIcon>
                   <SettingsIcon />
                 </ListItemIcon>
-                Settings
+                {t('nav.settings')}
               </MenuItem>
               <Divider />
               <MenuItem onClick={handleLogout}>
                 <ListItemIcon>
                   <Logout />
                 </ListItemIcon>
-                Logout
+                {t('common.logout')}
               </MenuItem>
             </Menu>
           </Toolbar>

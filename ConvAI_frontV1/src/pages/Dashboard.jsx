@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Grid,
@@ -53,6 +54,7 @@ import { useNavigate } from "react-router-dom";
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState(null);
   const [error, setError] = useState("");
@@ -124,7 +126,7 @@ const Dashboard = () => {
             onClick={() => navigate(-1)}
             size="small"
           >
-            Back
+            {t('common.back')}
           </Button>
         </Box>
 
@@ -148,7 +150,7 @@ const Dashboard = () => {
               </Avatar>
               <Box>
                 <Typography variant="h4" fontWeight={700}>
-                  Welcome back, {data.user_name || user?.username}!
+                  {t('dashboard.welcome')}, {data.user_name || user?.username}!
                 </Typography>
                 <Typography variant="body1" color="text.secondary">
                   Ready to continue your learning journey? 🚀

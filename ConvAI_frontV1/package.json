@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "aws s3 sync dist/ s3://convaiui --profile default"
+
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

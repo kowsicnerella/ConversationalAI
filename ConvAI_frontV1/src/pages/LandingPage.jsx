@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useTranslation } from "react-i18next";
 import {
   Box,
   Container,
@@ -24,49 +25,49 @@ import {
 import { motion } from "framer-motion";
 import GradientText from "../components/common/GradientText";
 import AnimatedButton from "../components/common/AnimatedButton";
+import LanguageSwitcher from "../components/common/LanguageSwitcher";
 
-const features = [
+// Features will be translated using t() function
+const getFeatures = (t) => [
   {
     icon: <School sx={{ fontSize: 48 }} />,
-    title: "Structured Learning Paths",
-    description:
-      "Follow curated courses designed for Telugu speakers learning English",
+    title: t('landing.features.structuredLearning'),
+    description: t('landing.features.structuredLearningDesc'),
   },
   {
     icon: <Chat sx={{ fontSize: 48 }} />,
-    title: "AI-Powered Conversations",
-    description:
-      "Practice with our AI chatbot for real-time language conversations",
+    title: t('landing.features.aiConversations'),
+    description: t('landing.features.aiConversationsDesc'),
   },
   {
     icon: <TrendingUp sx={{ fontSize: 48 }} />,
-    title: "Adaptive Learning",
-    description:
-      "Personalized content that adapts to your learning pace and style",
+    title: t('landing.features.adaptiveLearning'),
+    description: t('landing.features.adaptiveLearningDesc'),
   },
   {
     icon: <EmojiEvents sx={{ fontSize: 48 }} />,
-    title: "Gamification",
-    description:
-      "Earn points, unlock achievements, and compete with learners worldwide",
+    title: t('landing.features.gamification'),
+    description: t('landing.features.gamificationDesc'),
   },
   {
     icon: <AutoStories sx={{ fontSize: 48 }} />,
-    title: "Rich Vocabulary",
-    description:
-      "Build your vocabulary with interactive flashcards and spaced repetition",
+    title: t('landing.features.richVocabulary'),
+    description: t('landing.features.richVocabularyDesc'),
   },
   {
     icon: <Psychology sx={{ fontSize: 48 }} />,
-    title: "Smart Analytics",
-    description:
-      "Track your progress with detailed insights and performance metrics",
+    title: t('landing.features.smartAnalytics'),
+    description: t('landing.features.smartAnalyticsDesc'),
   },
 ];
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { t } = useTranslation();
+  
+  // Get translated features
+  const features = getFeatures(t);
 
   return (
     <Box sx={{ minHeight: "100vh" }}>
@@ -98,17 +99,21 @@ const LandingPage = () => {
               ConvAI Learn
             </Typography>
           </Box>
+          
+          {/* Language Switcher - Always visible for navigation */}
+          <LanguageSwitcher />
+          
           {isAuthenticated ? (
-            <Button variant="contained" onClick={() => navigate("/dashboard")}>
-              Go to Dashboard
+            <Button variant="contained" onClick={() => navigate("/dashboard")} sx={{ ml: 1 }}>
+              {t('common.goToDashboard')}
             </Button>
           ) : (
             <>
               <Button onClick={() => navigate("/login")} sx={{ mr: 1 }}>
-                Sign In
+                {t('common.signIn')}
               </Button>
               <Button variant="contained" onClick={() => navigate("/register")}>
-                Get Started
+                {t('common.getStarted')}
               </Button>
             </>
           )}
@@ -166,7 +171,7 @@ const LandingPage = () => {
                     fontSize: { xs: "2.5rem", md: "3.5rem" },
                   }}
                 >
-                  Master English with AI-Powered Learning
+                  {t('landing.heroTitle')}
                 </Typography>
                 <Typography
                   variant="h6"
@@ -176,9 +181,7 @@ const LandingPage = () => {
                     lineHeight: 1.6,
                   }}
                 >
-                  Join thousands of Telugu speakers learning English through
-                  interactive lessons, AI conversations, and personalized
-                  learning paths.
+                  {t('landing.heroSubtitle')}
                 </Typography>
                 <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                   <AnimatedButton
@@ -192,7 +195,7 @@ const LandingPage = () => {
                     }}
                     endIcon={<ArrowForward />}
                   >
-                    Start Learning Free
+                    {t('common.startLearningFree')}
                   </AnimatedButton>
                   <AnimatedButton
                     size="large"
@@ -207,7 +210,7 @@ const LandingPage = () => {
                       },
                     }}
                   >
-                    Sign In
+                    {t('common.signIn')}
                   </AnimatedButton>
                 </Box>
               </motion.div>
@@ -245,10 +248,10 @@ const LandingPage = () => {
       <Container maxWidth="lg" sx={{ py: { xs: 8, md: 12 } }}>
         <Box sx={{ textAlign: "center", mb: 8 }}>
           <GradientText variant="h3" sx={{ mb: 2, fontWeight: 800 }}>
-            Why Choose ConvAI Learn?
+            {t('landing.whyChoose')}
           </GradientText>
           <Typography variant="h6" color="text.secondary">
-            Everything you need to become fluent in English
+            {t('landing.heroSubtitle')}
           </Typography>
         </Box>
 
@@ -306,10 +309,10 @@ const LandingPage = () => {
         <Container maxWidth="md">
           <Box sx={{ textAlign: "center", color: "white" }}>
             <Typography variant="h3" fontWeight={800} gutterBottom>
-              Ready to Start Learning?
+              {t('landing.readyToStart')}
             </Typography>
             <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
-              Join our community of learners and master English today!
+              {t('landing.readyToStartDesc')}
             </Typography>
             <AnimatedButton
               size="large"
@@ -325,7 +328,7 @@ const LandingPage = () => {
               }}
               endIcon={<ArrowForward />}
             >
-              Get Started Free
+              {t('landing.createFreeAccount')}
             </AnimatedButton>
           </Box>
         </Container>
@@ -342,7 +345,7 @@ const LandingPage = () => {
       >
         <Container maxWidth="lg">
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            © 2025 ConvAI Learn. All rights reserved.
+            {t('landing.footer.copyright')}
           </Typography>
         </Container>
       </Box>

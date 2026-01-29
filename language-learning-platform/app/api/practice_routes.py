@@ -82,85 +82,105 @@ def generate_general_questions():
                 400,
             )
 
-        # Generate questions using AI
-        questions = []
-        for i in range(num_questions):
-            question_type = question_types[i % len(question_types)]
-
-            # Create context-specific prompt
-            prompt = f"""
-            Generate a {question_type} question for Telugu speakers learning English.
-            
-            Context:
-            - Topic: {topic}
-            - Difficulty: {difficulty}
-            - User proficiency: {user_proficiency}
-            - Language focus: {language_focus}
-            
-            Requirements:
-            - Question should be appropriate for {difficulty} level
-            - Include Telugu translations where helpful
-            - Focus on {language_focus} skills
-            - Make it engaging and practical
-            
-            Return JSON format:
+        # Generate ALL questions in a single AI call (much more efficient)
+        prompt = f"""
+        Generate {num_questions} practice questions for Telugu speakers learning English.
+        
+        Context:
+        - Topic: {topic}
+        - Difficulty: {difficulty}
+        - User proficiency: {user_proficiency}
+        - Language focus: {language_focus}
+        - Question types to include: {', '.join(question_types)}
+        
+        Requirements:
+        - Questions should be appropriate for {difficulty} level
+        - Include Telugu translations where helpful
+        - Focus on {language_focus} skills
+        - Make them engaging and practical
+        - Distribute question types across {', '.join(question_types)}
+        
+        Return JSON array with {num_questions} questions in this exact format:
+        [
             {{
-                "question_id": "q_{i+1}",
-                "type": "{question_type}",
+                "question_id": "q_1",
+                "type": "<question_type>",
                 "question": "Question text here",
-                "telugu_question": "Telugu translation if needed",
-                "options": ["A", "B", "C", "D"] (for multiple choice),
+                "telugu_question": "Telugu translation",
+                "options": ["A", "B", "C", "D"],
                 "correct_answer": "B",
                 "explanation": "Why this answer is correct",
                 "telugu_explanation": "Telugu explanation",
                 "difficulty_level": "{difficulty}",
                 "topic": "{topic}",
                 "points": 10
-            }}
-            """
+            }},
+            ...
+        ]
+        """
 
-            try:
-                from app.services.llm_config import LLMConfig
-                from app.services.activity_generator_service import _extract_json_from_response
+        try:
+            from app.services.llm_config import LLMConfig
+            from app.services.activity_generator_service import _extract_json_from_response
+            
+            result = LLMConfig.generate_text(prompt, json_mode=True)
+            if not result['success']:
+                questions = []
+            else:
+                response_data = _extract_json_from_response(result['text'])
                 
-                result = LLMConfig.generate_text(prompt, json_mode=True)
-                if not result['success']:
-                    question_data = {}
+                # Handle if response is wrapped in a parent object
+                if isinstance(response_data, dict) and 'questions' in response_data:
+                    questions = response_data['questions']
+                elif isinstance(response_data, list):
+                    questions = response_data
                 else:
-                    question_data = _extract_json_from_response(result['text'])
+                    questions = []
+                
+                # Ensure each question has proper structure
+                for i, q in enumerate(questions):
+                    if not q.get("question_id"):
+                        q["question_id"] = f"q_{i+1}"
+                    if not q.get("type"):
+                        q["type"] = question_types[i % len(question_types)]
+                    if not q.get("topic"):
+                        q["topic"] = topic
+                    if not q.get("difficulty_level"):
+                        q["difficulty_level"] = difficulty
+                    if not q.get("points"):
+                        q["points"] = 10
 
-                # Ensure question has proper structure
-                if "question" in question_data and "correct_answer" in question_data:
-                    question_data["question_id"] = f"q_{i+1}"
-                    question_data["type"] = question_type
-                    question_data["topic"] = topic
-                    question_data["difficulty_level"] = difficulty
-                    questions.append(question_data)
-                else:
-                    # Fallback question if AI generation fails
+            # If AI failed or returned no questions, create fallback questions
+            if len(questions) < num_questions:
+                current_app.logger.warning(
+                    f"AI generated only {len(questions)} of {num_questions} questions, adding fallbacks"
+                )
+                for i in range(len(questions), num_questions):
                     fallback_question = {
                         "question_id": f"q_{i+1}",
-                        "type": "multiple_choice",
-                        "question": f"What is a common {topic} phrase in English?",
-                        "telugu_question": f"ఆంగ్లంలో సాధారణ {topic} వాక్యం ఏది?",
-                        "options": ["Hello", "Goodbye", "Thank you", "Please"],
-                        "correct_answer": "Hello",
-                        "explanation": "Hello is the most common greeting in English",
-                        "telugu_explanation": "హలో అనేది ఆంగ్లంలో అత్యంత సాధారణ నమస్కారం",
+                        "type": question_types[i % len(question_types)],
+                        "question": f"Choose the correct {language_focus} for {topic}:",
+                        "telugu_question": f"{topic} కోసం సరైన {language_focus} ను ఎంచుకోండి:",
+                        "options": ["Option A", "Option B", "Option C", "Option D"],
+                        "correct_answer": "Option A",
+                        "explanation": "This is the correct answer",
+                        "telugu_explanation": "ఇది సరైన సమాధానం",
                         "difficulty_level": difficulty,
                         "topic": topic,
                         "points": 10,
                     }
                     questions.append(fallback_question)
 
-            except Exception as e:
-                current_app.logger.warning(
-                    f"AI question generation failed for question {i+1}: {str(e)}"
-                )
-                # Add fallback question
+        except Exception as e:
+            current_app.logger.warning(
+                f"AI question generation failed: {str(e)}, using fallback questions"
+            )
+            # Create all fallback questions
+            questions = []
+            for i in range(num_questions):
                 fallback_question = {
                     "question_id": f"q_{i+1}",
-                    "type": "multiple_choice",
+                    "type": question_types[i % len(question_types)],
                     "question": f"Choose the correct {language_focus} for {topic}:",
                     "telugu_question": f"{topic} కోసం సరైన {language_focus} ను ఎంచుకోండి:",
                     "options": ["Option A", "Option B", "Option C", "Option D"],
