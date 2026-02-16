@@ -226,6 +226,28 @@ def create_app(config_name="development"):
 
     app.register_blueprint(image_bp)
 
+    # ─── LangChain / LangGraph / Weaviate Initialization ───
+    try:
+        from app.services.langchain_config import LangChainConfig
+        LangChainConfig.initialize()
+
+        from app.services.weaviate_memory_service import weaviate_memory_service
+        weaviate_cfg = LangChainConfig.get_weaviate_config()
+        if weaviate_cfg.get("cluster_url"):
+            weaviate_memory_service.initialize(
+                cluster_url=weaviate_cfg["cluster_url"],
+                api_key=weaviate_cfg["api_key"],
+                collection_name=weaviate_cfg["collection_name"],
+                embeddings=LangChainConfig.get_embeddings(),
+                text_key=weaviate_cfg.get("text_key", "content"),
+            )
+
+        from app.routes.unified_chat_routes import unified_chat_bp
+        app.register_blueprint(unified_chat_bp, url_prefix="/api/v3/chat")
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).warning(f"LangChain/Weaviate init skipped: {e}")
+
     # Global handler for OPTIONS requests (CORS preflight)
     @app.before_request
     def handle_preflight():

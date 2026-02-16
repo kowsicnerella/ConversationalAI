@@ -1,0 +1,53 @@
+# llm_providers.yaml - Pluggable LLM and Embedding Configuration
+# Each entry becomes a named LangChain LLM or Embeddings instance.
+# Use ${ENV_VAR} syntax to reference environment variables from .env
+
+llm_providers:
+  # Primary: Custom vLLM endpoint (OpenAI-compatible)
+  vllm_primary:
+    type: openai_compatible
+    base_url: ${VLLM_ENDPOINT}/v1
+    model: sarvamai/sarvam-m
+    api_key: "not-needed"
+    temperature: 0.7
+    max_tokens: 2000
+    timeout: 120
+    priority: 1
+
+  # Fallback: Google Gemini
+  gemini_fallback:
+    type: google_genai
+    model: gemini-2.0-flash-exp
+    api_key: ${GEMINI_API_KEY}
+    temperature: 0.7
+    max_tokens: 2000
+    priority: 2
+
+  # Optional: OpenAI (uncomment and set OPENAI_API_KEY in .env to enable)
+  # openai_optional:
+  #   type: openai
+  #   model: gpt-4o-mini
+  #   api_key: ${OPENAI_API_KEY}
+  #   temperature: 0.7
+  #   max_tokens: 2000
+  #   priority: 3
+
+embedding_providers:
+  # Google text-embedding-004 (same model mem0 was using)
+  google_embedding:
+    type: google_genai
+    model: models/text-embedding-004
+    api_key: ${GEMINI_API_KEY}
+    priority: 1
+
+  # Local fallback (uncomment if you want offline embeddings)
+  # local_embedding:
+  #   type: huggingface
+  #   model: sentence-transformers/all-MiniLM-L6-v2
+  #   priority: 2
+
+weaviate:
+  cluster_url: ${WEAVIATE_URL}
+  api_key: ${WEAVIATE_API_KEY}
+  collection_name: convai_langchain
+  text_key: content

@@ -12,7 +12,7 @@ from app.models import (
 )
 from app.services.activity_generator_service import ActivityGeneratorService
 from app.services.llm_config import LLMConfig
-from app.services.mem0_service import mem0_service
+from app.services.weaviate_memory_service import weaviate_memory_service
 from datetime import datetime, date, timedelta
 from sqlalchemy import func
 import json
@@ -536,17 +536,18 @@ class PersonalizationService:
 
             db.session.commit()
 
-            # Save to mem0
-            mem0_service.save_vocabulary_learning(
-                user_id=user_id,
-                vocabulary_data={
-                    "english_word": english_word,
-                    "telugu_translation": telugu_translation,
-                    "context_sentence": context_sentence,
-                    "is_new_word": is_new_word,
-                    "source": "personalization_tracking",
-                },
-            )
+            # Save to Weaviate memory
+            if weaviate_memory_service.is_available:
+                weaviate_memory_service.save_vocabulary(
+                    user_id=user_id,
+                    vocab_data={
+                        "english_word": english_word,
+                        "telugu_translation": telugu_translation,
+                        "context_sentence": context_sentence,
+                        "is_new_word": str(is_new_word),
+                        "source": "personalization_tracking",
+                    },
+                )
 
             return {
                 "english_word": english_word,

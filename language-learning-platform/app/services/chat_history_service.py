@@ -7,7 +7,6 @@ import json
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from app.models import db, ChatConversation, ChatMessage, User
-from app.services.mem0_service import mem0_service
 
 
 class ChatHistoryService:

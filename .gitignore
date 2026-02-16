@@ -39,3 +39,4 @@ hpc_inference/
 *.env
 
 
+*tmpclaude*
