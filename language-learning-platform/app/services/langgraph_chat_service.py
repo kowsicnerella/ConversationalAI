@@ -229,7 +229,7 @@ class LangGraphChatService:
         Ported from EnhancedChatServiceV2.search_web()
         """
         try:
-            from duckduckgo_search import DDGS
+            from ddgs import DDGS
 
             ddgs = DDGS()
             results = []
@@ -333,7 +333,7 @@ class LangGraphChatService:
             user_id = state["user_id"]
             parsed = state.get("ai_response_parsed", {})
 
-            conversation = ChatConversation.query.get(conversation_id)
+            conversation = db.session.get(ChatConversation, conversation_id)
             if not conversation:
                 return {
                     "memory_stored": False,
@@ -446,7 +446,7 @@ class LangGraphChatService:
             Dict with success, user_message, ai_response, conversation, etc.
         """
         # Verify conversation ownership
-        conversation = ChatConversation.query.get(conversation_id)
+        conversation = db.session.get(ChatConversation, conversation_id)
         if not conversation:
             return {"error": "Conversation not found", "success": False}
         if conversation.user_id != user_id:
@@ -489,7 +489,7 @@ class LangGraphChatService:
             }
 
         # Fetch saved messages from DB for response
-        conversation = ChatConversation.query.get(conversation_id)
+        conversation = db.session.get(ChatConversation, conversation_id)
         user_msg_db = (
             ChatMessage.query.filter_by(conversation_id=conversation_id, role="user")
             .order_by(ChatMessage.created_at.desc())
@@ -530,7 +530,7 @@ class LangGraphChatService:
     ) -> Dict[str, Any]:
         """Create a new conversation."""
         try:
-            user = User.query.get(user_id)
+            user = db.session.get(User, user_id)
             if not user:
                 return {"error": "User not found", "success": False}
 
@@ -574,8 +574,8 @@ class LangGraphChatService:
     ) -> Dict[str, Any]:
         """Get conversation with messages."""
         try:
-            conversation = ChatConversation.query.get(conversation_id)
-            if not conversation or conversation.user_id != user_id:
+            conversation = db.session.get(ChatConversation, conversation_id)
+            if not conversation or conversation.user_id != user_id or not conversation.is_active:
                 return {"error": "Conversation not found", "success": False}
 
             messages = (
@@ -625,7 +625,7 @@ class LangGraphChatService:
     ) -> Dict[str, Any]:
         """Soft-delete a conversation."""
         try:
-            conversation = ChatConversation.query.get(conversation_id)
+            conversation = db.session.get(ChatConversation, conversation_id)
             if not conversation or conversation.user_id != user_id:
                 return {"error": "Conversation not found", "success": False}
 
@@ -647,7 +647,7 @@ class LangGraphChatService:
     ) -> Dict[str, Any]:
         """Update conversation title."""
         try:
-            conversation = ChatConversation.query.get(conversation_id)
+            conversation = db.session.get(ChatConversation, conversation_id)
             if not conversation or conversation.user_id != user_id:
                 return {"error": "Conversation not found", "success": False}
 
@@ -666,7 +666,7 @@ class LangGraphChatService:
     ) -> Dict[str, Any]:
         """Generate AI-powered conversation summary."""
         try:
-            conversation = ChatConversation.query.get(conversation_id)
+            conversation = db.session.get(ChatConversation, conversation_id)
             if not conversation or conversation.user_id != user_id:
                 return {"error": "Conversation not found", "success": False}
 
@@ -804,7 +804,7 @@ Format as clear, concise bullet points."""
         Ported from EnhancedChatServiceV2.get_conversation_with_context()
         """
         try:
-            conversation = ChatConversation.query.get(conversation_id)
+            conversation = db.session.get(ChatConversation, conversation_id)
             if not conversation or conversation.user_id != user_id:
                 return {"error": "Conversation not found", "success": False}
 
@@ -893,7 +893,7 @@ Format as clear, concise bullet points."""
     ) -> Dict[str, Any]:
         """Export conversation in specified format."""
         try:
-            conversation = ChatConversation.query.get(conversation_id)
+            conversation = db.session.get(ChatConversation, conversation_id)
             if not conversation or conversation.user_id != user_id:
                 return {"error": "Conversation not found", "success": False}
 

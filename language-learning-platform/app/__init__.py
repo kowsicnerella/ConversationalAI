@@ -238,7 +238,7 @@ def create_app(config_name="development"):
                 cluster_url=weaviate_cfg["cluster_url"],
                 api_key=weaviate_cfg["api_key"],
                 collection_name=weaviate_cfg["collection_name"],
-                embeddings=LangChainConfig.get_embeddings(),
+                embeddings=LangChainConfig.get_embeddings_with_fallback(),
                 text_key=weaviate_cfg.get("text_key", "content"),
             )
 

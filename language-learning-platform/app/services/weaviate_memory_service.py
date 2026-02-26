@@ -72,6 +72,8 @@ class WeaviateMemoryService:
                 auth_credentials=Auth.api_key(api_key),
             )
 
+            self._ensure_collection_exists(collection_name)
+
             from langchain_weaviate import WeaviateVectorStore
 
             self._vector_store = WeaviateVectorStore(
@@ -91,6 +93,27 @@ class WeaviateMemoryService:
             self._client = None
             self._vector_store = None
             self._initialized = True  # Mark as initialized to prevent retries
+
+    def _ensure_collection_exists(self, collection_name: str) -> None:
+        """Create the Weaviate collection with proper schema if it doesn't exist."""
+        if self._client.collections.exists(collection_name):
+            logger.info(f"Collection '{collection_name}' already exists")
+            return
+
+        from weaviate.classes.config import Configure, Property, DataType
+
+        self._client.collections.create(
+            name=collection_name,
+            vectorizer_config=Configure.Vectorizer.none(),
+            properties=[
+                Property(name="content", data_type=DataType.TEXT),
+                Property(name="user_id", data_type=DataType.TEXT),
+                Property(name="memory_type", data_type=DataType.TEXT),
+                Property(name="conversation_id", data_type=DataType.TEXT),
+                Property(name="timestamp", data_type=DataType.TEXT),
+            ],
+        )
+        logger.info(f"Created Weaviate collection '{collection_name}' with schema")
 
     @property
     def is_available(self) -> bool:

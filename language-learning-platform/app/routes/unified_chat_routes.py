@@ -197,9 +197,9 @@ def get_messages(conversation_id):
         limit = request.args.get("limit", 50, type=int)
         offset = request.args.get("offset", 0, type=int)
 
-        from app.models import ChatConversation, ChatMessage
+        from app.models import db, ChatConversation, ChatMessage
 
-        conversation = ChatConversation.query.get(conversation_id)
+        conversation = db.session.get(ChatConversation, conversation_id)
         if not conversation or conversation.user_id != user_id:
             return (
                 jsonify({"error": "Conversation not found", "success": False}),
@@ -477,7 +477,7 @@ def web_search():
                 400,
             )
 
-        from duckduckgo_search import DDGS
+        from ddgs import DDGS
 
         ddgs = DDGS()
         results = []

@@ -296,6 +296,11 @@ class LangChainConfig:
                         f"Skipping openai_compatible provider: base_url not configured"
                     )
                     return None
+                # ChatOpenAI appends /chat/completions internally,
+                # so strip it if the user provided the full endpoint URL.
+                base_url = base_url.rstrip("/")
+                if base_url.endswith("/chat/completions"):
+                    base_url = base_url[: -len("/chat/completions")]
                 kwargs["base_url"] = base_url
 
             return ChatOpenAI(**kwargs)
@@ -317,15 +322,42 @@ class LangChainConfig:
             logger.warning(f"Unknown LLM provider type: {provider_type}")
             return None
 
+    @classmethod
+    def get_embeddings_with_fallback(cls) -> Embeddings:
+        """
+        Returns the highest-priority embedding provider available.
+        Tries providers in priority order; skips any that failed to initialize.
+
+        vLLM (priority 1) -> Gemini (priority 2) -> ...
+
+        Returns:
+            Embeddings instance from the first available provider
+
+        Raises:
+            RuntimeError: If no embedding providers are available
+        """
+        cls._ensure_initialized()
+
+        if not cls._embedding_priority:
+            raise RuntimeError(
+                "No embedding providers available. Check llm_providers.yaml and .env"
+            )
+
+        # Return the highest-priority successfully initialized provider.
+        # Providers that failed during initialize() are never added to
+        # _embedding_instances, so the first entry is the best available.
+        return cls._embedding_instances[cls._embedding_priority[0]]
+
     @staticmethod
     def _create_embeddings(config: Dict[str, Any]) -> Optional[Embeddings]:
         """
         Factory method: create Embeddings from config dict.
 
         Supported types:
-          - 'google_genai'  -> GoogleGenerativeAIEmbeddings
-          - 'openai'        -> OpenAIEmbeddings
-          - 'huggingface'   -> HuggingFaceEmbeddings
+          - 'openai_compatible' -> OpenAIEmbeddings(base_url=...) for vLLM/Ollama
+          - 'openai'            -> OpenAIEmbeddings
+          - 'google_genai'      -> GoogleGenerativeAIEmbeddings
+          - 'huggingface'       -> HuggingFaceEmbeddings
         """
         provider_type = config.get("type", "")
         model = config.get("model", "")
@@ -334,7 +366,32 @@ class LangChainConfig:
         if not model:
             return None
 
-        if provider_type == "google_genai":
+        if provider_type in ("openai_compatible", "openai"):
+            from langchain_openai import OpenAIEmbeddings
+
+            kwargs: Dict[str, Any] = {
+                "model": model,
+                "api_key": api_key or "not-needed",
+            }
+
+            if provider_type == "openai_compatible":
+                base_url = config.get("base_url", "")
+                if not base_url or "None" in base_url:
+                    logger.warning(
+                        "Skipping openai_compatible embedding provider: "
+                        "base_url not configured (check VLLM_ENDPOINT in .env)"
+                    )
+                    return None
+                # OpenAIEmbeddings appends /embeddings internally,
+                # so strip it if the user provided the full endpoint URL.
+                base_url = base_url.rstrip("/")
+                if base_url.endswith("/embeddings"):
+                    base_url = base_url[: -len("/embeddings")]
+                kwargs["base_url"] = base_url
+
+            return OpenAIEmbeddings(**kwargs)
+
+        elif provider_type == "google_genai":
             from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
             if not api_key:
@@ -344,11 +401,6 @@ class LangChainConfig:
                 model=model,
                 google_api_key=api_key,
             )
-
-        elif provider_type == "openai":
-            from langchain_openai import OpenAIEmbeddings
-
-            return OpenAIEmbeddings(model=model, api_key=api_key)
 
         elif provider_type == "huggingface":
             from langchain_huggingface import HuggingFaceEmbeddings
