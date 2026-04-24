@@ -11,8 +11,9 @@ from app.models import (
     AIConversationContext,
     UserPracticeSession,
 )
-from app.services.activity_generator_service import ActivityGeneratorService
+from app.services.activity_generator_service import ActivityGeneratorService, _extract_json_from_response
 from app.services.personalization_service import PersonalizationService
+from app.services.llm_config import LLMConfig
 from datetime import datetime
 import json
 
@@ -125,20 +126,34 @@ def generate_general_questions():
             
             result = LLMConfig.generate_text(prompt, json_mode=True)
             if not result['success']:
+                current_app.logger.warning(f"LLM generation failed: {result.get('error')}")
                 questions = []
             else:
                 response_data = _extract_json_from_response(result['text'])
                 
+                # Check if JSON parsing failed (response contains error key)
+                if isinstance(response_data, dict) and 'error' in response_data:
+                    current_app.logger.warning(f"JSON parsing error: {response_data.get('error')}")
+                    current_app.logger.debug(f"Raw response: {result['text'][:500]}")  # Log first 500 chars
+                    questions = []
                 # Handle if response is wrapped in a parent object
-                if isinstance(response_data, dict) and 'questions' in response_data:
+                elif isinstance(response_data, dict) and 'questions' in response_data:
                     questions = response_data['questions']
                 elif isinstance(response_data, list):
                     questions = response_data
                 else:
+                    current_app.logger.warning(f"Unexpected response format: {type(response_data)}")
                     questions = []
                 
-                # Ensure each question has proper structure
+                # Filter and validate questions
+                valid_questions = []
                 for i, q in enumerate(questions):
+                    # Only process if q is a dictionary
+                    if not isinstance(q, dict):
+                        current_app.logger.warning(f"Question {i} is not a dict, skipping: {type(q)}")
+                        continue
+                    
+                    # Ensure each question has proper structure
                     if not q.get("question_id"):
                         q["question_id"] = f"q_{i+1}"
                     if not q.get("type"):
@@ -149,6 +164,10 @@ def generate_general_questions():
                         q["difficulty_level"] = difficulty
                     if not q.get("points"):
                         q["points"] = 10
+                    
+                    valid_questions.append(q)
+                
+                questions = valid_questions
 
             # If AI failed or returned no questions, create fallback questions
             if len(questions) < num_questions:
@@ -348,10 +367,15 @@ def submit_general_answer():
         """
 
         try:
-            ai_response = activity_service.model.generate_content(feedback_prompt)
-            feedback_data = activity_service._extract_json_from_response(
-                ai_response.text
-            )
+            result = LLMConfig.generate_text(feedback_prompt, json_mode=True)
+            if result['success']:
+                feedback_data = _extract_json_from_response(result['text'])
+                # Check if JSON parsing failed
+                if isinstance(feedback_data, dict) and 'error' in feedback_data:
+                    current_app.logger.warning(f"JSON parsing error in feedback: {feedback_data.get('error')}")
+                    raise Exception("Failed to parse feedback JSON")
+            else:
+                raise Exception(result.get('error', 'LLM generation failed'))
         except Exception as e:
             current_app.logger.warning(f"AI feedback generation failed: {str(e)}")
             # Fallback feedback
@@ -917,8 +941,11 @@ def _generate_adaptive_questions(
         }}
         """
 
-        response = activity_service.model.generate_content(prompt)
-        questions_data = activity_service._extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(prompt, json_mode=True)
+        if not result['success']:
+            current_app.logger.error(f"LLM generation failed: {result.get('error')}")
+            return _get_fallback_questions(chapter, num_questions, question_types)
+        questions_data = _extract_json_from_response(result['text'])
 
         return questions_data.get("questions", [])
 
@@ -1002,9 +1029,18 @@ def _generate_session_summary(session):
         Include both English and Telugu text.
         """
 
-        response = activity_service.model.generate_content(prompt)
+        result = LLMConfig.generate_text(prompt, json_mode=False)
+        if not result['success']:
+            current_app.logger.error(f"LLM generation failed: {result.get('error')}")
+            return {
+                "ai_summary": "Session completed successfully!",
+                "score_analysis": _analyze_score_performance(session.score_percentage),
+                "recommendations": _get_performance_recommendations(
+                    session.score_percentage
+                ),
+            }
         return {
-            "ai_summary": response.text.strip(),
+            "ai_summary": result['text'].strip(),
             "score_analysis": _analyze_score_performance(session.score_percentage),
             "recommendations": _get_performance_recommendations(
                 session.score_percentage

@@ -1015,13 +1015,14 @@ def get_activity_performance_analysis():
         ```
         """
 
-        from app.services.activity_generator_service import ActivityGeneratorService
-
-        activity_service = ActivityGeneratorService()
-        response = activity_service.model.generate_content(insights_prompt)
+        from app.services.llm_config import LLMConfig
         from app.services.activity_generator_service import _extract_json_from_response
 
-        ai_insights = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(insights_prompt, json_mode=True)
+        if not result['success']:
+            ai_insights = {"error": "AI analysis not available", "raw_response": result.get('error')}
+        else:
+            ai_insights = _extract_json_from_response(result['text'])
 
         return (
             jsonify(
@@ -1213,13 +1214,14 @@ def analyze_learning_patterns():
         ```
         """
 
-        from app.services.activity_generator_service import ActivityGeneratorService
-
-        activity_service = ActivityGeneratorService()
-        response = activity_service.model.generate_content(pattern_analysis_prompt)
+        from app.services.llm_config import LLMConfig
         from app.services.activity_generator_service import _extract_json_from_response
 
-        pattern_analysis = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(pattern_analysis_prompt, json_mode=True)
+        if not result['success']:
+            pattern_analysis = {"error": "AI analysis not available", "raw_response": result.get('error')}
+        else:
+            pattern_analysis = _extract_json_from_response(result['text'])
 
         return (
             jsonify(
@@ -1411,13 +1413,14 @@ def get_engagement_analytics():
         ```
         """
 
-        from app.services.activity_generator_service import ActivityGeneratorService
-
-        activity_service = ActivityGeneratorService()
-        response = activity_service.model.generate_content(insights_prompt)
+        from app.services.llm_config import LLMConfig
         from app.services.activity_generator_service import _extract_json_from_response
 
-        engagement_insights = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(insights_prompt, json_mode=True)
+        if not result['success']:
+            engagement_insights = {"error": "AI analysis not available", "raw_response": result.get('error')}
+        else:
+            engagement_insights = _extract_json_from_response(result['text'])
 
         return (
             jsonify(
@@ -1586,13 +1589,14 @@ def get_predictive_analytics():
         ```
         """
 
-        from app.services.activity_generator_service import ActivityGeneratorService
-
-        activity_service = ActivityGeneratorService()
-        response = activity_service.model.generate_content(prediction_prompt)
+        from app.services.llm_config import LLMConfig
         from app.services.activity_generator_service import _extract_json_from_response
 
-        predictions = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(prediction_prompt, json_mode=True)
+        if not result['success']:
+            predictions = {"error": "AI predictions not available", "raw_response": result.get('error')}
+        else:
+            predictions = _extract_json_from_response(result['text'])
 
         return (
             jsonify(

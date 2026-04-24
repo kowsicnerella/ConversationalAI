@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from app.models import db, User, LearningSession
-from app.services.activity_generator_service import ActivityGeneratorService
+from app.services.activity_generator_service import ActivityGeneratorService, _extract_json_from_response
+from app.services.llm_config import LLMConfig
 import os
 import uuid
 from datetime import datetime
@@ -437,10 +438,11 @@ def generate_pronunciation_exercise():
         """
 
         try:
-            ai_response = activity_service.model.generate_content(exercise_prompt)
-            exercise_content = activity_service._extract_json_from_response(
-                ai_response.text
-            )
+            result = LLMConfig.generate_text(exercise_prompt, json_mode=True)
+            if result['success']:
+                exercise_content = _extract_json_from_response(result['text'])
+            else:
+                raise Exception(result.get('error', 'LLM generation failed'))
         except Exception as ai_error:
             current_app.logger.warning(f"AI content generation failed: {str(ai_error)}")
             # Fallback exercise content

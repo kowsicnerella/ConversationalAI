@@ -9,7 +9,7 @@ from app.models.curriculum import LearningNode, UserLearningPathProgress, NodeCo
 
 def _extract_json_from_response(text):
     """
-    Extracts a JSON object from a string response, handling markdown code blocks and partial responses.
+    Extracts a JSON object or array from a string response, handling markdown code blocks and partial responses.
     """
     # Use the centralized JSON cleaning method
     text = LLMConfig._clean_json_response(text)
@@ -19,12 +19,21 @@ def _extract_json_from_response(text):
     except json.JSONDecodeError:
         # Try to extract JSON from partial responses or fix common issues
         try:
-            # Look for JSON-like content between curly braces
+            # First, try to find array syntax
+            start_idx = text.find('[')
+            if start_idx != -1:
+                end_idx = text.rfind(']')
+                if end_idx != -1 and end_idx > start_idx:
+                    json_candidate = text[start_idx:end_idx+1]
+                    return json.loads(json_candidate)
+            
+            # Then try to find object syntax
             start_idx = text.find('{')
-            end_idx = text.rfind('}')
-            if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
-                json_candidate = text[start_idx:end_idx+1]
-                return json.loads(json_candidate)
+            if start_idx != -1:
+                end_idx = text.rfind('}')
+                if end_idx != -1 and end_idx > start_idx:
+                    json_candidate = text[start_idx:end_idx+1]
+                    return json.loads(json_candidate)
         except json.JSONDecodeError:
             pass
         

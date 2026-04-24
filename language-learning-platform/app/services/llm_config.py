@@ -57,10 +57,10 @@ class LLMConfig:
     # Model configurations
     MODELS = {
         LLMProvider.GEMINI: {
-            "text": "gemini-2.0-flash-exp",
-            "vision": "gemini-2.0-flash-exp",
-            "audio": "gemini-2.0-flash-exp",
-            "multimodal": "gemini-2.0-flash-exp",
+            "text": "models/gemma-3-27b-it",
+            "vision": "models/gemma-3-27b-it",
+            "audio": "models/gemma-3-27b-it",
+            "multimodal": "models/gemma-3-27b-it",
         },
         LLMProvider.OPENAI: {
             "text": "gpt-4",

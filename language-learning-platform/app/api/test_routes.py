@@ -11,6 +11,7 @@ from app.models import (
 )
 from app.services.activity_generator_service import ActivityGeneratorService
 from app.services.practice_agent_service import PracticeAgentService
+from app.services.llm_config import LLMConfig
 from datetime import datetime
 import json
 
@@ -933,8 +934,10 @@ def _generate_performance_insights(test):
         Focus on strengths, areas for improvement, and next steps.
         """
 
-        response = activity_service.model.generate_content(insights_prompt)
-        return response.text.strip()
+        result = LLMConfig.generate_text(insights_prompt, json_mode=False)
+        if result['success']:
+            return result['text'].strip()
+        return "Test completed successfully. Continue practicing to improve your English skills!"
 
     except Exception as e:
         return "Test completed successfully. Continue practicing to improve your English skills!"

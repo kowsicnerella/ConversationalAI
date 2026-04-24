@@ -11,8 +11,9 @@ from app.models import (
     ChapterDependency,
     AIConversationContext,
 )
-from app.services.activity_generator_service import ActivityGeneratorService
+from app.services.activity_generator_service import ActivityGeneratorService, _extract_json_from_response
 from app.services.personalization_service import PersonalizationService
+from app.services.llm_config import LLMConfig
 from datetime import datetime
 import json
 
@@ -681,10 +682,11 @@ def create_custom_chapter():
         ```
         """
 
-        response = activity_service.model.generate_content(generation_prompt)
-        from app.services.activity_generator_service import _extract_json_from_response
-
-        chapter_content = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(generation_prompt, json_mode=True)
+        if not result['success']:
+            chapter_content = {"error": "Failed to generate content", "raw_response": result.get('error')}
+        else:
+            chapter_content = _extract_json_from_response(result['text'])
 
         # Create new chapter
         new_chapter = Chapter(
@@ -815,10 +817,11 @@ def get_adaptive_chapter_content(chapter_id):
         ```
         """
 
-        response = activity_service.model.generate_content(adaptation_prompt)
-        from app.services.activity_generator_service import _extract_json_from_response
-
-        adaptive_content = _extract_json_from_response(response.text)
+        result = LLMConfig.generate_text(adaptation_prompt, json_mode=True)
+        if not result['success']:
+            adaptive_content = {"error": "Failed to generate content", "raw_response": result.get('error')}
+        else:
+            adaptive_content = _extract_json_from_response(result['text'])
 
         return (
             jsonify(
